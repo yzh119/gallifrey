@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/slhome/zhy96/gallifrey/src/main.cpp
+shader.h
+/home/slhome/zhy96/gallifrey/src/shader.h
+output_ppm.h
+/home/slhome/zhy96/gallifrey/src/output_ppm.h
+
+/home/slhome/zhy96/gallifrey/src/output_ppm.h
+string
+-
+iostream
+-
+
+/home/slhome/zhy96/gallifrey/src/shader.h
+

@@ -1,0 +1,6 @@
+/home/slhome/zhy96/clion-2016.3.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/slhome/zhy96/gallifrey
+-- Boost version: 1.62.0
+-- Found OpenGL: /usr/lib/x86_64-linux-gnu/libGL.so  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/slhome/zhy96/gallifrey/cmake-build-debug
