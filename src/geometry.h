@@ -1,5 +1,5 @@
 //
-// Created by zhy96 on 3/23/17.
+// Created by zihao on 2017/3/23.
 //
 
 #ifndef GALLIFREY_GEOMETRY_H

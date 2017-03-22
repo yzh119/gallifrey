@@ -1,3 +1,3 @@
-/home/slhome/zhy96/gallifrey/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/slhome/zhy96/gallifrey/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/slhome/zhy96/gallifrey/cmake-build-debug/CMakeFiles/gallifrey.dir
+C:/Users/zihao/Documents/GitHub/gallifrey/cmake-build-debug/CMakeFiles/gallifrey.dir
+C:/Users/zihao/Documents/GitHub/gallifrey/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/zihao/Documents/GitHub/gallifrey/cmake-build-debug/CMakeFiles/rebuild_cache.dir

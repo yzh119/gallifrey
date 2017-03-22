@@ -1,6 +1,4 @@
-/home/slhome/zhy96/clion-2016.3.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/slhome/zhy96/gallifrey
--- Boost version: 1.62.0
--- Found OpenGL: /usr/lib/x86_64-linux-gnu/libGL.so  
+"C:\Program Files (x86)\JetBrains\CLion 2016.3.5\bin\cmake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\Users\zihao\Documents\GitHub\gallifrey
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/slhome/zhy96/gallifrey/cmake-build-debug
+-- Build files have been written to: C:/Users/zihao/Documents/GitHub/gallifrey/cmake-build-debug

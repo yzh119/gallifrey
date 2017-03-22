@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/slhome/zhy96/gallifrey/src/main.cpp" "/home/slhome/zhy96/gallifrey/cmake-build-debug/CMakeFiles/gallifrey.dir/src/main.cpp.o"
+  "C:/Users/zihao/Documents/GitHub/gallifrey/src/main.cpp" "C:/Users/zihao/Documents/GitHub/gallifrey/cmake-build-debug/CMakeFiles/gallifrey.dir/src/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -1,14 +1,10 @@
 //
-// Created by zhy96 on 3/22/17.
+// Created by zihao on 2017/3/23.
 //
 
 #ifndef GALLIFREY_SHADER_H
 #define GALLIFREY_SHADER_H
 
-class shader{
-private:
 
-public:
-};
 
 #endif //GALLIFREY_SHADER_H

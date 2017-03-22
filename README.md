@@ -11,6 +11,7 @@ To implement an <del>efficient Ray</del> Tracing algorithm.
 	
 	imgui 		// (https://github.com/abcdabcd987/ray-tracing.git)
 	PLY Tools 	// (http://www.cc.gatech.edu/projects/large_models/files/ply.tar.gz)
+	bitmap		// (https://github.com/ArashPartow/bitmap.git)
 
 ## Milestone
 - [ ] Shader

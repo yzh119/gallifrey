@@ -6,17 +6,27 @@
 
 #IncludeRegexTransform: 
 
-/home/slhome/zhy96/gallifrey/src/main.cpp
-shader.h
-/home/slhome/zhy96/gallifrey/src/shader.h
-output_ppm.h
-/home/slhome/zhy96/gallifrey/src/output_ppm.h
+../vendor/ply/ply.h
+stdio.h
+-
+stddef.h
+-
 
-/home/slhome/zhy96/gallifrey/src/output_ppm.h
+C:/Users/zihao/Documents/GitHub/gallifrey/src/io.h
+ply.h
+C:/Users/zihao/Documents/GitHub/gallifrey/src/ply.h
 string
 -
-iostream
+cstdlib
+-
+climits
 -
 
-/home/slhome/zhy96/gallifrey/src/shader.h
+C:/Users/zihao/Documents/GitHub/gallifrey/src/main.cpp
+shader.h
+C:/Users/zihao/Documents/GitHub/gallifrey/src/shader.h
+io.h
+C:/Users/zihao/Documents/GitHub/gallifrey/src/io.h
+
+C:/Users/zihao/Documents/GitHub/gallifrey/src/shader.h
 
