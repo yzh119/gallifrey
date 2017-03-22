@@ -6,38 +6,36 @@
 #define GALLIFREY_IO_H
 
 #include "ply.h"
+#include "bitmap_image.hpp"
 #include <string>
 #include <cstdlib>
 #include <climits>
-#include "
 
 const unsigned int width = 640;
 const unsigned int height = 480;
 
 /*
- * Generate .ppm file from pixels.
+ * Generate .bmp file from pixels.
  */
-void output_ppm(const std::string &filename, uint8_t *col)
+void dump_bitmap(const std::string &filename, uint8_t *col)
 {
-    FILE *f = fopen(filename.c_str(), "w");
-    fprintf(f, "P3\n");
-    fprintf(f, "%d %d\n", width, height);
-    fprintf(f, "255\n");
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
+    bitmap_image dump(width, height);
+    for (unsigned int y = 0; y < height; ++y)
+        for (unsigned int x = 0; x < width; ++x)
         {
             int pos = y * width + x;
-            fprintf(f, "%u\t%u\t%u\t", col[3 * pos], col[3 * pos + 1], col[3 * pos + 2]);
+            rgb_t c;
+            c.red   = col[3 * pos];
+            c.green = col[3 * pos + 1];
+            c.blue  = col[3 * pos + 2];
+            dump.set_pixel(x, y, c);
         }
-        fprintf(f, "\n");
-    }
-    fclose(f);
+    dump.save_image(filename);
     return;
 }
 
 /*
- * Generate noise picture to test 'output_to_ppm'.
+ * Generate noise picture to test 'output_to_bmp'.
  */
 void fill_pic_with_noise(uint8_t *col)
 {

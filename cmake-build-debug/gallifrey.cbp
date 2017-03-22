@@ -25,6 +25,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/zihao/Documents/GitHub/gallifrey/vendor/ply"/>
+					<Add directory="C:/Users/zihao/Documents/GitHub/gallifrey/vendor/bitmap"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/../../../../include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/include-fixed"/>
@@ -48,6 +49,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/zihao/Documents/GitHub/gallifrey/vendor/ply"/>
+					<Add directory="C:/Users/zihao/Documents/GitHub/gallifrey/vendor/bitmap"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/../../../../include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/4.9.3/include-fixed"/>

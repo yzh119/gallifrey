@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 project(gallifrey)
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories( ${PROJECT_SOURCE_DIR}/vendor/ply )
+set(PLY_PATH
+        vendor/ply)
+set(BITMAP_PATH
+        vendor/bitmap)
+
+include_directories( ${PLY_PATH} ${BITMAP_PATH} )
 
 #find_package(Boost REQUIRED)
 #find_package(OpenGL REQUIRED)

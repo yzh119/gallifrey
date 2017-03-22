@@ -6,6 +6,28 @@
 
 #IncludeRegexTransform: 
 
+../vendor/bitmap/bitmap_image.hpp
+algorithm
+-
+cmath
+-
+cstdlib
+-
+cstring
+-
+fstream
+-
+iostream
+-
+iterator
+-
+limits
+-
+string
+-
+vector
+-
+
 ../vendor/ply/ply.h
 stdio.h
 -
@@ -15,6 +37,8 @@ stddef.h
 C:/Users/zihao/Documents/GitHub/gallifrey/src/io.h
 ply.h
 C:/Users/zihao/Documents/GitHub/gallifrey/src/ply.h
+bitmap_image.hpp
+C:/Users/zihao/Documents/GitHub/gallifrey/src/bitmap_image.hpp
 string
 -
 cstdlib

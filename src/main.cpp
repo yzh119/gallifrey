@@ -11,6 +11,6 @@ int main(int argc, char *argv[])
 {
     uint8_t col[3 * width * height];
     fill_pic_with_noise(col);
-    output_ppm("../out/dump.ppm", col);
+    dump_bitmap("../out/dump.bmp", col);
     return 0;
 }
