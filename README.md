@@ -3,15 +3,16 @@ Course assignment(midterm) of CS230.
 
 To implement an <del>efficient Ray</del> Tracing algorithm.
 
+## Report
+
+[report](http://blog.expye.com/post/study/2017-03-25-ray-tracing) (@ my blog)
+
+
 ## Requirements
 
-	C++ Boost Library
-
-## Modules
-	
-	imgui 		// (https://github.com/abcdabcd987/ray-tracing.git)
-	PLY Tools 	// (http://www.cc.gatech.edu/projects/large_models/files/ply.tar.gz)
-	bitmap		// (https://github.com/ArashPartow/bitmap.git)
+- C++ Boost Library
+- bitmap
+- imgui
 
 ## Milestone
 - [ ] Shader
@@ -23,6 +24,10 @@ To implement an <del>efficient Ray</del> Tracing algorithm.
 - [ ] Semitransparent
 - [ ] Color Bleed
 - [ ] Texture
-- [ ] Document
-- [ ] GUI
+
+## Demo
+
+## Reference
+- Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
+- SAH kd-tree: http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf
 
