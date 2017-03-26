@@ -7,22 +7,53 @@
 
 #include <array>
 
-class Vertex
-{
-private:
-    float x, y, z, w;
-public:
-    Vertex(float x = 0, float y = 0, float z = 0, float w = 0): x(x), y(y), z(z), w(w) {}
-    ~Vertex() {}
-};
-
-class Vector
+class Vec
 {
 private:
     float x, y, z;
 public:
-    Vector(float x = 0, float y = 0, float z = 0): x(x), y(y), z(z) {}
-    ~Vector() {}
+    Vec(float x = 0, float y = 0, float z = 0): x(x), y(y), z(z) {}
+    ~Vec() {}
+    Vec operator + (const Vec &b) const ;
+    Vec operator - (const Vec &b) const ;
+    Vec operator * (float b) const ;
+    Vec operator % (const Vec &b) const ;
+    Vec& norm();
+    float dot(const Vec &b) const ;
+};
+
+Vec &Vec::norm() {
+    return *this = *this * (1 / sqrt(x * x + y * y + z * z));
+}
+
+Vec Vec::operator*(float b) const {
+    return Vec(b * x, b * y, b * z);
+}
+
+Vec Vec::operator+(const Vec &b) const{
+    return Vec(x + b.x, y + b.y, z + b.z);
+}
+
+Vec Vec::operator-(const Vec &b) const {
+    return Vec(x - b.x, y + b.y, z - b.z);
+}
+
+float Vec::dot(const Vec &b) const {
+    return x * b.x + y * b.y + z * b.z;
+}
+
+Vec Vec::operator%(const Vec &b) const {
+    return Vec(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
+}
+
+class Ray
+{
+private:
+    Vec o, d;
+public:
+    Ray(const Vec &o, const Vec &d): o(o), d(d) {}
+    ~Ray() {}
+
 };
 
 class Face
@@ -34,13 +65,14 @@ private:
 public:
     Face() {}
     ~Face() {}
-    void add_vx(int idx_f, int idx_vn, int idx_vx);
+    inline void add_vx(int idx_f, int idx_vn, int idx_vx);
     size_t get_size() const {
         return sz;
     }
+    inline int get_elem_idxF(int idx);
 };
 
-void Face::add_vx(int idx_f, int idx_vn, int idx_vx) {
+inline void Face::add_vx(int idx_f, int idx_vn, int idx_vx) {
     if (sz < 4) {
         idxF[sz] = idx_f;
         idxVn[sz] = idx_vn;
@@ -53,6 +85,14 @@ void Face::add_vx(int idx_f, int idx_vn, int idx_vx) {
         ++sz;
     }
     return;
+}
+
+inline int Face::get_elem_idxF(int idx) {
+    if (idx < 4) {
+        return idxF[idx];
+    }
+    idx -= 4;
+    return extra_idxF[idx];
 }
 
 

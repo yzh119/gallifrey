@@ -7,13 +7,13 @@ set(BITMAP_PATH
 
 include_directories( ${BITMAP_PATH} )
 
-find_package(Boost REQUIRED)
-find_package(OpenGL REQUIRED)
+#find_package(Boost REQUIRED)
+#find_package(OpenGL REQUIRED)
 
-include_directories(${OPENGL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+#include_directories(${OPENGL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 set(SOURCE_CODE
-        src/main.cpp src/geometry.h src/shader.h src/io.h)
+        src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracer.h)
 
 add_executable(gallifrey
         ${SOURCE_CODE} )

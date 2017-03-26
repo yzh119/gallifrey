@@ -1,7 +1,7 @@
 #  Viewpoint Datalabs International, Inc.  Copyright 1996
 
 
-mtllib ./vp.mtl
+# mtllib ./vp.mtl
 
 g
 v 2.712726 -2.398764 -2.492640

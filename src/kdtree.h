@@ -5,4 +5,13 @@
 #ifndef GALLIFREY_KDTREE_H
 #define GALLIFREY_KDTREE_H
 
+class KDTree {
+private:
+
+public:
+    KDTree() {
+
+    }
+};
+
 #endif //GALLIFREY_KDTREE_H

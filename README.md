@@ -5,7 +5,7 @@ To implement an <del>efficient Ray</del> Tracing algorithm.
 
 ## Report
 
-[report](http://blog.expye.com/post/study/2017-03-25-ray-tracing) (@ my blog)
+[report](http://blog.expye.com/post/study/2017-03-25-ray-Tracer) (@ my blog)
 
 
 ## Requirements
