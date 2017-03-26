@@ -22,8 +22,9 @@ To implement an <del>efficient Ray</del> Tracing algorithm.
 - [ ] Transmission
 - [ ] Transparent
 - [ ] Semitransparent
-- [ ] Color Bleed
+- [ ] Color Bleeding
 - [ ] Texture
+- [ ] OpenMP
 
 ## Demo
 

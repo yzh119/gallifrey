@@ -7,6 +7,11 @@
 
 #include <array>
 
+/*
+ * Class Vector:
+ * - vector
+ * - vertex
+ */
 class Vec
 {
 private:
@@ -46,14 +51,18 @@ Vec Vec::operator%(const Vec &b) const {
     return Vec(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 }
 
+/*
+ * Class Ray
+ */
 class Ray
 {
 private:
-    Vec o, d;
+    Vec o;
 public:
     Ray(const Vec &o, const Vec &d): o(o), d(d) {}
     ~Ray() {}
 
+    Vec d;
 };
 
 class Face
@@ -95,5 +104,10 @@ inline int Face::get_elem_idxF(int idx) {
     return extra_idxF[idx];
 }
 
+// INTERSECTS RAY WITH SCENE
+inline bool naive_intersect(const Ray &r, double &t, int &id) {
+    // TODO
+    return false;
+}
 
 #endif //GALLIFREY_GEOMETRY_H
