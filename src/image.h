@@ -28,17 +28,26 @@ public:
         output  = new uint8_t[3 * width * height];
     }
 
-    uint8_t *to_pixels() {
-        for (unsigned int y = 0; y < height; ++y)
-            for (unsigned int x = 0; x < width; ++x)
-            {
-                int pos = y * width + x;
-                output[3 * pos]     = to_int(col[3 * pos]);
-                output[3 * pos + 1] = to_int(col[3 * pos + 1]);
-                output[3 * pos + 2] = to_int(col[3 * pos + 2]);
-            }
-        return output;
-    }
+    inline void set_pixel(int x, int y, float radiance);    // Set pixel at coordinate (x, y)
+    inline uint8_t *to_bmp_pixel();                         // Convert float pixel (range from 0 to 1) to int8 pixel(range from 0 to 255).
 };
+
+void Image::set_pixel(int x, int y, float radiance)
+{
+    int pos = y * width + x;
+    this->col[pos] = radiance;
+}
+
+uint8_t *Image::to_bmp_pixel() {
+    for (unsigned int y = 0; y < height; ++y)
+        for (unsigned int x = 0; x < width; ++x)
+        {
+            int pos = (height - y - 1) * width + x;
+            output[3 * pos]     = to_int(col[3 * pos]);
+            output[3 * pos + 1] = to_int(col[3 * pos + 1]);
+            output[3 * pos + 2] = to_int(col[3 * pos + 2]);
+        }
+    return output;
+}
 
 #endif //GALLIFREY_IMAGE_H

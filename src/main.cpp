@@ -19,11 +19,12 @@ int main(int argc, char *argv[])
 
     obj_loader((char *) "../resources/roi.obj", fArray, vnArray, vxArray, la, lb, lc);
     printf("%d %d %d\n", (int) la, (int) lb, (int) lc);
+    test_intersection();
     /*
     for (int i = 0; i < la; i++) {
         printf("%d\n", fArray[i].get_size());
         for (int j = 0; j < fArray[i].get_size(); j++) {
-            printf("%d ", fArray[i].get_elem_idxF(j));
+            printf("%d ", fArray[i].get_elem_idxV(j));
         }
         printf("\n");
     }*/

@@ -13,7 +13,7 @@ include_directories( ${BITMAP_PATH} )
 #include_directories(${OPENGL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 set(SOURCE_CODE
-        src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracer.h src/colors.h src/image.h)
+        src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracer.h src/colors.h src/image.h src/material.h)
 
 add_executable(gallifrey
         ${SOURCE_CODE} )

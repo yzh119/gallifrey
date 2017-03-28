@@ -5,10 +5,17 @@
 #ifndef GALLIFREY_GEOMETRY_H
 #define GALLIFREY_GEOMETRY_H
 
+#include "material.h"
+#include <cassert>
+#include <cmath>
+
+const float pi = (const float) acos(-1.);
+
 /*
  * Class Vector:
- * - vector
- * - vertex
+ * - Vector
+ * - Vertex
+ * - Color
  */
 class Vec
 {
@@ -25,6 +32,7 @@ public:
     Vec& norm();
     float dot(const Vec &b) const ;
 };
+
 
 Vec &Vec::norm()
 {
@@ -43,7 +51,7 @@ Vec Vec::operator+(const Vec &b) const
 
 Vec Vec::operator-(const Vec &b) const
 {
-    return Vec(x - b.x, y + b.y, z - b.z);
+    return Vec(x - b.x, y - b.y, z - b.z);
 }
 
 float Vec::dot(const Vec &b) const
@@ -64,6 +72,8 @@ void Vec::set_coordinate(float x, float y, float z) {
 
 /*
  * Class Ray
+ * o: origin
+ * d: direction
  */
 class Ray
 {
@@ -78,32 +88,38 @@ public:
 class Face
 {
 private:
-    int idxF[4], idxVn[4], idxVx[4];
-    std::vector <int> extra_idxF, extra_idxVn, extra_idxVx;
+    Material material;
+    int idxV[4], idxVn[4], idxVx[4];                            // Index array of one face (face array, )
+    std::vector <int> extra_idxV, extra_idxVn, extra_idxVx;
     size_t sz;
 public:
-    Face() {}
+    Face()
+    {
+        sz = 0;
+    }
     ~Face() {}
-    inline void add_vx(int idx_f, int idx_vn, int idx_vx);
+    inline void add_vx(int idx_v, int idx_vn, int idx_vx);
     size_t get_size() const
     {
         return sz;
     }
-    inline int get_elem_idxF(int idx);
+    inline int get_elem_idxV(int idx)const;
 };
 
-inline void Face::add_vx(int idx_f, int idx_vn, int idx_vx)
+float eps = 1e-6;
+
+inline void Face::add_vx(int idx_v, int idx_vn, int idx_vx)
 {
     if (sz < 4)
     {
-        idxF[sz] = idx_f;
+        idxV[sz] = idx_v;
         idxVn[sz] = idx_vn;
         idxVx[sz] = idx_vx;
         ++sz;
     }
     else
     {
-        extra_idxF.push_back(idx_f);
+        extra_idxV.push_back(idx_v);
         extra_idxVn.push_back(idx_vn);
         extra_idxVx.push_back(idx_vx);
         ++sz;
@@ -111,14 +127,14 @@ inline void Face::add_vx(int idx_f, int idx_vn, int idx_vx)
     return;
 }
 
-inline int Face::get_elem_idxF(int idx)
-{
+inline int Face::get_elem_idxV(int idx)const {
+    if (idx >= sz) idx -= sz;
     if (idx < 4)
     {
-        return idxF[idx];
+        return idxV[idx];
     }
     idx -= 4;
-    return extra_idxF[idx];
+    return extra_idxV[idx];
 }
 
 /*
@@ -133,24 +149,72 @@ inline bool naive_intersect(const Ray &r, double &t, int &id)
 
 /*
  * Compute the intersection of a ray and a face.
+ * If not intersect, return -1;
+ * Else return the distance between origin of the ray and the intersection.
  */
-float intersect_with_face(const Ray &r, const Face &f)
+inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
 {
-    Vec inter;
-    for (size_t i = 0; i < 3; ++i)
+    Vec v1 = v_list[f.get_elem_idxV(1)] - v_list[f.get_elem_idxV(0)],
+        v2 = v_list[f.get_elem_idxV(2)] - v_list[f.get_elem_idxV(1)];
+    Vec norm_vec = v1 % v2;
+    norm_vec.norm();
+
+    float denom = norm_vec.dot(r.d),
+          numer = norm_vec.dot(v_list[f.get_elem_idxV(0)] - r.o);
+    if (fabs(denom) < eps)
     {
-
+        return (float) -1.;         // Case 1: parallel
     }
+    else
+    {
+        float dis = numer / denom;
 
-    bool inside;
-    inside =
-    if (inside)
-        return
+        int cnt = 0;
+        Vec inter = r.o + r.d * dis;
+        Vec rand_vec = v1 * 1e4;
+
+        for (int i = 0; i < f.get_size(); ++i)
+        {
+            if (((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(
+                    (v_list[f.get_elem_idxV(i + 1)] - inter) % rand_vec
+            ) < -eps)
+                ++cnt;
+            printf("%f %f %f\n", (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(1, 0, 0)),
+                    (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(0, 1, 0)),
+                    (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(0, 0, 1)));
+            printf("%f %f %f\n", ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(1, 0, 0)),
+                   ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(0, 1, 0)),
+                   ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(0, 0, 1)));
+        }
+
+
+        printf("%d\n", cnt);
+
+        if (cnt % 2 == 1)
+        {
+            return dis;             // Case 2: intersect
+        }
+        else
+        {
+            return -1;              // Case 3: not parallel, but intersection is outside the polygon.
+        }
+    }
 }
 
-bool inside_one_face(const Vec &v, const Face &f)
+void test_intersection()
 {
-
+    Vec v[3];
+    v[0].set_coordinate(0, 0, 0);
+    v[1].set_coordinate(10, 0, 0);
+    v[2].set_coordinate(0, 10, 0);
+    Face f;
+    for (int i = 0; i < 3; ++i)
+        f.add_vx(i, 0, 0);
+    Ray r(Vec(2, 2, 2), Vec(0, 0, -1));
+    printf("%f\n", intersect_with_face(r, f, v));
+    Ray r1(Vec(-2, 2, 2), Vec(0, 0, -1));
+    printf("%f\n", intersect_with_face(r1, f, v));
 }
+
 
 #endif //GALLIFREY_GEOMETRY_H

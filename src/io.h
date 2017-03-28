@@ -117,10 +117,10 @@ static inline char *get_next_int(char *buffer, int &target) {
 /*
  * Extract information from .obj "face" elements.
  */
-static inline char *parse_face(char *ptr, int &idx_f, int &idx_vt, int &idx_vn)
+static inline char *parse_face(char *ptr, int &idx_v, int &idx_vt, int &idx_vn)
 {
     while (isblank(*ptr)) ++ptr;
-    ptr = get_next_int(ptr, idx_f);
+    ptr = get_next_int(ptr, idx_v);
 
     if (isblank(*ptr) || *ptr == '\r' || *ptr == '\n' || *ptr == '\0')
     {
@@ -196,12 +196,12 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
             }
             else if (strcmp(type, "f") == 0)
             {
-                int idx_f = 0, idx_vt = 0, idx_vn = 0;
-                while (isdigit(*(ptr = parse_face(ptr, idx_f, idx_vt, idx_vn))))
+                int idx_v = 0, idx_vt = 0, idx_vn = 0;
+                while (isdigit(*(ptr = parse_face(ptr, idx_v, idx_vt, idx_vn))))
                 {
-                    f_array[l_f].add_vx(idx_f, idx_vt, idx_vn);
+                    f_array[l_f].add_vx(idx_v, idx_vt, idx_vn);
                 }
-                f_array[l_f++].add_vx(idx_f, idx_vt, idx_vn);
+                f_array[l_f++].add_vx(idx_v, idx_vt, idx_vn);
             }
             else if (strcmp(type, "g") == 0)
             {

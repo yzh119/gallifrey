@@ -10,7 +10,7 @@
 #include <stdint-gcc.h>
 
 /*
- * CLamp function. (Let upper bound be 1 and lower bound be 0)
+ * Color amplification function. (Let upper bound be 1 and lower bound be 0)
  */
 inline float clamp(float x)
 {
@@ -18,7 +18,7 @@ inline float clamp(float x)
 }
 
 /*
- * Convert float to integer(1~255).
+ * Convert float to integer(range from 0 to 255).
  */
 inline uint8_t to_int(float x)
 {
