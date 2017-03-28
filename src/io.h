@@ -184,7 +184,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, x);
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
-                vx_array[l_vx++] = Vec(x, y, z);
+                vx_array[l_vx++].set_coordinate(x, y, z);;
             }
             else if (strcmp(type, "vn") == 0)
             {
@@ -192,7 +192,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, x);
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
-                vn_array[l_vn++] = Vec(x, y, z);
+                vn_array[l_vn++].set_coordinate(x, y, z);
             }
             else if (strcmp(type, "f") == 0)
             {
