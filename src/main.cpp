@@ -5,6 +5,7 @@
 #include "io.h"
 #include "image.h"
 #include "tracing.h"
+#include "concurrentqueue.h"
 #include <thread>
 
 extern const unsigned int width;
@@ -40,6 +41,8 @@ void load_and_construct_scene()
 
 void rendering()
 {
+//    moodycamel::ConcurrentQueue<std::pair<int, int> > q;
+
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             printf("%d/%d pixels.\n", y * width + x, height * width);

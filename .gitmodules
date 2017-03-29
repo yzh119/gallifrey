@@ -1,3 +1,6 @@
 [submodule "vendor/bitmap"]
 	path = vendor/bitmap
 	url = https://github.com/ArashPartow/bitmap.git
+[submodule "vendor/concurrentqueue"]
+	path = vendor/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

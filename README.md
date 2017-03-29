@@ -10,9 +10,8 @@ To implement <del>an efficient</del> Ray Tracing algorithm.
 
 ## Requirements
 
-- C++ Boost Library
-- bitmap
-- imgui
+- ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
+- Bitmap(https://github.com/ArashPartow/bitmap.git)
 
 ## Milestone
 - [ ] Shader
@@ -24,7 +23,7 @@ To implement <del>an efficient</del> Ray Tracing algorithm.
 - [ ] Semitransparent
 - [ ] Color Bleeding
 - [ ] Texture
-- [ ] OpenMP
+- [ ] Multithread
 
 ## Demo
 
