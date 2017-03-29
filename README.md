@@ -1,7 +1,7 @@
 # Gallifrey
 Course assignment(midterm) of CS230.
 
-To implement an <del>efficient Ray</del> Tracing algorithm.
+To implement <del>an efficient</del> Ray Tracing algorithm.
 
 ## Report
 

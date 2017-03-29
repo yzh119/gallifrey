@@ -221,5 +221,4 @@ void test_intersection()
     assert(fabs(intersect_with_face(r2, f, v) - 2.) < eps);
 }
 
-
 #endif //GALLIFREY_GEOMETRY_H

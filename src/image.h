@@ -15,7 +15,7 @@ class Image
 {
 private:
     Ray cam;                    // position and dir of camera.
-    Vec cx, cy;                 // x/y direction increment.
+    // x/y direction increment.
     float *col;                 // col array with type float.
     float r[3];                 // colors of samples.
     uint8_t *output;            // col array with type uint8_t for conversion.
@@ -30,6 +30,8 @@ public:
 
     inline void set_pixel(int x, int y, float radiance);    // Set pixel at coordinate (x, y)
     inline uint8_t *to_bmp_pixel();                         // Convert float pixel (range from 0 to 1) to int8 pixel(range from 0 to 255).
+    Vec cx;
+    Vec cy;
 };
 
 void Image::set_pixel(int x, int y, float radiance)
