@@ -31,4 +31,4 @@ To implement <del>an efficient</del> Ray Tracing algorithm.
 ## Reference
 - Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
 - SAH kd-tree: http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf
-
+- An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

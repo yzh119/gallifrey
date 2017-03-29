@@ -37,6 +37,7 @@ inline void dump_bitmap(char *path, uint8_t *col)
 
 /*
  * Generate noise picture to test 'output_to_bmp'.
+ * Just for test.
  */
 inline void fill_pic_with_noise(uint8_t *col)
 {
@@ -48,6 +49,18 @@ inline void fill_pic_with_noise(uint8_t *col)
             col[3 * pos + 1]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX + y));
             col[3 * pos + 2]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX + x * y));
         }
+}
+
+/*
+ * Test the dumpfile function.
+ */
+inline void test_dump_image()
+{
+    uint8_t *col;
+    col = new uint8_t[3 * width * height];
+    fill_pic_with_noise(col);
+    dump_bitmap((char *) "../out/test.bmp", col);
+    delete col;
 }
 
 /*

@@ -19,10 +19,14 @@ const float pi = (const float) acos(-1.);
  */
 class Vec
 {
-private:
-    float x, y, z;
 public:
     Vec(float x = 0, float y = 0, float z = 0): x(x), y(y), z(z) {}
+    Vec(const Vec &vec)
+    {
+        x = vec.x;
+        y = vec.y;
+        z = vec.z;
+    }
     ~Vec() {}
     void set_coordinate(float x, float y, float z);
     Vec operator + (const Vec &b) const ;
@@ -31,6 +35,10 @@ public:
     Vec operator % (const Vec &b) const ;
     Vec& norm();
     float dot(const Vec &b) const ;
+
+    float x;
+    float y;
+    float z;
 };
 
 
@@ -79,6 +87,11 @@ class Ray
 {
 public:
     Ray(const Vec &o, const Vec &d): o(o), d(d) {}
+    Ray(const Ray &ray)
+    {
+        d = ray.d;
+        o = ray.o;
+    }
     ~Ray() {}
 
     Vec d;
@@ -137,15 +150,13 @@ inline int Face::get_elem_idxV(int idx)const {
     return extra_idxV[idx];
 }
 
-/*
- * INTERSECTS RAY WITH SCENE
- * Brute Force algorithm.
- */
-inline bool naive_intersect(const Ray &r, double &t, int &id)
+struct Scene
 {
-    // TODO
-    return false;
-}
+    Face *f_array;
+    Vec *vn_array;
+    Vec *vx_array;
+    size_t size_f, size_vn, size_vx;
+};
 
 /*
  * Cross function.
@@ -156,7 +167,7 @@ inline bool cross(const Vec &a, const Vec &b, const Vec &c)
 }
 
 /*
- * Compute the intersection of a ray and a face.
+ * Compute the intersection of a ray with a face.
  * If not intersect, return -1;
  * Else return the distance between origin of the ray and the intersection.
  */
@@ -197,6 +208,30 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
             return -1;              // Case 3: not parallel, but intersection is outside the polygon.
         }
     }
+}
+
+/*
+ * INTERSECTS RAY WITH SCENE
+ * Brute Force algorithm.
+ */
+inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
+{
+    float dis;
+    t = -1;
+
+    for (int i = 0; i < s.f_array->get_size(); ++i)
+    {
+        if ((dis = intersect_with_face(r, s.f_array[i], s.vx_array) >= 0.))
+        {
+            if (t < 0 || dis < t)
+            {
+                t = dis;
+                id = i;
+            }
+        }
+    }
+
+    return t >= 0.;
 }
 
 /*
