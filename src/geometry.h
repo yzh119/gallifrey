@@ -148,6 +148,14 @@ inline bool naive_intersect(const Ray &r, double &t, int &id)
 }
 
 /*
+ * Cross function.
+ */
+inline bool cross(const Vec &a, const Vec &b, const Vec &c)
+{
+    return (a % b).dot(a % c) < -eps;
+}
+
+/*
  * Compute the intersection of a ray and a face.
  * If not intersect, return -1;
  * Else return the distance between origin of the ray and the intersection.
@@ -175,20 +183,10 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
 
         for (int i = 0; i < f.get_size(); ++i)
         {
-            if (((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(
-                    (v_list[f.get_elem_idxV(i + 1)] - inter) % rand_vec
-            ) < -eps)
+            if (cross(rand_vec, v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i + 1)] - inter) &&
+                    cross(v_list[f.get_elem_idxV(i + 1)] - v_list[f.get_elem_idxV(i)], v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i)] - inter - rand_vec))
                 ++cnt;
-            printf("%f %f %f\n", (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(1, 0, 0)),
-                    (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(0, 1, 0)),
-                    (v_list[f.get_elem_idxV(i)] - inter).dot(Vec(0, 0, 1)));
-            printf("%f %f %f\n", ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(1, 0, 0)),
-                   ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(0, 1, 0)),
-                   ((v_list[f.get_elem_idxV(i)] - inter) % rand_vec).dot(Vec(0, 0, 1)));
         }
-
-
-        printf("%d\n", cnt);
 
         if (cnt % 2 == 1)
         {
@@ -201,6 +199,9 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
     }
 }
 
+/*
+ * Test the accuracy of intersection.
+ */
 void test_intersection()
 {
     Vec v[3];
@@ -211,9 +212,9 @@ void test_intersection()
     for (int i = 0; i < 3; ++i)
         f.add_vx(i, 0, 0);
     Ray r(Vec(2, 2, 2), Vec(0, 0, -1));
-    printf("%f\n", intersect_with_face(r, f, v));
-    Ray r1(Vec(-2, 2, 2), Vec(0, 0, -1));
-    printf("%f\n", intersect_with_face(r1, f, v));
+    assert(fabs(intersect_with_face(r, f, v) - 2.) < eps);
+    Ray r1(Vec(5, 6, 2), Vec(0, 0, -1));
+    assert(fabs(intersect_with_face(r1, f, v) + 1.) < eps);
 }
 
 
