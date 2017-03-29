@@ -204,17 +204,21 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
  */
 void test_intersection()
 {
-    Vec v[3];
+    Vec v[4];
     v[0].set_coordinate(0, 0, 0);
     v[1].set_coordinate(10, 0, 0);
     v[2].set_coordinate(0, 10, 0);
+    v[3].set_coordinate(-10, 10, 0);
     Face f;
     for (int i = 0; i < 3; ++i)
         f.add_vx(i, 0, 0);
     Ray r(Vec(2, 2, 2), Vec(0, 0, -1));
     assert(fabs(intersect_with_face(r, f, v) - 2.) < eps);
-    Ray r1(Vec(5, 6, 2), Vec(0, 0, -1));
+    Ray r1(Vec(-2, 4, 2), Vec(0, 0, -1));
     assert(fabs(intersect_with_face(r1, f, v) + 1.) < eps);
+    f.add_vx(3, 0, 0);
+    Ray r2(Vec(-2, 4, 2), Vec(0, 0, -1));
+    assert(fabs(intersect_with_face(r2, f, v) - 2.) < eps);
 }
 
 
