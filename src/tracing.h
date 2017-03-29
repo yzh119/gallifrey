@@ -25,7 +25,7 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
     }
     else
     {
-        return Vec(0, 0, 0);
+        return Vec(.5, 0.5, 0.5);
     }
 }
 

@@ -219,7 +219,7 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
     float dis;
     t = -1;
 
-    for (int i = 0; i < s.f_array->get_size(); ++i)
+    for (int i = 0; i < s.size_f; ++i)
     {
         if ((dis = intersect_with_face(r, s.f_array[i], s.vx_array) >= 0.))
         {

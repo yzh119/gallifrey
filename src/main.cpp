@@ -18,7 +18,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(-10, -10, -10), Vec(.5, .5, .5));
+Image img(Vec(-10, -10, -10), Vec(1, 1, 1));
 
 inline float erand()
 {
@@ -27,7 +27,7 @@ inline float erand()
 
 void load_and_construct_scene()
 {
-    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/airboat.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array = fArray;
     scene.vn_array = vnArray;
     scene.vx_array = vxArray;
@@ -38,10 +38,11 @@ void load_and_construct_scene()
     return ;
 }
 
-void create_image()
+void rendering()
 {
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
+            printf("%d/%d pixels.\n", y * width + x, height * width);
             Vec col(0, 0, 0);
             for (unsigned int sy = 0; sy < 2; ++sy)
                 for (unsigned int sx = 0; sx < 2; ++sx) {
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 
     // main.
     load_and_construct_scene();
-    create_image();
+    rendering();
     dump_image();
     return 0;
 }

@@ -212,9 +212,9 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 int idx_v = 0, idx_vt = 0, idx_vn = 0;
                 while (isdigit(*(ptr = parse_face(ptr, idx_v, idx_vt, idx_vn))))
                 {
-                    f_array[l_f].add_vx(idx_v, idx_vt, idx_vn);
+                    f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 }
-                f_array[l_f++].add_vx(idx_v, idx_vt, idx_vn);
+                f_array[l_f++].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
             }
             else if (strcmp(type, "g") == 0)
             {
