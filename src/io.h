@@ -89,7 +89,7 @@ static inline char *get_next_float(char *buffer, float &target) {
         neg = true;
         ++ptr;
     }
-    while (isdigit(*ptr) || *ptr == '.') ++ptr;
+    while (isdigit(*ptr) || *ptr == 'e' || *ptr == '-' || *ptr == '+' || *ptr == '.') ++ptr;
     char str_target[20];
     strncpy(str_target, buffer, ptr - buffer);
     str_target[ptr - buffer] = '\0';
@@ -191,6 +191,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
         {
             char type[10];
             ptr = get_next_str(buffer, type);
+            printf("%s\n", type);
             if (strcmp(type, "v") == 0)
             {
                 float x, y, z, w = (float) 0.;
@@ -225,6 +226,21 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
             {
                 int s = 0;
                 ptr = get_next_int(ptr, s);
+            }
+            else if (strcmp(type, "mtllib") == 0)
+            {
+                char str[20];
+                ptr = get_next_str(ptr, str);
+            }
+            else if (strcmp(type, "o") == 0)
+            {
+                char str[20];
+                ptr = get_next_str(ptr, str);
+            }
+            else if (strcmp(type, "usemtl") == 0)
+            {
+                char str[20];
+                ptr = get_next_str(ptr, str);
             }
         }
         if (*ptr && *ptr == '\r')

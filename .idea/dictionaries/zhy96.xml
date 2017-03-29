@@ -4,8 +4,10 @@
       <w>expye</w>
       <w>gallifrey</w>
       <w>imgui</w>
+      <w>mtllib</w>
       <w>multithread</w>
       <w>samps</w>
+      <w>usemtl</w>
     </words>
   </dictionary>
 </component>
