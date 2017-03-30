@@ -5,7 +5,6 @@
 #ifndef GALLIFREY_GEOMETRY_H
 #define GALLIFREY_GEOMETRY_H
 
-#include "material.h"
 #include <cassert>
 #include <cmath>
 
@@ -87,6 +86,16 @@ Vec Vec::operator*(const Vec &b) const {
 }
 
 /*
+ * Class Material
+ */
+class Material
+{
+public:
+    Vec ka, kd, ks;
+    Material(const Vec &ka, const Vec &kd, const Vec &ks): ka(ka), kd(kd), ks(ks) {}
+};
+
+/*
  * Class Ray
  * o: origin
  * d: direction
@@ -106,6 +115,9 @@ public:
     Vec o;
 };
 
+/*
+ * Class Face
+ */
 class Face
 {
 private:
@@ -114,17 +126,20 @@ private:
     std::vector <int> extra_idxV, extra_idxVn, extra_idxVx;
     size_t sz;
 public:
-    Face()
+    Face():
+        material(Vec(0, 0, 0),
+                 Vec(0, 0, 0),
+                 Vec(0, 0, 0))
     {
         sz = 0;
     }
     ~Face() {}
     inline void add_vx(int idx_v, int idx_vn, int idx_vx);
-    size_t get_size() const
-    {
-        return sz;
-    }
+    inline size_t get_size() const;
     inline int get_elem_idxV(int idx)const;
+    inline void set_ka(const Vec &ka);
+    inline void set_kd(const Vec &kd);
+    inline void set_ks(const Vec &ks);
 };
 
 float eps = 1e-6;
@@ -158,13 +173,30 @@ inline int Face::get_elem_idxV(int idx)const {
     return extra_idxV[idx];
 }
 
+inline size_t Face::get_size() const {
+    return sz;
+}
+
+inline void Face::set_ka(const Vec &ka) {
+    material.ka = ka;
+}
+
+inline void Face::set_kd(const Vec &kd) {
+    material.kd = kd;
+}
+
+inline void Face::set_ks(const Vec &ks) {
+    material.ks = ks;
+}
+
 struct Scene
 {
     Face *f_array;
     Vec *vn_array;
     Vec *vx_array;
     Vec *fn_array;
-    size_t size_f, size_vn, size_vx;
+    Vec *illu_array;
+    size_t size_f, size_vn, size_vx, size_illu;
 };
 
 /*

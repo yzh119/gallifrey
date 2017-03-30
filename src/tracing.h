@@ -15,8 +15,8 @@ namespace light
 {
     const Vec Ia(0.8, 0.3, 0.4);
     const int samps = 1;
+    const float n = 1.3;
 }
-
 
 /*
  * To calculate the ambient light at the given position.

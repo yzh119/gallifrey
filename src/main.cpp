@@ -13,10 +13,15 @@
 extern const unsigned int width;
 extern const unsigned int height;
 
-Face fArray[120000];
-Vec vxArray[120000];
-Vec vnArray[120000];
-Vec fnArray[120000];
+const int max_face  = 120000;
+const int max_vx    = 120000;
+const int max_illu  = 20;
+
+Face fArray[max_face];
+Vec vxArray[max_vx];
+Vec vnArray[max_vx];
+Vec fnArray[max_face];
+Vec illuArray[max_illu];
 
 size_t l_face, l_vertex, l_normal;
 
@@ -32,24 +37,120 @@ inline float erand()
     return (float) rand() / RAND_MAX;
 }
 
+inline void add_wall_illumination()
+{
+    float min_x, min_y, min_z = min_y = min_x = 1e9;
+    float max_x, max_y, max_z = max_y = max_x = (float) -1e9;
+    for (int i = 0; i < scene.size_vx; ++i)
+    {
+        if (scene.vx_array[i].x < min_x) min_x = scene.vx_array[i].x;
+        if (scene.vx_array[i].y < min_y) min_y = scene.vx_array[i].y;
+        if (scene.vx_array[i].z < min_z) min_z = scene.vx_array[i].z;
+
+        if (scene.vx_array[i].x > max_x) max_x = scene.vx_array[i].x;
+        if (scene.vx_array[i].y > max_y) max_y = scene.vx_array[i].y;
+        if (scene.vx_array[i].z > max_z) max_z = scene.vx_array[i].z;
+    }
+
+    float
+        len_x = max_x - min_x,
+        len_y = max_y - min_y,
+        len_z = max_z - min_z;
+
+    // Calculate size of the box;
+    min_x -= len_x;
+    min_y -= len_y;
+    min_z -= len_z;
+
+    max_x += len_x;
+    max_y += len_y;
+    max_z += len_z;
+
+
+    // Set the illumination;
+
+    scene.illu_array[scene.size_illu++].set_coordinate((float) (min_x + .5 * len_x), (float) (min_y + .5 * len_y),
+                                                       (float) (max_z - .5 * len_z));
+
+
+    // Change the camera's view point.
+    img.cam.d.set_coordinate(-1, 1, -1);
+    img.cam.o.set_coordinate((float) (max_x - .5 * len_x), (float) (min_y + .5 * len_y),
+                             (float) (max_z - .5 * len_z));
+
+    // Add the vertices to vertex list;
+
+
+    scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, min_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, max_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(min_x, max_y, min_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(min_x, max_y, max_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(max_x, min_y, min_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(max_x, min_y, max_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(max_x, max_y, min_z);
+    scene.vx_array[scene.size_vx++].set_coordinate(max_x, max_y, max_z);
+
+    int idx = (int) scene.size_vx;
+    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
+    ++scene.size_f;
+
+    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
+    ++scene.size_f;
+
+    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
+    ++scene.size_f;
+
+    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
+    ++scene.size_f;
+
+    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
+    ++scene.size_f;
+
+    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
+    ++scene.size_f;
+    return ;
+}
+
 void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
-    scene.f_array = fArray;
-    scene.vn_array = vnArray;
-    scene.vx_array = vxArray;
-    scene.fn_array = fnArray;
-    scene.size_f = l_face;
-    scene.size_vn = l_normal;
-    scene.size_vx = l_vertex;
+    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    scene.f_array   = fArray;
+    scene.vn_array  = vnArray;
+    scene.vx_array  = vxArray;
+    scene.fn_array  = fnArray;
+    scene.illu_array = illuArray;
+    scene.size_f    = l_face;
+    scene.size_vn   = l_normal;
+    scene.size_vx   = l_vertex;
+    scene.size_illu = 0;
     for (int i = 0; i < l_face; ++i)
     {
         Vec v1 = scene.f_array->get_elem_idxV(1) - scene.f_array->get_elem_idxV(0),
             v2 = scene.f_array->get_elem_idxV(2) - scene.f_array->get_elem_idxV(1);
         scene.fn_array[i] = (v1 % v2).norm();
     }
+
+    add_wall_illumination();
 
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Load successful in %.3fs.\n", (now - start).count() / 1e9);

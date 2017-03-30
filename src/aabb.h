@@ -5,6 +5,8 @@
 #ifndef GALLIFREY_AABB_H
 #define GALLIFREY_AABB_H
 
+#include "geometry.h"
+
 class AABB
 {
 private:
