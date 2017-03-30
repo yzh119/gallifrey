@@ -60,9 +60,12 @@ void rendering()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Rendering... ");
+
     moodycamel::ConcurrentQueue<std::pair<int, int> > q;
 
-    // Thanks Lequn Chen(abcdabcd987) for his guidance on multi-threading part.
+    // Thanks Lequn Chen(abcdabcd987) for his guidance on multi-threading programming.
+
+#ifdef __linux__
     auto func = [&]
     {
         for (std::pair<int, int> item;;)
@@ -127,6 +130,32 @@ void rendering()
 
     for (auto &worker: workers)
         worker.join();
+#endif
+#ifdef _WIN32
+    for (unsigned int y = 0; y < height; ++y) {
+        for (unsigned int x = 0; x < width; ++x) {
+            Vec col(0, 0, 0);
+            for (unsigned int sy = 0; sy < 2; ++sy)
+                for (unsigned int sx = 0; sx < 2; ++sx) {
+                    Vec r(0, 0, 0);
+                    for (int s = 0; s < img.samps; ++s) {
+                        float
+                                r1 = 2 * erand(),
+                                r2 = 2 * erand();
+                        float
+                                dx = (float) (r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1)),
+                                dy = (float) (r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2));
+                        Vec
+                                d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
+                                    img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
+                        r = r + radiance(Ray(img.cam.o + d * 5, d.norm()), 0, scene) * (1. / img.samps);
+                    }
+                    col = col + r * .25;
+                }
+            img.set_pixel(x, y, col);
+        }
+    }
+#endif
 
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Render successful in %.3fs.\n", (now - start).count() / 1e9);

@@ -45,9 +45,9 @@ inline void fill_pic_with_noise(uint8_t *col)
         for (int x = 0; x < width; ++x)
         {
             int pos = y * width + x;
-            col[3 * pos]        = (uint8_t) (0xff * (1. * rand() / RAND_MAX + x));
-            col[3 * pos + 1]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX + y));
-            col[3 * pos + 2]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX + x * y));
+            col[3 * pos]        = (uint8_t) (0xff * (1. * rand() / RAND_MAX));
+            col[3 * pos + 1]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX));
+            col[3 * pos + 2]    = (uint8_t) (0xff * (1. * rand() / RAND_MAX));
         }
 }
 

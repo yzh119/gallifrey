@@ -4,7 +4,10 @@ Course assignment(midterm) of CS230.
 To implement <del>an efficient</del> Ray Tracing algorithm.
 
 ## Compile
+It's not recommended to compile & run on windows since `pthread` is not fully developed, thus multi-threading accelerating is disabled.
 
+    git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
+    cd gallifrey/
     cmake .
     make
 
@@ -29,7 +32,7 @@ To implement <del>an efficient</del> Ray Tracing algorithm.
 - [ ] Semitransparent
 - [ ] Color Bleeding
 - [ ] Texture
-- [x] Multithread
+- [x] Multithreading
 
 ## Demo
 
