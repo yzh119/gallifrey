@@ -5,12 +5,18 @@
 #ifndef GALLIFREY_KDTREE_H
 #define GALLIFREY_KDTREE_H
 
+#include "aabb.h"
+
 class KDTree {
 private:
+    struct node
+    {
+        AABB *box;
+        node *lc, *rc;
+    };
 
 public:
     KDTree() {
-
     }
 };
 

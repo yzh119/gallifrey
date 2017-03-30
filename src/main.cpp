@@ -16,12 +16,13 @@ extern const unsigned int height;
 Face fArray[120000];
 Vec vxArray[120000];
 Vec vnArray[120000];
+Vec fnArray[120000];
 
 size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(-200, -200, -200), Vec(1, 1, 1));
+Image img(Vec(0, -5, -5), Vec(0, 1, 1));
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -34,14 +35,22 @@ inline float erand()
 void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
-    fprintf(stderr, "Loading... ");
-    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    fprintf(stderr, "Loading... \n");
+    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array = fArray;
     scene.vn_array = vnArray;
     scene.vx_array = vxArray;
+    scene.fn_array = fnArray;
     scene.size_f = l_face;
     scene.size_vn = l_normal;
     scene.size_vx = l_vertex;
+    for (int i = 0; i < l_face; ++i)
+    {
+        Vec v1 = scene.f_array->get_elem_idxV(1) - scene.f_array->get_elem_idxV(0),
+            v2 = scene.f_array->get_elem_idxV(2) - scene.f_array->get_elem_idxV(1);
+        scene.fn_array[i] = (v1 % v2).norm();
+    }
+
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Load successful in %.3fs.\n", (now - start).count() / 1e9);
     return ;
@@ -127,7 +136,7 @@ void rendering()
 void dump_image()
 {
     auto start = std::chrono::high_resolution_clock::now();
-    fprintf(stderr, "Generating... ");
+    fprintf(stderr, "Generating... \n");
     dump_bitmap((char *) "../out/dump.bmp", img.to_bmp_pixel());
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Generate successful in %.3fs.\n", (now - start).count() / 1e9);

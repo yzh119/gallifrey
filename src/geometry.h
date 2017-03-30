@@ -83,7 +83,7 @@ void Vec::set_coordinate(float x, float y, float z) {
  * Elementwise dot.
  */
 Vec Vec::operator*(const Vec &b) const {
-    return Vec();
+    return Vec(x * b.x, y * b.y, z * b.z);
 }
 
 /*
@@ -163,6 +163,7 @@ struct Scene
     Face *f_array;
     Vec *vn_array;
     Vec *vx_array;
+    Vec *fn_array;
     size_t size_f, size_vn, size_vx;
 };
 
