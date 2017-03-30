@@ -83,21 +83,11 @@ static inline char *get_next_float(char *buffer, float &target) {
     if (*buffer == '\0') return buffer;
     while (isblank(*buffer)) ++buffer;
     char *ptr = buffer;
-    bool neg = false;
-    if (*ptr == '-')
-    {
-        neg = true;
-        ++ptr;
-    }
     while (isdigit(*ptr) || *ptr == 'e' || *ptr == '-' || *ptr == '+' || *ptr == '.') ++ptr;
     char str_target[20];
     strncpy(str_target, buffer, ptr - buffer);
     str_target[ptr - buffer] = '\0';
     target = (float) atof(str_target);
-    if (neg)
-    {
-        target = -target;
-    }
     return ptr;
 }
 
@@ -107,23 +97,12 @@ static inline char *get_next_float(char *buffer, float &target) {
 static inline char *get_next_int(char *buffer, int &target) {
     if (*buffer == '\0') return buffer;
     while (isblank(*buffer)) ++buffer;
-
     char *ptr = buffer;
-    bool neg = false;
-    if (*ptr == '-')
-    {
-        neg = true;
-        ++ptr;
-    }
-    while (isdigit(*ptr)) ++ptr;
+    while (isdigit(*ptr) || *ptr == '-') ++ptr;
     char str_target[20];
     strncpy(str_target, buffer, ptr - buffer);
     str_target[ptr - buffer] = '\0';
     target = atoi(str_target);
-    if (neg)
-    {
-        target = -target;
-    }
     return ptr;
 }
 
@@ -191,7 +170,6 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
         {
             char type[10];
             ptr = get_next_str(buffer, type);
-            printf("%s\n", type);
             if (strcmp(type, "v") == 0)
             {
                 float x, y, z, w = (float) 0.;
