@@ -19,6 +19,7 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
     }
     float t;
     int id;
+
     if (naive_intersect(r, t, id, s))
     {
         return Vec(1, 1, 1);

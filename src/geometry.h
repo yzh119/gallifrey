@@ -31,6 +31,7 @@ public:
     void set_coordinate(float x, float y, float z);
     Vec operator + (const Vec &b) const ;
     Vec operator - (const Vec &b) const ;
+    Vec operator * (const Vec &b) const ;
     Vec operator * (float b) const ;
     Vec operator % (const Vec &b) const ;
     Vec& norm();
@@ -76,6 +77,13 @@ void Vec::set_coordinate(float x, float y, float z) {
     this->x = x;
     this->y = y;
     this->z = z;
+}
+
+/*
+ * Elementwise dot.
+ */
+Vec Vec::operator*(const Vec &b) const {
+    return Vec();
 }
 
 /*

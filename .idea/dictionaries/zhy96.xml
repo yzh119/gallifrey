@@ -6,6 +6,7 @@
       <w>imgui</w>
       <w>mtllib</w>
       <w>multithread</w>
+      <w>phong</w>
       <w>samps</w>
       <w>usemtl</w>
     </words>

@@ -21,7 +21,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1));
+Image img(Vec(-200, -200, -200), Vec(1, 1, 1));
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -35,7 +35,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... ");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array = fArray;
     scene.vn_array = vnArray;
     scene.vx_array = vxArray;

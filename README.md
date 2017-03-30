@@ -3,6 +3,12 @@ Course assignment(midterm) of CS230.
 
 To implement <del>an efficient</del> Ray Tracing algorithm.
 
+## Compile
+
+    cmake .
+    make
+
+
 ## Report
 
 [report](http://blog.expye.com/post/study/2017-03-25-ray-Tracer) (@ my blog)
@@ -10,20 +16,20 @@ To implement <del>an efficient</del> Ray Tracing algorithm.
 
 ## Requirements
 
+- std-c++11
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 
 ## Milestone
-- [ ] Shader
-- [ ] Ray Casting
-- [ ] Ray Tracing(basic)
+- [ ] Phong Shader
+- [ ] Ray Tracing
 - [ ] Soft Shadow 
 - [ ] Transmission
 - [ ] Transparent
 - [ ] Semitransparent
 - [ ] Color Bleeding
 - [ ] Texture
-- [ ] Multithread
+- [x] Multithread
 
 ## Demo
 
