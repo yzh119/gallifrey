@@ -10,3 +10,5 @@ set(SOURCE_CODE
 
 add_executable(gallifrey
         ${SOURCE_CODE} )
+target_link_libraries(gallifrey
+        pthread)

@@ -8,6 +8,7 @@
 #include "concurrentqueue.h"
 #include <thread>
 #include <chrono>
+#include <atomic>
 
 extern const unsigned int width;
 extern const unsigned int height;
@@ -21,6 +22,9 @@ size_t l_face, l_vertex, l_normal;
 Scene scene;
 
 Image img(Vec(0, -5, -5), Vec(0, 1, 1));
+
+std::atomic<int> cnt_pixels;
+const int num_workers = 4;
 
 inline float erand()
 {
@@ -47,13 +51,20 @@ void rendering()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Rendering... ");
-    // moodycamel::ConcurrentQueue<std::pair<int, int> > q;
+    moodycamel::ConcurrentQueue<std::pair<int, int> > q;
 
-    for (unsigned int y = 0; y < height; ++y) {
-        for (unsigned int x = 0; x < width; ++x) {
+    // Thanks Lequn Chen(abcdabcd987) for his guidance on multi-threading part.
+    auto func = [&]
+    {
+        for (std::pair<int, int> item;;)
+        {
+            q.try_dequeue(item);
+            int x = item.first,
+                y = item.second;
+            if (x == -1) return;
             Vec col(0, 0, 0);
-            for (unsigned int sy = 0; sy < 2; ++sy)
-                for (unsigned int sx = 0; sx < 2; ++sx) {
+            for (int sy = 0; sy < 2; ++sy)
+                for (int sx = 0; sx < 2; ++sx) {
                     Vec r(0, 0, 0);
                     for (int s = 0; s < img.samps; ++s) {
                         float
@@ -70,8 +81,44 @@ void rendering()
                     col = col + r * .25;
                 }
             img.set_pixel(x, y, col);
+            if (cnt_pixels.load() % 1024 == 0)
+                fprintf(stderr, "Rendering the %d/%d pixel.\r", cnt_pixels.load(), (width * height));
+            ++cnt_pixels;
         }
+    };
+
+    cnt_pixels = 0;
+    std::vector <std::pair<int, int> > xys;
+    for (int y = 0; y < height; ++y)
+        for (int x = 0; x < width; ++x)
+        {
+            xys.emplace_back(x, y);
+        }
+    std::random_shuffle(xys.begin(), xys.end());
+
+    for (const auto &xy: xys)
+        q.enqueue(xy);
+
+    std::vector<std::thread> workers;
+
+    for (int i = 0; i < num_workers; ++i)
+        workers.emplace_back(func);
+    for (int i = 0; i < num_workers; ++i)
+        q.enqueue(std::make_pair(-1, -1));
+
+    while (true)
+    {
+        int cnt = cnt_pixels.load();
+        if (cnt == width * height) {
+            fprintf(stderr, "\n");
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
+
+    for (auto &worker: workers)
+        worker.join();
+
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Render successful in %.3fs.\n", (now - start).count() / 1e9);
     return ;
@@ -97,5 +144,6 @@ int main(int argc, char *argv[])
     load_and_construct_scene();
     rendering();
     dump_image();
+    fprintf(stderr, "DONE.\n");
     return 0;
 }
