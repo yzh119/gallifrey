@@ -27,7 +27,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1), 2);
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -72,12 +72,9 @@ inline void add_wall_illumination()
                                                        max_z - len_z / 2);
 
     // Change the camera's view point.
-//    img.cam.d = Vec(-1, 1, -1).norm();
-//    img.cam.o.set_coordinate(max_x - len_x / 2, min_y + len_y / 2,
-//                             max_z - len_z / 2);
-
-    img.cam.d = Vec(0, 1, 0).norm();
-    img.cam.o.set_coordinate(max_x - len_x * 2.5, min_y + 10 * eps, max_z - len_z * 2.5);
+    img.cam.d = Vec(-1, 1, -1).norm();
+    img.cam.o.set_coordinate(max_x - len_x / 2, min_y + len_y / 2,
+                             max_z - len_z / 2);
 
     img.adjust_camera();
     // Add the vertices to vertex list;
@@ -140,7 +137,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -241,9 +238,11 @@ void rendering()
         worker.join();
 #endif
 #ifdef _WIN32
+
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             Vec col(0, 0, 0);
+            if ((y * width + x) % 1024 == 0) fprintf(stderr, "Rendering the %d/%d pixel.\n", y * width + x, width * height);
             for (unsigned int sy = 0; sy < 2; ++sy)
                 for (unsigned int sx = 0; sx < 2; ++sx) {
                     Vec r(0, 0, 0);
@@ -257,14 +256,15 @@ void rendering()
                         Vec
                                 d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                     img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-                        printf("%f %f %f\n", 140 * d.x, 140 * d.y, 140 * d.z);
-                        r = r + radiance(Ray(img.cam.o + d * 140, d.norm()), 0, scene) * (1. / img.samps);
+
+                        r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
                     }
                     col = col + r * .25;
                 }
             img.set_pixel(x, y, col);
         }
     }
+    fprintf(stderr, "\n");
 #endif
 
     auto now = std::chrono::high_resolution_clock::now();

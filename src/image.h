@@ -44,10 +44,11 @@ uint8_t *Image::to_bmp_pixel()
     for (unsigned int y = 0; y < height; ++y)
         for (unsigned int x = 0; x < width; ++x)
         {
-            int pos = y * width + x;
-            output[3 * pos]     = to_int(col[3 * pos]);
-            output[3 * pos + 1] = to_int(col[3 * pos + 1]);
-            output[3 * pos + 2] = to_int(col[3 * pos + 2]);
+            int pos = (height - 1 - y) * width + x;
+            int pos1 = y * width + x;
+            output[3 * pos]     = to_int(col[3 * pos1]);
+            output[3 * pos + 1] = to_int(col[3 * pos1 + 1]);
+            output[3 * pos + 2] = to_int(col[3 * pos1 + 2]);
         }
     return output;
 }

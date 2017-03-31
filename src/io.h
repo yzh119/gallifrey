@@ -260,7 +260,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
  * ...
  */
 
-void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, size_t &l_f, size_t &l_vn, size_t &l_vx)
+void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, size_t &l_f, size_t &l_vx, size_t &l_vn)
 {
     FILE *pFile;
     char *buffer;

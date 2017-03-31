@@ -15,7 +15,7 @@ namespace light
 {
     const Vec Ia(.3, .3, .3);
     const int samps = 1;
-    const float n = 1.3;
+    const float n = 1.7;
 }
 
 /*
@@ -41,12 +41,12 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
          * TODO
          * However, there should be some codes related to intersection here, but I haven't finished them.
          */
-
-        if (N.dot(s.illu_array[i] - pos) > 0)
-            ret = ret + kd * (N.dot((s.illu_array[i] - pos).norm()));
+        float cosine = N.dot((s.illu_array[i] - pos).norm());
+        if (cosine > 0)
+            ret = ret + kd * cosine;
     }
     ret = ret * (1. / s.size_illu);
-    //printf("%f %f %f\n", N.x, N.y, N.z);
+    assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
     return ret;
 }
 
@@ -57,10 +57,24 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
  * N: normal vector
  * V: view vector
  */
-inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, const Vec &V)
+inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, const Scene &s)
 {
-    // TODO
-    return Vec(0, 0, 0);
+    Vec ret(0, 0, 0);
+    for (int i = 0; i < s.size_illu; ++i)
+    {
+        /*
+         * TODO
+         * However, there should be some codes related to intersection here, but I haven't finished them.
+         */
+        Vec L = (s.illu_array[i] - pos).norm();
+        Vec R = N * ((L.dot(N)) * 2) - L;
+        float cosine = V.norm().dot(R);
+        if (cosine > 0)
+            ret = ret + ks * pow(cosine, light::n);
+    }
+    ret = ret * (1. / s.size_illu);
+    assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
+    return ret;
 }
 
 /*
@@ -91,9 +105,15 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
          * TODO
          * ray casting -> ray tracing.
          */
-        return ambient_light(des, s.f_array[id].material.ka) +
-               diffuse_light(des, Vec(.5, .5, .5), s.fn_array[id], s) +
-               specular_light(des, Vec(0, 0, 0), s.fn_array[id], r.d);
+        Vec N;
+        if (s.fn_array[id].dot(r.d) < 0)
+            N.set_coordinate(s.fn_array[id].x, s.fn_array[id].y, s.fn_array[id].z);
+        else
+            N.set_coordinate(-s.fn_array[id].x, -s.fn_array[id].y, -s.fn_array[id].z);
+
+        return ambient_light(des, Vec(.6, .6, .6)) +
+               diffuse_light(des, Vec(.2, .2, .2), N, s) +
+               specular_light(des, Vec(.7, .7, .7), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
     }
     else
     {

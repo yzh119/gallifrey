@@ -273,7 +273,7 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
             }
         }
     }
-
+    //printf("%d\n", id);
     return t >= 0.;
 }
 

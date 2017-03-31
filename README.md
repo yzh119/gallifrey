@@ -33,9 +33,10 @@ It's not recommended to compile & run on windows since `pthread` is not fully de
 - [ ] Semitransparent
 - [ ] Color Bleeding
 - [ ] Texture
-- [x] Multithreading
+- [x] Multi-threading
 
 ## Demo
+![Cube](demo/sphere.bmp)
 
 ## Reference
 - Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
