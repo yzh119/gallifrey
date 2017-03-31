@@ -13,7 +13,7 @@ const int max_depth = 10;
 
 namespace light
 {
-    const Vec Ia(.8, .8, .8);
+    const Vec Ia(.3, .3, .3);
     const int samps = 1;
     const float n = 1.3;
 }
@@ -32,9 +32,22 @@ inline Vec ambient_light(const Vec &pos, const Vec &ka)
  * kd: diffusion coefficient.
  * N: normal vector
  */
-inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N)
+inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scene &s)
 {
-    return Vec(0, 0, 0);
+    Vec ret(0, 0, 0);
+    for (int i = 0; i < s.size_illu; ++i)
+    {
+        /*
+         * TODO
+         * However, there should be some codes related to intersection here, but I haven't finished them.
+         */
+
+        if (N.dot(s.illu_array[i] - pos) > 0)
+            ret = ret + kd * (N.dot(s.illu_array[i] - pos));
+    }
+    ret = ret * (1. / s.size_illu);
+    //printf("%f %f %f\n", N.x, N.y, N.z);
+    return ret;
 }
 
 /*
@@ -46,6 +59,7 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N)
  */
 inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, const Vec &V)
 {
+    // TODO
     return Vec(0, 0, 0);
 }
 
@@ -55,6 +69,7 @@ inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, const Vec
  */
 inline Vec refract_light(const Vec &pos)
 {
+    // TODO
     return Vec(0, 0, 0);
 }
 
@@ -72,8 +87,12 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
     if (naive_intersect(r, t, id, s))
     {
         Vec des = r.o + r.d * t;
+        /*
+         * TODO
+         * ray casting -> ray tracing.
+         */
         return ambient_light(des, s.f_array[id].material.ka) +
-               diffuse_light(des, Vec(.3, .4, .5), s.fn_array[id]) +
+               diffuse_light(des, Vec(.2, .2, .2), s.fn_array[id], s) +
                specular_light(des, Vec(0, 0, 0), s.fn_array[id], r.d);
     }
     else

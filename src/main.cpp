@@ -27,7 +27,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1));
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -58,28 +58,25 @@ inline void add_wall_illumination()
         len_z = max_z - min_z;
 
     // Calculate size of the box;
-    min_x -= 3 * len_x;
-    min_y -= 3 * len_y;
-    min_z -= 3 * len_z;
+    min_x -= 2 * len_x;
+    min_y -= 2 * len_y;
+    min_z -= 2 * len_z;
 
-    max_x += 3 * len_x;
-    max_y += 3 * len_y;
-    max_z += 3 * len_z;
-
-    printf("%f %f %f %f %f %f", min_x, min_y, min_z, max_x, max_y, max_z);
+    max_x += 2 * len_x;
+    max_y += 2 * len_y;
+    max_z += 2 * len_z;
 
     // Set the illumination;
 
-    scene.illu_array[scene.size_illu++].set_coordinate((float) (min_x + .5 * len_x), (float) (min_y + .5 * len_y),
-                                                       (float) (max_z - .5 * len_z));
+    scene.illu_array[scene.size_illu++].set_coordinate(min_x + len_x / 2, min_y + len_y / 2,
+                                                       max_z - len_z / 2);
 
     // Change the camera's view point.
-    img.cam.d.set_coordinate(-.3, .3, -.3);
-    // img.cam.o.set_coordinate((float) (max_x - .5 * len_x), (float) (min_y + .5 * len_y),
-    //                         (float) (max_z - .5 * len_z));
-    img.cam.o.set_coordinate((float) max_x, (float) min_y,
-                             (float) max_z);
+    img.cam.d = Vec(-1, 1, -1).norm();
+    img.cam.o.set_coordinate(max_x - eps * 100, min_y + eps * 100,
+                             max_z - eps * 100);
 
+    img.adjust_camera();
     // Add the vertices to vertex list;
 
     scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, min_z);
@@ -128,9 +125,9 @@ inline void add_wall_illumination()
     scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
     ++scene.size_f;
 
-    for (int i = scene.size_f - 6; i < scene.size_f; ++i)
+    for (int i = (int) (scene.size_f - 6); i < scene.size_f; ++i)
     {
-        scene.f_array[i].set_ka(Vec(.3, .2, .4));
+        scene.f_array[i].set_ka(Vec(.5, .5, .5));
     }
 
     return ;
@@ -140,7 +137,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -150,14 +147,15 @@ void load_and_construct_scene()
     scene.size_vn   = l_normal;
     scene.size_vx   = l_vertex;
     scene.size_illu = 0;
-    for (int i = 0; i < l_face; ++i)
-    {
-        Vec v1 = scene.f_array->get_elem_idxV(1) - scene.f_array->get_elem_idxV(0),
-            v2 = scene.f_array->get_elem_idxV(2) - scene.f_array->get_elem_idxV(1);
-        scene.fn_array[i] = (v1 % v2).norm();
-    }
 
     add_wall_illumination();
+
+    for (int i = 0; i < scene.size_f; ++i)
+    {
+        Vec v1 = scene.vx_array[scene.f_array[i].get_elem_idxV(1)] - scene.vx_array[scene.f_array[i].get_elem_idxV(0)],
+                v2 = scene.vx_array[scene.f_array[i].get_elem_idxV(2)] - scene.vx_array[scene.f_array[i].get_elem_idxV(1)];
+        scene.fn_array[i] = (v1 % v2).norm();
+    }
 
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Load successful in %.3fs.\n", (now - start).count() / 1e9);
@@ -196,7 +194,7 @@ void rendering()
                         Vec
                                 d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                     img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-                        r = r + radiance(Ray(img.cam.o + d * 5, d.norm()), 0, scene) * (1. / img.samps);
+                        r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
                     }
                     col = col + r * .25;
                 }

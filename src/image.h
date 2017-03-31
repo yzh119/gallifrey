@@ -19,10 +19,12 @@ private:
     float *col;                 // col array with type float.
     float r[3];                 // colors of samples.
     uint8_t *output;            // col array with type uint8_t for conversion.
+    float tan;
 public:
-    Image(const Vec &pos, const Vec &dir): cam(Ray(pos, dir)), cx(Vec((float) (.5135 * width / height), 0, 0))
+    Image(const Vec &pos, const Vec &dir, float tan): cam(Ray(pos, dir)), tan(tan), cx(Vec(dir.y, -dir.x, 0).norm() * (tan * width / height))
     {
-        cy = (cx % cam.d).norm() * .5135;
+        cy = (cx % cam.d).norm() * tan;
+        if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
         samps = 1;
         col     = new float[3 * width * height];
         output  = new uint8_t[3 * width * height];
@@ -34,6 +36,7 @@ public:
     Vec cy;
     Ray cam;
     int samps;                                              // number of samples.
+    inline void adjust_camera();
 };
 
 uint8_t *Image::to_bmp_pixel()
@@ -55,6 +58,12 @@ void Image::set_pixel(int x, int y, const Vec &rad)
     this->col[3 * pos] = rad.x;
     this->col[3 * pos + 1] = rad.y;
     this->col[3 * pos + 2] = rad.z;
+}
+
+inline void Image::adjust_camera() {
+    cx = (Vec(cam.d.y, -cam.d.x, 0).norm() * (tan * width / height));
+    cy = (cx % cam.d).norm() * tan;
+    if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
 }
 
 #endif //GALLIFREY_IMAGE_H

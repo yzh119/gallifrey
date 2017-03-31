@@ -221,6 +221,7 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
 
     float denom = norm_vec.dot(r.d),
           numer = norm_vec.dot(v_list[f.get_elem_idxV(0)] - r.o);
+
     if (fabs(denom) < eps)
     {
         return (float) -1.;         // Case 1: parallel
@@ -262,10 +263,12 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
 
     for (int i = 0; i < s.size_f; ++i)
     {
-        if ((dis = intersect_with_face(r, s.f_array[i], s.vx_array) >= 0.))
+        dis = intersect_with_face(r, s.f_array[i], s.vx_array);
+        if (dis >= 0.)
         {
             if (t < 0 || dis < t)
             {
+                //printf("%f %d\n", dis, i);
                 t = dis;
                 id = i;
             }

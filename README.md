@@ -25,6 +25,7 @@ It's not recommended to compile & run on windows since `pthread` is not fully de
 
 ## Milestone
 - [ ] Phong Shader
+- [x] Ray Casting
 - [ ] Ray Tracing
 - [ ] Soft Shadow 
 - [ ] Transmission

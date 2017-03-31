@@ -285,7 +285,7 @@ void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, 
     if (result != lSize)
     {
         fputs ("Reading error", stderr);
-        exit (3);
+        exit(3);
     }
 
     parse_obj(buffer, f_array, vn_array, vx_array, l_f, l_vn, l_vx);
