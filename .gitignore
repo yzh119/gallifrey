@@ -1,4 +1,4 @@
 *.swp
 cmake-build-debug/
 *.bmp
-!demo/
+!demo/*
