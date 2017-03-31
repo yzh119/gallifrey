@@ -121,11 +121,11 @@ public:
 class Face
 {
 private:
-    Material material;
     int idxV[4], idxVn[4], idxVx[4];                            // Index array of one face (face array, )
     std::vector <int> extra_idxV, extra_idxVn, extra_idxVx;
     size_t sz;
 public:
+    Material material;
     Face():
         material(Vec(0, 0, 0),
                  Vec(0, 0, 0),

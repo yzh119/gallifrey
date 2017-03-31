@@ -13,7 +13,7 @@ const int max_depth = 10;
 
 namespace light
 {
-    const Vec Ia(0.8, 0.3, 0.4);
+    const Vec Ia(.8, .8, .8);
     const int samps = 1;
     const float n = 1.3;
 }
@@ -72,7 +72,7 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
     if (naive_intersect(r, t, id, s))
     {
         Vec des = r.o + r.d * t;
-        return ambient_light(des, Vec(.5, .5, .5)) +
+        return ambient_light(des, s.f_array[id].material.ka) +
                diffuse_light(des, Vec(.3, .4, .5), s.fn_array[id]) +
                specular_light(des, Vec(0, 0, 0), s.fn_array[id], r.d);
     }

@@ -193,7 +193,8 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 {
                     f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 }
-                f_array[l_f++].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
+                f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
+                f_array[l_f++].set_ka(Vec(1, 1, 1));
             }
             else if (strcmp(type, "g") == 0)
             {

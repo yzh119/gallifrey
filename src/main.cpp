@@ -58,28 +58,29 @@ inline void add_wall_illumination()
         len_z = max_z - min_z;
 
     // Calculate size of the box;
-    min_x -= len_x;
-    min_y -= len_y;
-    min_z -= len_z;
+    min_x -= 3 * len_x;
+    min_y -= 3 * len_y;
+    min_z -= 3 * len_z;
 
-    max_x += len_x;
-    max_y += len_y;
-    max_z += len_z;
+    max_x += 3 * len_x;
+    max_y += 3 * len_y;
+    max_z += 3 * len_z;
 
+    printf("%f %f %f %f %f %f", min_x, min_y, min_z, max_x, max_y, max_z);
 
     // Set the illumination;
 
     scene.illu_array[scene.size_illu++].set_coordinate((float) (min_x + .5 * len_x), (float) (min_y + .5 * len_y),
                                                        (float) (max_z - .5 * len_z));
 
-
     // Change the camera's view point.
-    img.cam.d.set_coordinate(-1, 1, -1);
-    img.cam.o.set_coordinate((float) (max_x - .5 * len_x), (float) (min_y + .5 * len_y),
-                             (float) (max_z - .5 * len_z));
+    img.cam.d.set_coordinate(-.3, .3, -.3);
+    // img.cam.o.set_coordinate((float) (max_x - .5 * len_x), (float) (min_y + .5 * len_y),
+    //                         (float) (max_z - .5 * len_z));
+    img.cam.o.set_coordinate((float) max_x, (float) min_y,
+                             (float) max_z);
 
     // Add the vertices to vertex list;
-
 
     scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, min_z);
     scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, max_z);
@@ -126,6 +127,12 @@ inline void add_wall_illumination()
     scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
     scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
     ++scene.size_f;
+
+    for (int i = scene.size_f - 6; i < scene.size_f; ++i)
+    {
+        scene.f_array[i].set_ka(Vec(.3, .2, .4));
+    }
+
     return ;
 }
 
@@ -133,7 +140,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -249,7 +256,8 @@ void rendering()
                         Vec
                                 d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                     img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-                        r = r + radiance(Ray(img.cam.o + d * 5, d.norm()), 0, scene) * (1. / img.samps);
+                        printf("%f %f %f\n", 140 * d.x, 140 * d.y, 140 * d.z);
+                        r = r + radiance(Ray(img.cam.o + d * 140, d.norm()), 0, scene) * (1. / img.samps);
                     }
                     col = col + r * .25;
                 }
