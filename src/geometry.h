@@ -268,7 +268,6 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
         {
             if (t < 0 || dis < t)
             {
-                //printf("%f %d\n", dis, i);
                 t = dis;
                 id = i;
             }

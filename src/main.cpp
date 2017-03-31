@@ -27,7 +27,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 2);
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -72,9 +72,12 @@ inline void add_wall_illumination()
                                                        max_z - len_z / 2);
 
     // Change the camera's view point.
-    img.cam.d = Vec(-1, 1, -1).norm();
-    img.cam.o.set_coordinate(max_x - eps * 100, min_y + eps * 100,
-                             max_z - eps * 100);
+//    img.cam.d = Vec(-1, 1, -1).norm();
+//    img.cam.o.set_coordinate(max_x - len_x / 2, min_y + len_y / 2,
+//                             max_z - len_z / 2);
+
+    img.cam.d = Vec(0, 1, 0).norm();
+    img.cam.o.set_coordinate(max_x - len_x * 2.5, min_y + 10 * eps, max_z - len_z * 2.5);
 
     img.adjust_camera();
     // Add the vertices to vertex list;
@@ -137,7 +140,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;

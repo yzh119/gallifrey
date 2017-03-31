@@ -43,7 +43,7 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
          */
 
         if (N.dot(s.illu_array[i] - pos) > 0)
-            ret = ret + kd * (N.dot(s.illu_array[i] - pos));
+            ret = ret + kd * (N.dot((s.illu_array[i] - pos).norm()));
     }
     ret = ret * (1. / s.size_illu);
     //printf("%f %f %f\n", N.x, N.y, N.z);
@@ -92,7 +92,7 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
          * ray casting -> ray tracing.
          */
         return ambient_light(des, s.f_array[id].material.ka) +
-               diffuse_light(des, Vec(.2, .2, .2), s.fn_array[id], s) +
+               diffuse_light(des, Vec(.5, .5, .5), s.fn_array[id], s) +
                specular_light(des, Vec(0, 0, 0), s.fn_array[id], r.d);
     }
     else
