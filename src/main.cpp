@@ -1,7 +1,6 @@
 //
 // Created by zhy96 on 3/22/17.
 //
-#include "shader.h"
 #include "io.h"
 #include "image.h"
 #include "tracing.h"
@@ -92,10 +91,10 @@ inline void add_wall_illumination()
     scene.vx_array[scene.size_vx++].set_coordinate(max_x, max_y, max_z);
 
     int idx = (int) scene.size_vx;
-    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
     scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
     ++scene.size_f;
 
     scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
@@ -110,16 +109,16 @@ inline void add_wall_illumination()
     scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
     ++scene.size_f;
 
-    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
     scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
     ++scene.size_f;
 
-    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
     scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
+    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
     ++scene.size_f;
 
     scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
@@ -141,7 +140,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -180,8 +179,9 @@ void load_and_construct_scene()
     }
 
     // Normalization
-    for (int i = (int) scene.size_vn; i < scene.size_vn + scene.size_vx; ++i)
+    for (int i = (int) scene.size_vn; i < scene.size_vn + scene.size_vx; ++i){
         scene.vn_array[i].norm();
+    }
 
     scene.size_vn += scene.size_vx;
 
