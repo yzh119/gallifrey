@@ -35,17 +35,17 @@ inline Vec ambient_light(const Vec &pos, const Vec &ka)
 inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scene &s)
 {
     Vec ret(0, 0, 0);
-    for (int i = 0; i < s.size_illu; ++i)
+    for (int i = 0; i < s.size_il; ++i)
     {
         /*
          * TODO
          * However, there should be some codes related to intersection here, but I haven't finished them.
          */
-        float cosine = N.dot((s.illu_array[i] - pos).norm());
+        float cosine = N.dot((s.il_array[i] - pos).norm());
         if (cosine > 0)
             ret = ret + kd * cosine;
     }
-    ret = ret * (1. / s.size_illu);
+    ret = ret * (1. / s.size_il);
     assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
     return ret;
 }
@@ -60,19 +60,19 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
 inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, const Scene &s)
 {
     Vec ret(0, 0, 0);
-    for (int i = 0; i < s.size_illu; ++i)
+    for (int i = 0; i < s.size_il; ++i)
     {
         /*
          * TODO
          * However, there should be some codes related to intersection here, but I haven't finished them.
          */
-        Vec L = (s.illu_array[i] - pos).norm();
+        Vec L = (s.il_array[i] - pos).norm();
         Vec R = N * ((L.dot(N)) * 2) - L;
         float cosine = V.norm().dot(R);
         if (cosine > 0)
             ret = ret + ks * pow(cosine, light::n);
     }
-    ret = ret * (1. / s.size_illu);
+    ret = ret * (1. / s.size_il);
     assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
     return ret;
 }

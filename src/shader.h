@@ -5,6 +5,8 @@
 #ifndef GALLIFREY_SHADER_H
 #define GALLIFREY_SHADER_H
 
+//#include "geometry.h"
+
 //Vec phong_shading()
 //{
 //    return Vec(0, 0, 0);

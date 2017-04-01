@@ -121,8 +121,8 @@ public:
 class Face
 {
 private:
-    int idxV[4], idxVn[4], idxVx[4];                            // Index array of one face (face array, )
-    std::vector <int> extra_idxV, extra_idxVn, extra_idxVx;
+    int idxV[4], idxVn[4], idxVt[4];                            // Index array of one face (face array, )
+    std::vector <int> extra_idxV, extra_idxVn, extra_idxVt;
     size_t sz;
 public:
     Material material;
@@ -134,9 +134,11 @@ public:
         sz = 0;
     }
     ~Face() {}
-    inline void add_vx(int idx_v, int idx_vn, int idx_vx);
+    inline void add_vx(int idx_v, int idx_vn, int idx_vt);
+    inline void modify_vn(int key, int idx_vn);
     inline size_t get_size() const;
     inline int get_elem_idxV(int idx)const;
+    inline int get_elem_idxVn(int idx)const;
     inline void set_ka(const Vec &ka);
     inline void set_kd(const Vec &kd);
     inline void set_ks(const Vec &ks);
@@ -144,20 +146,20 @@ public:
 
 float eps = 1e-6;
 
-inline void Face::add_vx(int idx_v, int idx_vn, int idx_vx)
+inline void Face::add_vx(int idx_v, int idx_vn, int idx_vt)
 {
     if (sz < 4)
     {
         idxV[sz] = idx_v;
         idxVn[sz] = idx_vn;
-        idxVx[sz] = idx_vx;
+        idxVt[sz] = idx_vt;
         ++sz;
     }
     else
     {
         extra_idxV.push_back(idx_v);
         extra_idxVn.push_back(idx_vn);
-        extra_idxVx.push_back(idx_vx);
+        extra_idxVt.push_back(idx_vt);
         ++sz;
     }
     return;
@@ -171,6 +173,16 @@ inline int Face::get_elem_idxV(int idx)const {
     }
     idx -= 4;
     return extra_idxV[idx];
+}
+
+inline int Face::get_elem_idxVn(int idx) const {
+    while (idx >= sz) idx -= sz;
+    if (idx < 4)
+    {
+        return idxVn[idx];
+    }
+    idx -= 4;
+    return extra_idxVn[idx];
 }
 
 inline size_t Face::get_size() const {
@@ -189,14 +201,27 @@ inline void Face::set_ks(const Vec &ks) {
     material.ks = ks;
 }
 
+inline void Face::modify_vn(int key, int idx_vn) {
+    assert(key < sz);
+    if (key < 4)
+    {
+        idxVn[key] = idx_vn;
+    }
+    else
+    {
+        extra_idxVn[key - 4] = idx_vn;
+    }
+    return;
+}
+
 struct Scene
 {
     Face *f_array;
     Vec *vn_array;
     Vec *vx_array;
     Vec *fn_array;
-    Vec *illu_array;
-    size_t size_f, size_vn, size_vx, size_illu;
+    Vec *il_array;
+    size_t size_f, size_vn, size_vx, size_il;
 };
 
 /*

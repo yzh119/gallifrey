@@ -21,7 +21,7 @@ Face fArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
 Vec fnArray[max_face];
-Vec illuArray[max_illu];
+Vec ilArray[max_illu];
 
 size_t l_face, l_vertex, l_normal;
 
@@ -37,6 +37,9 @@ inline float erand()
     return (float) rand() / RAND_MAX;
 }
 
+/*
+ * To create the bound box that covers the entire scene.
+ */
 inline void add_wall_illumination()
 {
     float min_x, min_y, min_z = min_y = min_x = 1e9;
@@ -68,7 +71,7 @@ inline void add_wall_illumination()
 
     // Set the illumination;
 
-    scene.illu_array[scene.size_illu++].set_coordinate(min_x + len_x / 2, min_y + len_y / 2,
+    scene.il_array[scene.size_il++].set_coordinate(min_x + len_x / 2, min_y + len_y / 2,
                                                        max_z - len_z / 2);
 
     // Change the camera's view point.
@@ -125,6 +128,7 @@ inline void add_wall_illumination()
     scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
     ++scene.size_f;
 
+    // Set the 'ka' parameter manually.
     for (int i = (int) (scene.size_f - 6); i < scene.size_f; ++i)
     {
         scene.f_array[i].set_ka(Vec(.5, .5, .5));
@@ -137,25 +141,50 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
     scene.fn_array  = fnArray;
-    scene.illu_array = illuArray;
+    scene.il_array  = ilArray;
     scene.size_f    = l_face;
     scene.size_vn   = l_normal;
     scene.size_vx   = l_vertex;
-    scene.size_illu = 0;
+    scene.size_il = 0;
 
     add_wall_illumination();
 
+    // Compute the normal vector.
     for (int i = 0; i < scene.size_f; ++i)
     {
-        Vec v1 = scene.vx_array[scene.f_array[i].get_elem_idxV(1)] - scene.vx_array[scene.f_array[i].get_elem_idxV(0)],
-                v2 = scene.vx_array[scene.f_array[i].get_elem_idxV(2)] - scene.vx_array[scene.f_array[i].get_elem_idxV(1)];
-        scene.fn_array[i] = (v1 % v2).norm();
+        Vec &v = scene.fn_array[i];
+        for (int j = 0; j < scene.f_array[i].get_size(); ++j)
+            v = v + (scene.vx_array[scene.f_array[i].get_elem_idxV(j)] %
+                    scene.vx_array[scene.f_array[i].get_elem_idxV(j + 1)]);
+        v.norm();
     }
+
+    // Compute the vertex normal vector.
+    for (int i = 0; i < scene.size_f; ++i)
+    {
+        for (int j = 0; j < scene.f_array[i].get_size(); ++j)
+        {
+            size_t idx = scene.f_array[i].get_elem_idxV(j) + scene.size_vn;
+            Vec &v = scene.vn_array[idx];
+            v = v + scene.fn_array[i];
+            if (scene.f_array[i].get_elem_idxVn(j) == -1)
+            {
+                scene.f_array[i].modify_vn(j, (int) idx);
+            }
+        }
+    }
+
+    // Normalization
+    for (int i = (int) scene.size_vn; i < scene.size_vn + scene.size_vx; ++i)
+        scene.vn_array[i].norm();
+
+    scene.size_vn += scene.size_vx;
+
 
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Load successful in %.3fs.\n", (now - start).count() / 1e9);
