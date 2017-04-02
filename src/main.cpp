@@ -22,7 +22,8 @@ extern const unsigned int height;
 
 const int max_face  = 120000;
 const int max_vx    = 120000;
-const int max_illu  = 20;
+const int max_illu  = 200;
+const float view_dis = 1;
 
 // This determines whether to enable anti-aliasing or not.
 bool enable_anti_aliasing;
@@ -73,18 +74,31 @@ inline void add_wall_illumination()
         len_z = max_z - min_z;
 
     // Calculate size of the box;
-    min_x -= .6 * len_x;
-    min_y -= .6 * len_y;
-    min_z -= .6 * len_z;
+    min_x -= view_dis * len_x;
+    min_y -= view_dis * len_y;
+    min_z -= view_dis * len_z;
 
-    max_x += .6 * len_x;
-    max_y += .6 * len_y;
-    max_z += .6 * len_z;
+    max_x += view_dis * len_x;
+    max_y += view_dis * len_y;
+    max_z += view_dis * len_z;
 
     // Set the illumination;
 
     scene.il_array[scene.size_il++].set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
                                                        max_z - len_z / 2);
+
+    // Set multi-illumination to enable soft shadow.
+    if (enable_shadow)
+    {
+        for (int i = -1; i < 10; ++i)
+            for (int j = -1; j < 10; ++j)
+            {
+                if (i == 0 && j == 0) continue;
+                scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x / 2 + 2e-2 * i),
+                                                               (float) (max_y - len_y / 2 + 2e-2 * i),
+                                                               (float) (max_z - len_z / 2 + 2e-2 * i));
+            }
+    }
 
     // Change the camera's view point.
     img.cam.d = Vec(-1, -1, 1).norm();
@@ -208,7 +222,10 @@ void rendering()
                             Vec
                                     d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                         img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-                            r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                            if (enable_global)
+                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                            else
+                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / img.samps);
                         }
                         col = col + r * .25;
                     }
@@ -218,7 +235,10 @@ void rendering()
                 Vec
                         d = img.cx * (1. * x / width  - .5) +
                             img.cy * (1. * y / height - .5) + img.cam.d;
-                col = radiance(Ray(img.cam.o, d.norm()), 0, scene);
+                if (enable_global)
+                    col = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
+                else
+                    col = local_ill(Ray(img.cam.o, d.norm()), scene);
             }
 
             img.set_pixel(x, y, col);
@@ -279,8 +299,10 @@ void rendering()
                             Vec
                                     d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                         img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-
-                            r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                            if (enable_global)
+                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                            else
+                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / img.samps);
                         }
                         col = col + r * .25;
                     }
@@ -290,7 +312,10 @@ void rendering()
                 Vec
                         d = img.cx * (1. * x / width  - .5) +
                             img.cy * (1. * y / height - .5) + img.cam.d;
-                col = radiance(Ray(img.cam.o, d.norm()), 0, scene);
+                if (enable_global)
+                    col = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
+                else
+                    col = local_ill(Ray(img.cam.o, d.norm()), scene);
             }
             img.set_pixel(x, y, col);
         }
@@ -322,7 +347,7 @@ int main(int argc, char *argv[])
 {
 #ifdef DEBUG
     enable_anti_aliasing = false;
-    enable_shadow = false;
+    enable_shadow = true;
     enable_global = false;
 #else
     parse_argument(argc, argv);

@@ -10,7 +10,7 @@
 #include "shader.h"
 
 const int max_depth = 2;
-
+extern bool enable_shadow;
 
 namespace light
 {
@@ -38,13 +38,18 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
     Vec ret(0, 0, 0);
     for (int i = 0; i < s.size_il; ++i)
     {
-        /*
-         * TODO
-         * However, there should be some codes related to intersection here, but I haven't finished them.
-         */
         float cosine = N.dot((s.il_array[i] - pos).norm());
-        if (cosine > 0)
-            ret = ret + kd * cosine;
+        if (!enable_shadow)
+        {
+            if (cosine > 0)
+                ret = ret + kd * cosine;
+        }
+        else
+        {
+            if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
+                ret = ret + kd * cosine;
+        }
+
     }
     ret = ret * (1. / s.size_il);
     assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
@@ -63,15 +68,19 @@ inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, co
     Vec ret(0, 0, 0);
     for (int i = 0; i < s.size_il; ++i)
     {
-        /*
-         * TODO
-         * However, there should be some codes related to intersection here, but I haven't finished them.
-         */
         Vec L = (s.il_array[i] - pos).norm();
         Vec R = N * ((L.dot(N)) * 2) - L;
         float cosine = V.norm().dot(R);
-        if (cosine > 0)
-            ret = ret + ks * pow(cosine, light::n);
+        if (!enable_shadow)
+        {
+            if (cosine > 0)
+                ret = ret + ks * pow(cosine, light::n);
+        }
+        else
+        {
+            if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
+                ret = ret + ks * pow(cosine, light::n);
+        }
     }
     ret = ret * (1. / s.size_il);
     assert(ret.x >= 0 && ret.y >= 0 && ret.z >= 0);
@@ -79,48 +88,16 @@ inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, co
 }
 
 /*
- * To calculate the refract_light at the given position.
- * pos: position
+ * Local illumination
  */
-inline Vec refract_light(const Vec &pos)
+inline Vec local_ill(const Ray &r, const Scene &s, int E = 1)
 {
-    // TODO
-    return Vec(0, 0, 0);
-}
-
-/*
- * Ray Tracing part.
- */
-Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
-{
-    if (depth > max_depth)
-    {
-        return Vec(1, 1, 1);
-    }
     float t;
     int id;
     if (naive_intersect(r, t, id, s))
     {
         Vec des = r.o + r.d * t;
-        /*
-         * TODO
-         * ray casting -> ray tracing.
-         */
-
-        Vec N;
-        if (depth == 0) {
-            N = get_phong_shading_vector(s.f_array[id], des, s);
-        }
-        else
-        {
-            N = s.fn_array[id];
-        }
-
-        //if (s.fn_array[id].dot(r.d) < 0)
-        //    N.set_coordinate(s.fn_array[id].x, s.fn_array[id].y, s.fn_array[id].z);
-        //else
-        //    N.set_coordinate(-s.fn_array[id].x, -s.fn_array[id].y, -s.fn_array[id].z);
-
+        Vec N(get_phong_shading_vector(s.f_array[id], des, s));
         return ambient_light(des, Vec(.2, .2, .2)) +
                diffuse_light(des, Vec(.4, .4, .4), N, s) +
                specular_light(des, Vec(.4, .4, .4), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
@@ -130,5 +107,23 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
         return Vec(0, 0, 0);
     }
 }
+
+Vec global_ill(const Ray &r, int depth, const Scene &s)
+{
+    if (depth > max_depth)
+        return Vec(0, 0, 0);
+
+    float t;
+    int id;
+    if (naive_intersect(r, t, id, s))
+    {
+        Vec des = r.o + r.d * t;
+        // TODO
+    } else
+    {
+        return Vec(0, 0, 0);
+    }
+}
+
 
 #endif //GALLIFREY_TRACING_H_H

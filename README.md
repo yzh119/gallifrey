@@ -5,7 +5,7 @@ To implement <del>an efficient</del> Ray Tracing algorithm on CPU.
 
 Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and set the value of `height` and `width`.
 
-If you would like to run the code on CPU with more then 4 cores, please refer to `src/main.cpp` and change set value of `num_workers`.
+If you would like to run the code on CPU with more then 4 cores, please refer to `src/main.cpp` and set the value of `num_workers`.
 
 ## Structure
 

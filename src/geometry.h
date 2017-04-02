@@ -248,32 +248,23 @@ inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
           numer = norm_vec.dot(v_list[f.get_elem_idxV(0)] - r.o);
 
     if (fabs(denom) < eps)
-    {
         return (float) -1.;         // Case 1: parallel
-    }
     else
     {
         float dis = numer / denom;
-
         int cnt = 0;
         Vec inter = r.o + r.d * dis;
         Vec rand_vec = v1 * 1e4;
 
         for (int i = 0; i < f.get_size(); ++i)
-        {
             if (cross(rand_vec, v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i + 1)] - inter) &&
                     cross(v_list[f.get_elem_idxV(i + 1)] - v_list[f.get_elem_idxV(i)], v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i)] - inter - rand_vec))
                 ++cnt;
-        }
 
         if (cnt % 2 == 1)
-        {
             return dis;             // Case 2: intersect
-        }
         else
-        {
             return -1;              // Case 3: not parallel, but intersection is outside the polygon.
-        }
     }
 }
 
@@ -289,7 +280,7 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
     for (int i = 0; i < s.size_f; ++i)
     {
         dis = intersect_with_face(r, s.f_array[i], s.vx_array);
-        if (dis >= 0.)
+        if (dis > eps)
         {
             if (t < 0 || dis < t)
             {
@@ -299,6 +290,22 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
         }
     }
     return t >= 0.;
+}
+
+/*
+ * To judge whether the given segment intersects with the scene.
+ */
+inline bool oriented_segment_intersect(const Vec &start, const Vec &target, const Scene &s)
+{
+    Ray r(start, (target - start).norm());
+    for (int i = 0; i < s.size_f; ++i)
+    {
+        float dis = intersect_with_face(r, s.f_array[i], s.vx_array);
+        if (dis > eps)
+            if (dis * dis < (target - start).dot(target - start) - 10 * eps)
+                return true;
+    }
+    return false;
 }
 
 /*
