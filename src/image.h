@@ -64,6 +64,7 @@ void Image::set_pixel(int x, int y, const Vec &rad)
 inline void Image::adjust_camera() {
     cy = (Vec(cam.d.y, -cam.d.x, 0).norm() * tan);
     cx = (cy % cam.d).norm() * (tan * width / height);
+    cy = Vec(-cy.x, -cy.y, -cy.z);
     //if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
 }
 
