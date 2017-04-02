@@ -21,10 +21,10 @@ private:
     uint8_t *output;            // col array with type uint8_t for conversion.
     float tan;
 public:
-    Image(const Vec &pos, const Vec &dir, float tan): cam(Ray(pos, dir)), tan(tan), cx(Vec(dir.y, -dir.x, 0).norm() * (tan * width / height))
+    Image(const Vec &pos, const Vec &dir, float tan): cam(Ray(pos, dir)), tan(tan)
     {
+        cx = Vec(dir.y, -dir.x, 0).norm() * (tan * width / height);
         cy = (cx % cam.d).norm() * tan;
-        if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
         samps = 1;
         col     = new float[3 * width * height];
         output  = new uint8_t[3 * width * height];
@@ -46,9 +46,9 @@ uint8_t *Image::to_bmp_pixel()
         {
             int pos = (height - 1 - y) * width + x;
             int pos1 = y * width + x;
-            output[3 * pos]     = to_int(col[3 * pos1]);
-            output[3 * pos + 1] = to_int(col[3 * pos1 + 1]);
-            output[3 * pos + 2] = to_int(col[3 * pos1 + 2]);
+            output[3 * pos1]     = to_int(col[3 * pos1]);
+            output[3 * pos1 + 1] = to_int(col[3 * pos1 + 1]);
+            output[3 * pos1 + 2] = to_int(col[3 * pos1 + 2]);
         }
     return output;
 }
@@ -62,9 +62,9 @@ void Image::set_pixel(int x, int y, const Vec &rad)
 }
 
 inline void Image::adjust_camera() {
-    cx = (Vec(cam.d.y, -cam.d.x, 0).norm() * (tan * width / height));
-    cy = (cx % cam.d).norm() * tan;
-    if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
+    cy = (Vec(cam.d.y, -cam.d.x, 0).norm() * tan);
+    cx = (cy % cam.d).norm() * (tan * width / height);
+    //if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
 }
 
 #endif //GALLIFREY_IMAGE_H

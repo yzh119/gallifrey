@@ -155,6 +155,7 @@ static inline char *parse_face(char *ptr, int &idx_v, int &idx_vt, int &idx_vn)
  */
 static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, size_t &l_f, size_t &l_vn, size_t &l_vx)
 {
+    int cnt = 0;
     char *ptr = buffer;
     while (*buffer)
     {
@@ -227,6 +228,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
 
         if (*ptr && *ptr == '\n')
             ++ptr;
+
         buffer = ptr;
     }
 }

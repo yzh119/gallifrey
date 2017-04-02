@@ -26,7 +26,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1.4);
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -70,13 +70,13 @@ inline void add_wall_illumination()
 
     // Set the illumination;
 
-    scene.il_array[scene.size_il++].set_coordinate(min_x + len_x / 2, min_y + len_y / 2,
+    scene.il_array[scene.size_il++].set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
                                                        max_z - len_z / 2);
 
     // Change the camera's view point.
-    img.cam.d = Vec(-1, 1, -1).norm();
-    img.cam.o.set_coordinate(max_x - len_x / 2, min_y + len_y / 2,
-                             max_z - len_z / 2);
+    img.cam.d = Vec(-1, -1, 1).norm();
+    img.cam.o.set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
+                             min_z + len_z / 2);
 
     img.adjust_camera();
     // Add the vertices to vertex list;

@@ -16,10 +16,9 @@ inline Vec get_phong_shading_vector(const Face &f, const Vec &pos, const Scene &
     int j = -1;
     Vec v1(v_array[f.get_elem_idxV(1)] - v_array[f.get_elem_idxV(0)]),
         v2(v_array[f.get_elem_idxV(2)] - v_array[f.get_elem_idxV(0)]);
-    for (int i = 1; i < f.get_size() - 1; ++i)
+    for (int i = 1; i < f.get_size(); ++i)
     {
-        if ((v % v1).dot
-                (v % v2) <= eps)
+        if ((v % v1).dot(v % v2) <= eps)
         {
             j = i;
             if (fabs(v1.x * v2.y - v1.y * v2.x) > eps)
@@ -43,7 +42,11 @@ inline Vec get_phong_shading_vector(const Face &f, const Vec &pos, const Scene &
         v2 = v_array[f.get_elem_idxV(i + 2)] - v_array[f.get_elem_idxV(0)];
     }
     assert(j != -1);
-    assert(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1);
+    if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))
+    {
+        printf("%f %f %f\n", alpha, beta, gamma);
+    }
+    //assert(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1);
 
     Vec ret = (s.vn_array[f.get_elem_idxVn(0)] * alpha + s.vn_array[f.get_elem_idxVn(j)] * beta + s.vn_array[f.get_elem_idxVn(j + 1)] * gamma);
     return ret.norm();
