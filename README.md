@@ -10,8 +10,10 @@ It's not recommended to compile/run on windows cause multi-threading is disabled
 
     git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
     cd gallifrey/
-    cmake .
-    make
+    cmake . -DCMAKE_BUILD_TYPE=RELEASE
+    make && cd bin
+    ./gallifrey
+    cd ../out
 
 ## Requirements
 
@@ -27,13 +29,14 @@ It's not recommended to compile/run on windows cause multi-threading is disabled
 - [ ] Soft Shadow 
 - [ ] Transparent
 - [ ] Color Bleeding
-- [ ] Texture
+- [x] Texture
 - [x] Multi-threading
 
 ## Demo
 ![Cube](demo/sphere.bmp)
 
 ## Reference
+- An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
 - Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
 - SAH kd-tree: http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf
-- An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
+- About how to load textures: https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/

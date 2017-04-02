@@ -139,7 +139,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
