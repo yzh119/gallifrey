@@ -132,7 +132,6 @@ inline void add_wall_illumination()
     {
         scene.f_array[i].set_ka(Vec(.5, .5, .5));
     }
-
     return ;
 }
 
@@ -140,7 +139,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -271,7 +270,7 @@ void rendering()
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             Vec col(0, 0, 0);
-            if ((y * width + x) % 1024 == 0) fprintf(stderr, "Rendering the %d/%d pixel.\n", y * width + x, width * height);
+            if ((y * width + x) % 1024 == 0) fprintf(stderr, "Rendering the %d/%d pixel.\r", y * width + x, width * height);
             for (unsigned int sy = 0; sy < 2; ++sy)
                 for (unsigned int sx = 0; sx < 2; ++sx) {
                     Vec r(0, 0, 0);

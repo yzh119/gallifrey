@@ -107,14 +107,15 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
          * ray casting -> ray tracing.
          */
         Vec N(get_phong_shading_vector(s.f_array[id], des, s));
+
         //if (s.fn_array[id].dot(r.d) < 0)
         //    N.set_coordinate(s.fn_array[id].x, s.fn_array[id].y, s.fn_array[id].z);
         //else
         //    N.set_coordinate(-s.fn_array[id].x, -s.fn_array[id].y, -s.fn_array[id].z);
 
-        return ambient_light(des, Vec(.3, .3, .3)) +
-               diffuse_light(des, Vec(.6, .6, .6), N, s) +
-               specular_light(des, Vec(.7, .7, .7), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
+        return ambient_light(des, Vec(.5, .5, .5)) +
+               diffuse_light(des, Vec(.3, .3, .3), N, s) +
+               specular_light(des, Vec(.2, .2, .2), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
     }
     else
     {
