@@ -3,9 +3,26 @@ Course assignment(midterm) of CS230.
 
 To implement <del>an efficient</del> Ray Tracing algorithm on CPU.
 
-Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and change the value of `height` and `width`.
+Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and set the value of `height` and `width`.
 
-If you would like to run the code on CPU with more then 4 cores, please refer to `src/main.cpp` and change the value of `num_workers`.
+If you would like to run the code on CPU with more then 4 cores, please refer to `src/main.cpp` and change set value of `num_workers`.
+
+## Structure
+
+    demo/           # To store some selected outputs
+    out/            # Output of the program will be directed here
+    resources/      # To store `.obj` models
+    vendor/         # To store third-party libraries
+    src/            # Source code
+    | aabb.h        # To implement the Axis-Aligned Bounding Box
+    | colors.h      # To implement some functions related to color of pixels.
+    | geometry.h    # To implement some classes and functions related to algebra and geometry.
+    | image.h       # To implement a class that contains the information of the output.
+    | io.h          # To implement some functions to parse `.obj` files and dump `.bmp` files.
+    | kdtree.h      # To implement the SAH-KDTree
+    | shader.h      # To implement the Phong Shading algorithm.
+    | tracing.h     # To implement some functions
+    | main.cpp      # Set parameters
 
 ## Features
 
@@ -35,7 +52,7 @@ For Unix/Linux users:
     ./gallifrey [-anti_aliasing] [-shadow] [-global]
     cd ../out
 
-For Windows users(using Powershell, with `git`, `mingw` in your `PATH` environment variable):
+For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` environment variable):
 
     git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
     cd gallifrey/
