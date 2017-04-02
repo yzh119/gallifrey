@@ -22,28 +22,37 @@ extern const unsigned int height;
 
 const int max_face  = 120000;
 const int max_vx    = 120000;
-const int max_illu  = 200;
+const int max_illu  = 300;
+const int max_name  = 40;
 const float view_dis = 1;
 
-// This determines whether to enable anti-aliasing or not.
-bool enable_anti_aliasing;
-bool enable_shadow;
-bool enable_global;
+// Arguments
+bool enable_anti_aliasing = false;
+bool enable_shadow = false;
+bool enable_global = false;
+char model_name[max_name];
+int num_workers = 4;
+
 
 Face fArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
 Vec fnArray[max_face];
 Vec ilArray[max_illu];
-
 size_t l_face, l_vertex, l_normal;
 
 Scene scene;
-
 Image img(Vec(0, -5, -5), Vec(0, 1, 1), 2);
 
 std::atomic<int> cnt_pixels;
-const int num_workers = 4;
+
+inline float eta(int progress, int total,
+        const std::chrono::high_resolution_clock::time_point &start,
+        const std::chrono::high_resolution_clock::time_point &now)
+{
+    assert(progress != 0);
+    return (float) ((1. * (total - progress) / progress) * ((now - start).count() / 1e9));
+}
 
 inline float erand()
 {
@@ -90,14 +99,15 @@ inline void add_wall_illumination()
     // Set multi-illumination to enable soft shadow.
     if (enable_shadow)
     {
-        for (int i = -1; i < 10; ++i)
-            for (int j = -1; j < 10; ++j)
-            {
-                if (i == 0 && j == 0) continue;
-                scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x / 2 + 2e-2 * i),
-                                                               (float) (max_y - len_y / 2 + 2e-2 * i),
-                                                               (float) (max_z - len_z / 2 + 2e-2 * i));
-            }
+        for (int i = -3; i < 3; ++i)
+            for (int j = -3; j < 3; ++j)
+                for (int k = -3; k < 3; ++k)
+                {
+                    if (i == 0 && j == 0 && k == 0) continue;
+                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x / 2 + 2e-1 * i),
+                                                                   (float) (max_y - len_y / 2 + 2e-1 * j),
+                                                                   (float) (max_z - len_z / 2 + 2e-1 * k));
+                }
     }
 
     // Change the camera's view point.
@@ -137,7 +147,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) ("../resources/" + std::string(model_name) + ".obj").c_str(), fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -242,8 +252,12 @@ void rendering()
             }
 
             img.set_pixel(x, y, col);
-            if (cnt_pixels.load() % 1024 == 0)
-                fprintf(stderr, "Rendering the %d/%d pixel.\r", cnt_pixels.load(), (width * height));
+            if (cnt_pixels.load() % 1024 == 0) {
+                fprintf(stderr, "%*c\r", 79, ' ');
+                fprintf(stderr, "Rendering the %d/%d pixel, ETA: %.2fs.\r",
+                        y * width + x, width * height,
+                        eta(y * width + x, height * width, start, std::chrono::high_resolution_clock::now()))
+            }
             ++cnt_pixels;
         }
     };
@@ -284,7 +298,12 @@ void rendering()
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             Vec col(0, 0, 0);
-            if ((y * width + x) % 1024 == 0) fprintf(stderr, "Rendering the %d/%d pixel.\r", y * width + x, width * height);
+            if ((y * width + x) % 1024 == 0 && y * width + x > 0) {
+                fprintf(stderr, "%*c\r", 79, ' ');
+                fprintf(stderr, "Rendering the %d/%d pixel, ETA: %.2fs.\r",
+                        y * width + x, width * height,
+                        eta(y * width + x, height * width, start, std::chrono::high_resolution_clock::now()));
+            }
             if (enable_anti_aliasing){
                 for (unsigned int sy = 0; sy < 2; ++sy)
                     for (unsigned int sx = 0; sx < 2; ++sx) {
@@ -339,16 +358,55 @@ void dump_image()
 }
 
 void parse_argument(int argc, char *argv[]) {
-    printf("233333\n");
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--model") == 0)
+        {
+            strcpy(model_name, argv[++i]);
+        } else if (strcmp(argv[i], "--anti_aliasing") == 0)
+        {
+            enable_anti_aliasing = true;
+        } else if (strcmp(argv[i], "--shadow") == 0)
+        {
+            enable_shadow = true;
+        } else if (strcmp(argv[i], "--global") == 0)
+        {
+            enable_global = true;
+        } else if (strcmp(argv[i], "--core") == 0)
+        {
+            num_workers = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--help") == 0)
+        {
+            fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
+            fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
+            fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
+            fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
+            fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow.\n");
+            fprintf(stdout, "--global:\t\t specifies whether to enable global illumination.\n");
+            fprintf(stdout, "--help:\t\t\t display this information.\n");
+            fprintf(stdout, "Please refer to README.md for more details.\n");
+        } else {
+            fprintf(stderr, "Argument error, please use %s --help to see the usage.", argv[0]);
+            exit(1);
+        }
+    }
+    if (strlen(model_name) == 0)
+    {
+        fprintf(stderr, "Model name must be specified.");
+        exit(1);
+    }
     return ;
 }
 
 int main(int argc, char *argv[])
 {
+    // Initialization
+    memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
     enable_anti_aliasing = false;
     enable_shadow = true;
     enable_global = false;
+    strcpy(model_name, "cube");
 #else
     parse_argument(argc, argv);
 #endif
