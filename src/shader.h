@@ -47,7 +47,7 @@ inline Vec get_phong_shading_vector(const Face &f, const Vec &pos, const Scene &
     assert(j != -1);
     if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))
     {
-        printf("Abnormal pixel!");
+    //    printf("Abnormal pixel!");
     }
     //assert(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1);
 

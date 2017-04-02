@@ -8,6 +8,14 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#define ADD_WALL(arg1, arg2, arg3, arg4) \
+scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, -1); \
+scene.f_array[scene.size_f].add_vx(idx - (arg2), -1, -1); \
+scene.f_array[scene.size_f].add_vx(idx - (arg3), -1, -1); \
+scene.f_array[scene.size_f].add_vx(idx - (arg4), -1, -1); \
+++scene.size_f
+#define ADD_CORD(x, y, z) \
+scene.vx_array[scene.size_vx++].set_coordinate((x), (y), (z))
 
 extern const unsigned int width;
 extern const unsigned int height;
@@ -17,7 +25,9 @@ const int max_vx    = 120000;
 const int max_illu  = 20;
 
 // This determines whether to enable anti-aliasing or not.
-bool enable_anti_aliasing = false;
+bool enable_anti_aliasing;
+bool enable_shadow;
+bool enable_global;
 
 Face fArray[max_face];
 Vec vxArray[max_vx];
@@ -84,51 +94,22 @@ inline void add_wall_illumination()
     img.adjust_camera();
     // Add the vertices to vertex list;
 
-    scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, min_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(min_x, min_y, max_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(min_x, max_y, min_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(min_x, max_y, max_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(max_x, min_y, min_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(max_x, min_y, max_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(max_x, max_y, min_z);
-    scene.vx_array[scene.size_vx++].set_coordinate(max_x, max_y, max_z);
+    ADD_CORD(min_x, min_y, min_z);
+    ADD_CORD(min_x, min_y, max_z);
+    ADD_CORD(min_x, max_y, min_z);
+    ADD_CORD(min_x, max_y, max_z);
+    ADD_CORD(max_x, min_y, min_z);
+    ADD_CORD(max_x, min_y, max_z);
+    ADD_CORD(max_x, max_y, min_z);
+    ADD_CORD(max_x, max_y, max_z);
 
     int idx = (int) scene.size_vx;
-    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
-    ++scene.size_f;
-
-    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
-    ++scene.size_f;
-
-    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
-    ++scene.size_f;
-
-    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
-    ++scene.size_f;
-
-    scene.f_array[scene.size_f].add_vx(idx - 4, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 2, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 6, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 8, -1, -1);
-    ++scene.size_f;
-
-    scene.f_array[scene.size_f].add_vx(idx - 7, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 5, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 1, -1, -1);
-    scene.f_array[scene.size_f].add_vx(idx - 3, -1, -1);
-    ++scene.size_f;
+    ADD_WALL(6, 5, 7, 8);
+    ADD_WALL(4, 3, 1, 2);
+    ADD_WALL(8, 7, 3, 4);
+    ADD_WALL(2, 1, 5, 6);
+    ADD_WALL(4, 2, 6, 8);
+    ADD_WALL(7, 5, 1, 3);
 
     // Set the 'ka' parameter manually.
     for (int i = (int) (scene.size_f - 6); i < scene.size_f; ++i)
@@ -142,7 +123,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/sphere.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -280,29 +261,37 @@ void rendering()
         worker.join();
 #endif
 #ifdef _WIN32
-
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             Vec col(0, 0, 0);
             if ((y * width + x) % 1024 == 0) fprintf(stderr, "Rendering the %d/%d pixel.\r", y * width + x, width * height);
-            for (unsigned int sy = 0; sy < 2; ++sy)
-                for (unsigned int sx = 0; sx < 2; ++sx) {
-                    Vec r(0, 0, 0);
-                    for (int s = 0; s < img.samps; ++s) {
-                        float
-                                r1 = 2 * erand(),
-                                r2 = 2 * erand();
-                        float
-                                dx = (float) (r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1)),
-                                dy = (float) (r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2));
-                        Vec
-                                d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
-                                    img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
+            if (enable_anti_aliasing){
+                for (unsigned int sy = 0; sy < 2; ++sy)
+                    for (unsigned int sx = 0; sx < 2; ++sx) {
+                        Vec r(0, 0, 0);
+                        for (int s = 0; s < img.samps; ++s) {
+                            float
+                                    r1 = 2 * erand(),
+                                    r2 = 2 * erand();
+                            float
+                                    dx = (float) (r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1)),
+                                    dy = (float) (r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2));
+                            Vec
+                                    d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
+                                        img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
 
-                        r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                            r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                        }
+                        col = col + r * .25;
                     }
-                    col = col + r * .25;
-                }
+            }
+            else
+            {
+                Vec
+                        d = img.cx * (1. * x / width  - .5) +
+                            img.cy * (1. * y / height - .5) + img.cam.d;
+                col = radiance(Ray(img.cam.o, d.norm()), 0, scene);
+            }
             img.set_pixel(x, y, col);
         }
     }
@@ -324,8 +313,21 @@ void dump_image()
     return ;
 }
 
+void parse_argument(int argc, char *argv[]) {
+    printf("233333\n");
+    return ;
+}
+
 int main(int argc, char *argv[])
 {
+#ifdef DEBUG
+    enable_anti_aliasing = false;
+    enable_shadow = false;
+    enable_global = false;
+#else
+    parse_argument(argc, argv);
+#endif
+
     // unit test.
     test_dump_image();
     test_intersection();

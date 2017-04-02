@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 project(gallifrey)
+
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS -O3)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 if (CMAKE_BUILD_TYPE MATCHES RELEASE)
-set(EXECUTABLE_OUTPUT_PATH  bin)
-endif(CMAKE_BUILD_TYPE MATCHES RELEASE)
+set(EXECUTABLE_OUTPUT_PATH bin)
+else()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+endif()
 
 include_directories( vendor/bitmap vendor/concurrentqueue)
 
