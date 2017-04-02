@@ -16,6 +16,9 @@ const int max_face  = 120000;
 const int max_vx    = 120000;
 const int max_illu  = 20;
 
+// This determines whether to enable anti-aliasing or not.
+bool enable_anti_aliasing = false;
+
 Face fArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
@@ -26,7 +29,7 @@ size_t l_face, l_vertex, l_normal;
 
 Scene scene;
 
-Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1.4);
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 2);
 
 std::atomic<int> cnt_pixels;
 const int num_workers = 4;
@@ -60,13 +63,13 @@ inline void add_wall_illumination()
         len_z = max_z - min_z;
 
     // Calculate size of the box;
-    min_x -= 2 * len_x;
-    min_y -= 2 * len_y;
-    min_z -= 2 * len_z;
+    min_x -= .6 * len_x;
+    min_y -= .6 * len_y;
+    min_z -= .6 * len_z;
 
-    max_x += 2 * len_x;
-    max_y += 2 * len_y;
-    max_z += 2 * len_z;
+    max_x += .6 * len_x;
+    max_y += .6 * len_y;
+    max_z += .6 * len_z;
 
     // Set the illumination;
 
@@ -139,7 +142,7 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) "../resources/cube.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) "../resources/teapot.obj", fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -209,23 +212,34 @@ void rendering()
                 y = item.second;
             if (x == -1) return;
             Vec col(0, 0, 0);
-            for (int sy = 0; sy < 2; ++sy)
-                for (int sx = 0; sx < 2; ++sx) {
-                    Vec r(0, 0, 0);
-                    for (int s = 0; s < img.samps; ++s) {
-                        float
-                                r1 = 2 * erand(),
-                                r2 = 2 * erand();
-                        float
-                                dx = (float) (r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1)),
-                                dy = (float) (r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2));
-                        Vec
-                                d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
-                                    img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
-                        r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+            if (enable_anti_aliasing)
+            {
+                for (int sy = 0; sy < 2; ++sy)
+                    for (int sx = 0; sx < 2; ++sx) {
+                        Vec r(0, 0, 0);
+                        for (int s = 0; s < img.samps; ++s) {
+                            float
+                                    r1 = 2 * erand(),
+                                    r2 = 2 * erand();
+                            float
+                                    dx = (float) (r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1)),
+                                    dy = (float) (r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2));
+                            Vec
+                                    d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
+                                        img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
+                            r = r + radiance(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                        }
+                        col = col + r * .25;
                     }
-                    col = col + r * .25;
-                }
+            }
+            else
+            {
+                Vec
+                        d = img.cx * (1. * x / width  - .5) +
+                            img.cy * (1. * y / height - .5) + img.cam.d;
+                col = radiance(Ray(img.cam.o, d.norm()), 0, scene);
+            }
+
             img.set_pixel(x, y, col);
             if (cnt_pixels.load() % 1024 == 0)
                 fprintf(stderr, "Rendering the %d/%d pixel.\r", cnt_pixels.load(), (width * height));

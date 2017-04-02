@@ -8,6 +8,9 @@
 #include <cstdio>
 #include "geometry.h"
 
+/*
+ * To interpolate the normal vector.
+ */
 inline Vec get_phong_shading_vector(const Face &f, const Vec &pos, const Scene &s)
 {
     float alpha = (float) (1 / 3.), beta = (float) (1 / 3.), gamma = (float) (1 / 3.);
@@ -44,7 +47,7 @@ inline Vec get_phong_shading_vector(const Face &f, const Vec &pos, const Scene &
     assert(j != -1);
     if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))
     {
-        printf("%f %f %f\n", alpha, beta, gamma);
+        printf("Abnormal pixel!");
     }
     //assert(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1);
 

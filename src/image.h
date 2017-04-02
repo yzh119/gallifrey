@@ -23,8 +23,9 @@ private:
 public:
     Image(const Vec &pos, const Vec &dir, float tan): cam(Ray(pos, dir)), tan(tan)
     {
-        cx = Vec(dir.y, -dir.x, 0).norm() * (tan * width / height);
-        cy = (cx % cam.d).norm() * tan;
+        cy = (Vec(cam.d.y, -cam.d.x, 0).norm() * tan);
+        cx = (cy % cam.d).norm() * (tan * width / height);
+        cy = Vec(-cy.x, -cy.y, -cy.z);
         samps = 1;
         col     = new float[3 * width * height];
         output  = new uint8_t[3 * width * height];
@@ -65,7 +66,6 @@ inline void Image::adjust_camera() {
     cy = (Vec(cam.d.y, -cam.d.x, 0).norm() * tan);
     cx = (cy % cam.d).norm() * (tan * width / height);
     cy = Vec(-cy.x, -cy.y, -cy.z);
-    //if (cy.z < 0) cy = Vec(-cy.x, -cy.y, -cy.z);
 }
 
 #endif //GALLIFREY_IMAGE_H

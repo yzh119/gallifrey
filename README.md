@@ -23,6 +23,7 @@ It's not recommended to compile/run on windows cause multi-threading is disabled
 
 ## Milestone
 - [ ] Surface Area Heuristic KD-Tree
+- [x] Anti Aliasing
 - [x] Phong Shader
 - [x] Ray Casting
 - [ ] Ray Tracing
@@ -33,7 +34,8 @@ It's not recommended to compile/run on windows cause multi-threading is disabled
 - [x] Multi-threading
 
 ## Demo
-![Cube](demo/sphere.bmp)
+![teapot](demo/teapot.bmp)
+![airboat](demo/airboat.bmp)
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

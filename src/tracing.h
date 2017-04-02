@@ -9,7 +9,7 @@
 #include "geometry.h"
 #include "shader.h"
 
-const int max_depth = 10;
+const int max_depth = 2;
 
 
 namespace light
@@ -106,16 +106,24 @@ Vec radiance(const Ray &r, int depth, const Scene &s, int E = 1)
          * TODO
          * ray casting -> ray tracing.
          */
-        Vec N(get_phong_shading_vector(s.f_array[id], des, s));
+
+        Vec N;
+        if (depth == 0) {
+            N = get_phong_shading_vector(s.f_array[id], des, s);
+        }
+        else
+        {
+            N = s.fn_array[id];
+        }
 
         //if (s.fn_array[id].dot(r.d) < 0)
         //    N.set_coordinate(s.fn_array[id].x, s.fn_array[id].y, s.fn_array[id].z);
         //else
         //    N.set_coordinate(-s.fn_array[id].x, -s.fn_array[id].y, -s.fn_array[id].z);
 
-        return ambient_light(des, Vec(.5, .5, .5)) +
-               diffuse_light(des, Vec(.3, .3, .3), N, s) +
-               specular_light(des, Vec(.2, .2, .2), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
+        return ambient_light(des, Vec(.2, .2, .2)) +
+               diffuse_light(des, Vec(.4, .4, .4), N, s) +
+               specular_light(des, Vec(.4, .4, .4), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
     }
     else
     {
