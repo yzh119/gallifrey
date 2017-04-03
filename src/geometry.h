@@ -138,8 +138,10 @@ public:
     ~Face() {}
     inline void add_vx(int idx_v, int idx_vn, int idx_vt);
     inline void modify_vn(int key, int idx_vn);
+    inline void modify_vt(int key, int idx_vt);
     inline size_t get_size() const;
     inline int get_elem_idxV(int idx)const;
+    inline int get_elem_idxVt(int idx)const;
     inline int get_elem_idxVn(int idx)const;
     inline void set_ka(const Vec &ka);
     inline void set_kd(const Vec &kd);
@@ -168,7 +170,8 @@ inline void Face::add_vx(int idx_v, int idx_vn, int idx_vt)
 }
 
 inline int Face::get_elem_idxV(int idx)const {
-    if (idx >= sz) idx -= sz;
+    assert(idx >= 0);
+    while (idx >= sz) idx -= sz;
     if (idx < 4)
     {
         return idxV[idx];
@@ -178,6 +181,7 @@ inline int Face::get_elem_idxV(int idx)const {
 }
 
 inline int Face::get_elem_idxVn(int idx) const {
+    assert(idx >= 0);
     while (idx >= sz) idx -= sz;
     if (idx < 4)
     {
@@ -185,6 +189,17 @@ inline int Face::get_elem_idxVn(int idx) const {
     }
     idx -= 4;
     return extra_idxVn[idx];
+}
+
+inline int Face::get_elem_idxVt(int idx) const {
+    assert(idx >= 0);
+    while (idx >= sz) idx -= sz;
+    if (idx < 4)
+    {
+        return idxVt[idx];
+    }
+    idx -= 4;
+    return extra_idxVt[idx];
 }
 
 inline size_t Face::get_size() const {
@@ -204,7 +219,7 @@ inline void Face::set_ks(const Vec &ks) {
 }
 
 inline void Face::modify_vn(int key, int idx_vn) {
-    assert(key < sz);
+    assert(key >= 0 && key < sz);
     if (key < 4)
     {
         idxVn[key] = idx_vn;
@@ -216,15 +231,29 @@ inline void Face::modify_vn(int key, int idx_vn) {
     return;
 }
 
+inline void Face::modify_vt(int key, int idx_vt) {
+    assert(key >= 0 && key < sz);
+    if (key < 4)
+    {
+        idxVt[key] = idx_vt;
+    }
+    else
+    {
+        extra_idxVt[key - 4] = idx_vt;
+    }
+    return;
+}
+
 struct Scene
 {
     Face *f_array;
     Vec *vn_array;
     Vec *vx_array;
+    Vec *vt_array;
     Vec *fn_array;
     Vec *il_array;
     Vec *li_array;
-    size_t size_f, size_vn, size_vx, size_il;
+    size_t size_f, size_vn, size_vx, size_vt, size_il;
 };
 
 /*
@@ -331,6 +360,51 @@ void test_intersection()
     f.add_vx(3, 0, 0);
     Ray r2(Vec(-2, 4, 2), Vec(0, 0, -1));
     assert(fabs(intersect_with_face(r2, f, v) - 2.) < eps);
+}
+
+/*
+ * To locate the position of a vertex in the face, and derive alpha, beta, gamma.
+ */
+inline void locate(const Face &f, const Vec &pos, const Scene &s, int &j, float &alpha, float &beta, float &gamma)
+{
+    alpha = beta = gamma = (float) (1 / 3.);
+    Vec *v_array = s.vx_array;
+    Vec v(pos - v_array[f.get_elem_idxV(0)]);
+    j = -1;
+    Vec v1(v_array[f.get_elem_idxV(1)] - v_array[f.get_elem_idxV(0)]),
+            v2(v_array[f.get_elem_idxV(2)] - v_array[f.get_elem_idxV(0)]);
+    for (int i = 1; i < f.get_size(); ++i)
+    {
+        if ((v % v1).dot(v % v2) <= eps)
+        {
+            j = i;
+            if (fabs(v1.x * v2.y - v1.y * v2.x) > eps)
+            {
+                beta = (v.x * v2.y - v.y * v2.x) / (v1.x * v2.y - v1.y * v2.x);
+                gamma = -(v.x * v1.y - v.y * v1.x) / (v1.x * v2.y - v1.y * v2.x);
+            }
+            else if (fabs(v1.z * v2.y - v1.y * v2.z) > eps)
+            {
+                beta = (v.z * v2.y - v.y * v2.z) / (v1.z * v2.y - v1.y * v2.z);
+                gamma = -(v.z * v1.y - v.y * v1.z) / (v1.z * v2.y - v1.y * v2.z);
+            } else
+            {
+                beta = (v.z * v2.x - v.x * v2.z) / (v1.z * v2.x - v1.x * v2.z);
+                gamma = -(v.z * v1.x - v.x * v1.z) / (v1.z * v2.x - v1.x * v2.z);
+            }
+            alpha = 1 - beta - gamma;
+            break;
+        }
+        v1 = v2;
+        v2 = v_array[f.get_elem_idxV(i + 2)] - v_array[f.get_elem_idxV(0)];
+    }
+    assert(j != -1);
+    if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))
+    {
+        alpha = beta = gamma = (float) (1 / 3.);
+        // To deal with abnormal situations.
+        // TODO
+    }
 }
 
 #endif //GALLIFREY_GEOMETRY_H

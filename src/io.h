@@ -153,7 +153,7 @@ static inline char *parse_face(char *ptr, int &idx_v, int &idx_vt, int &idx_vn)
 /*
  * Extract information from .obj file.
  */
-static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, size_t &l_f, size_t &l_vn, size_t &l_vx)
+static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vn, size_t &l_vx, size_t &l_vt)
 {
     int cnt = 0;
     char *ptr = buffer;
@@ -194,6 +194,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, u);
                 ptr = get_next_float(ptr, v);
                 ptr = get_next_float(ptr, w);
+                vt_array[l_vt++].set_coordinate(u, v, 0);
             }
             else if (strcmp(type, "f") == 0)
             {
@@ -270,7 +271,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
  * ...
  */
 
-void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, size_t &l_f, size_t &l_vx, size_t &l_vn)
+void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vx, size_t &l_vn, size_t &l_vt)
 {
     FILE *pFile;
     char *buffer;
@@ -298,7 +299,7 @@ void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, 
         exit(3);
     }
 
-    parse_obj(buffer, f_array, vn_array, vx_array, l_f, l_vn, l_vx);
+    parse_obj(buffer, f_array, vn_array, vx_array, vt_array, l_f, l_vn, l_vx, l_vt);
 
     // terminate
     fclose (pFile);

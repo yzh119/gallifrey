@@ -15,19 +15,20 @@
 #define CYAN    0,1,1
 #define BLUE    0,0,1
 #define PINK    1,0,1
-#define ADD_WALL(arg1, arg2, arg3, arg4, arg5) \
-scene.f_array[scene.size_f].material = (arg5);\
-scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, -1); \
-scene.f_array[scene.size_f].add_vx(idx - (arg2), -1, -1); \
-scene.f_array[scene.size_f].add_vx(idx - (arg3), -1, -1); \
-scene.f_array[scene.size_f].add_vx(idx - (arg4), -1, -1); \
+#define ADD_WALL(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
+scene.f_array[scene.size_f].material = (arg9);\
+scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, idt - (arg5)); \
+scene.f_array[scene.size_f].add_vx(idx - (arg2), -1, idt - (arg6)); \
+scene.f_array[scene.size_f].add_vx(idx - (arg3), -1, idt - (arg7)); \
+scene.f_array[scene.size_f].add_vx(idx - (arg4), -1, idt - (arg8)); \
 ++scene.size_f
 #define ADD_CORD(x, y, z) \
 scene.vx_array[scene.size_vx++].set_coordinate((x), (y), (z))
 #define ADD_ILLU(color, X, Y, Z) \
 scene.li_array[scene.size_il].set_coordinate(color); \
-scene.il_array[scene.size_il++].set_coordinate((X), (Y), (Z)) \
-
+scene.il_array[scene.size_il++].set_coordinate((X), (Y), (Z))
+#define ADD_TEX_CORD(x, y) \
+scene.vt_array[scene.size_vt++].set_coordinate((x), (y), 0)
 
 extern const unsigned int width;
 extern const unsigned int height;
@@ -36,7 +37,7 @@ const int max_face  = 120000;
 const int max_vx    = 120000;
 const int max_illu  = 300;
 const int max_name  = 40;
-const float view_dis = 1;
+const float view_dis = 2;
 
 // Arguments
 bool enable_anti_aliasing = false;
@@ -45,19 +46,20 @@ bool enable_global = false;
 char model_name[max_name];
 int num_workers = 4;
 
-cv::Mat wall_mat = cv::imread("../wall.jpg", CV_LOAD_IMAGE_COLOR);
-cv::Mat ground_mat = cv::imread("../ground.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
 
 Face fArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
+Vec vtArray[max_vx];
 Vec fnArray[max_face];
 Vec ilArray[max_illu];
 Vec liArray[max_illu];
-size_t l_face, l_vertex, l_normal;
+size_t l_face, l_vertex, l_normal, l_texture;
 
 Scene scene;
-Image img(Vec(0, -5, -5), Vec(0, 1, 1), 2);
+Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
 
 std::atomic<int> cnt_pixels;
 
@@ -99,7 +101,7 @@ inline void add_wall_illumination()
 
     // Calculate size of the box;
     min_x -= view_dis * len_x;
-    min_y -= view_dis * len_y;
+    //min_y -= view_dis * len_y;
     min_z -= view_dis * len_z;
 
     max_x += view_dis * len_x;
@@ -108,29 +110,29 @@ inline void add_wall_illumination()
 
     // Set the illumination;
     ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, max_z - len_z / 2);
-
+    ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, min_z + len_z / 2);
     // Set multi-illumination to enable soft shadow.
     if (enable_shadow)
     {
-        for (int i = -2; i < 3; ++i)
-            for (int j = -2; j < 3; ++j)
-                for (int k = -2; k < 3; ++k)
+        for (int i = -1; i < 2; ++i)
+            for (int j = -1; j < 2; ++j)
+                for (int k = -1; k < 2; ++k)
                 {
                     if (i == 0 && j == 0 && k == 0) continue;
-                    ADD_ILLU(YELLOW, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (max_z - len_z * (.5 + 5e-2 * k)));
+                    ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (max_z - len_z * (.5 + 5e-2 * k)));
                 }
 
-        for (int i = -2; i < 3; ++i)
-            for (int j = -2; j < 3; ++j)
-                for (int k = -2; k < 3; ++k)
+        for (int i = -1; i < 2; ++i)
+            for (int j = -1; j < 2; ++j)
+                for (int k = -1; k < 2; ++k)
                 {
                     if (i == 0 && j == 0 && k == 0) continue;
-                    ADD_ILLU(YELLOW, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (min_z + len_z * (.5 + 5e-2 * k)));
+                    ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (min_z + len_z * (.5 + 5e-2 * k)));
                 }
     }
 
     // Change the camera's view point.
-    img.cam.d = Vec(-1, -1, 1).norm();
+    img.cam.d = Vec(-(2 + view_dis), -(1 + view_dis), (2 + view_dis)).norm();
     img.cam.o.set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
                              min_z + len_z / 2);
 
@@ -146,22 +148,23 @@ inline void add_wall_illumination()
     ADD_CORD(max_x, max_y, min_z);
     ADD_CORD(max_x, max_y, max_z);
 
-    int idx = (int) scene.size_vx;
+    // Add some texture coordinates to vt list;
+    ADD_TEX_CORD(-3, -3);
+    ADD_TEX_CORD(-3, 3);
+    ADD_TEX_CORD(3, 3);
+    ADD_TEX_CORD(3, -3);
+
+    int idx = (int) scene.size_vx,
+        idt = (int) scene.size_vt;
     Material
             wall(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &wall_mat),
             ground(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &ground_mat);
-    ADD_WALL(6, 5, 7, 8, wall);
-    ADD_WALL(4, 3, 1, 2, wall);
-    ADD_WALL(8, 7, 3, 4, wall);
-    ADD_WALL(2, 1, 5, 6, wall);
-    ADD_WALL(4, 2, 6, 8, wall);
-    ADD_WALL(7, 5, 1, 3, wall);
-
-    // Set the 'ka' parameter manually.
-    for (int i = (int) (scene.size_f - 6); i < scene.size_f; ++i)
-    {
-        scene.f_array[i].set_ka(Vec(.5, .5, .5));
-    }
+    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, wall);
+    ADD_WALL(4, 3, 1, 2, 4, 3, 2, 1, wall);
+    ADD_WALL(8, 7, 3, 4, 4, 3, 2, 1, ground);
+    ADD_WALL(2, 1, 5, 6, 4, 3, 2, 1, wall);
+    ADD_WALL(4, 2, 6, 8, 4, 3, 2, 1, wall);
+    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, wall);
     return ;
 }
 
@@ -169,17 +172,19 @@ void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Loading... \n");
-    obj_loader((char *) ("../resources/" + std::string(model_name) + ".obj").c_str(), fArray, vnArray, vxArray, l_face, l_vertex, l_normal);
+    obj_loader((char *) ("../resources/" + std::string(model_name) + ".obj").c_str(), fArray, vnArray, vxArray, vtArray, l_face, l_vertex, l_normal, l_texture);
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
+    scene.vt_array  = vtArray;
     scene.fn_array  = fnArray;
     scene.il_array  = ilArray;
     scene.li_array  = liArray;
     scene.size_f    = l_face;
     scene.size_vn   = l_normal;
     scene.size_vx   = l_vertex;
-    scene.size_il = 0;
+    scene.size_vt   = l_texture;
+    scene.size_il   = 0;
 
     add_wall_illumination();
 
@@ -428,9 +433,9 @@ int main(int argc, char *argv[])
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
     enable_anti_aliasing = true;
-    enable_shadow = false;
+    enable_shadow = true;
     enable_global = false;
-    strcpy(model_name, "diamond");
+    strcpy(model_name, "cube");
 #else
     parse_argument(argc, argv);
 #endif
