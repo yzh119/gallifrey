@@ -252,13 +252,13 @@ void rendering()
             }
 
             img.set_pixel(x, y, col);
+            ++cnt_pixels;
             if (cnt_pixels.load() % 1024 == 0) {
                 fprintf(stderr, "%*c\r", 79, ' ');
                 fprintf(stderr, "Rendering the %d/%d pixel, ETA: %.2fs.\r",
-                        y * width + x, width * height,
-                        eta(y * width + x, height * width, start, std::chrono::high_resolution_clock::now()))
+                        cnt_pixels.load(), width * height,
+                        eta(cnt_pixels.load(), height * width, start, std::chrono::high_resolution_clock::now()));
             }
-            ++cnt_pixels;
         }
     };
 
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
     enable_anti_aliasing = false;
     enable_shadow = true;
     enable_global = false;
-    strcpy(model_name, "cube");
+    strcpy(model_name, "sphere");
 #else
     parse_argument(argc, argv);
 #endif

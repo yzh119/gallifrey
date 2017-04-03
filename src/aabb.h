@@ -21,9 +21,9 @@ public:
         for (int i = 0; i < f->get_size(); ++i)
         {
             float
-                    x = f->get_elem_idxV(i).x,
-                    y = f->get_elem_idxV(i).y,
-                    z = f->get_elem_idxV(i).z;
+                    x = f->get_elem_idxV(i),
+                    y = f->get_elem_idxV(i),
+                    z = f->get_elem_idxV(i);
             if (x > max_x) max_x = x;
             if (y > max_y) max_y = y;
             if (z > max_z) max_z = z;
