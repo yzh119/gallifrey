@@ -36,7 +36,8 @@ If you would like to run the code on CPU with more then 4 cores, please refer to
 
 ## Requirements
 
-- gcc/g++ 4.8+, std-c++11
+- GCC/G++(mingw) 4.8+, std-c++11
+- OPENCV 2+
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 
@@ -68,7 +69,7 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 - [x] Phong Shader
 - [x] Ray Casting (Local illumination)
 - [ ] Ray Tracing (Global illumination)
-- [ ] Soft Shadow
+- [x] Soft Shadow
 - [ ] Transparent
 - [ ] Color Blending
 - [x] Texture
@@ -79,10 +80,13 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 ## Demo
 ![teapot](demo/teapot.bmp)
 ![airboat](demo/airboat.bmp)
+![cube_with_shadow](demo/softshadow_cube.bmp)
+![sphere_with_shadow](demo/softshadow_sphere.bmp)
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
 - Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
 - SAH kd-tree: http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf
 - About how to load textures: https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/
+- Ray-Box Intersection: http://www.cs.utah.edu/~awilliam/box/box.pdf
 - Yuxin Wu's repository: https://github.com/ppwwyyxx/Ray-Tracing-Engine

@@ -99,15 +99,26 @@ inline void add_wall_illumination()
     // Set multi-illumination to enable soft shadow.
     if (enable_shadow)
     {
-        for (int i = -3; i < 3; ++i)
-            for (int j = -3; j < 3; ++j)
-                for (int k = -3; k < 3; ++k)
+        for (int i = -2; i < 3; ++i)
+            for (int j = -2; j < 3; ++j)
+                for (int k = -2; k < 3; ++k)
                 {
                     if (i == 0 && j == 0 && k == 0) continue;
-                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x / 2 + 2e-1 * i),
-                                                                   (float) (max_y - len_y / 2 + 2e-1 * j),
-                                                                   (float) (max_z - len_z / 2 + 2e-1 * k));
+                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x * (.5 + 5e-2 * i)),
+                                                                   (float) (max_y - len_y * (.5 + 5e-2 * j)),
+                                                                   (float) (max_z - len_z * (.5 + 5e-2 * k)));
                 }
+
+        for (int i = -2; i < 3; ++i)
+            for (int j = -2; j < 3; ++j)
+                for (int k = -2; k < 3; ++k)
+                {
+                    if (i == 0 && j == 0 && k == 0) continue;
+                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x * (.5 + 5e-2 * i)),
+                                                                   (float) (max_y - len_y * (.5 + 5e-2 * j)),
+                                                                   (float) (min_z + len_z * (.5 + 5e-2 * k)));
+                }
+
     }
 
     // Change the camera's view point.
@@ -386,13 +397,13 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "--help:\t\t\t display this information.\n");
             fprintf(stdout, "Please refer to README.md for more details.\n");
         } else {
-            fprintf(stderr, "Argument error, please use %s --help to see the usage.", argv[0]);
+            fprintf(stderr, "Argument error, please use %s --help to show help.", argv[0]);
             exit(1);
         }
     }
     if (strlen(model_name) == 0)
     {
-        fprintf(stderr, "Model name must be specified.");
+        fprintf(stderr, "Model name must be specified, please use %s --help to show help.", argv[0]);
         exit(1);
     }
     return ;
@@ -403,7 +414,7 @@ int main(int argc, char *argv[])
     // Initialization
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
+    enable_anti_aliasing = true;
     enable_shadow = true;
     enable_global = false;
     strcpy(model_name, "sphere");

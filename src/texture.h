@@ -7,6 +7,8 @@
 
 #include "geometry.h"
 
+
+
 inline Vec get_texture_at_pos(const Face *f, Vec pos, const Scene &s)
 {
 
