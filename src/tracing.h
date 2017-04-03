@@ -47,7 +47,7 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
         }
         else
         {
-            if (cosine > 0 && oriented_segment_intersect(pos, s.il_array[i], s))
+            if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
                 ret = ret + kd * cosine * s.li_array[i];
         }
 
