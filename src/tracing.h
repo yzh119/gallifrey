@@ -8,6 +8,7 @@
 
 #include "geometry.h"
 #include "shader.h"
+#include "texture.h"
 
 const int max_depth = 2;
 extern bool enable_shadow;
@@ -42,12 +43,12 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
         if (!enable_shadow)
         {
             if (cosine > 0)
-                ret = ret + kd * cosine;
+                ret = ret + kd * cosine * s.li_array[i];
         }
         else
         {
             if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
-                ret = ret + kd * cosine;
+                ret = ret + kd * cosine * s.li_array[i];
         }
 
     }
@@ -74,12 +75,12 @@ inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, co
         if (!enable_shadow)
         {
             if (cosine > 0)
-                ret = ret + ks * pow(cosine, light::n);
+                ret = ret + ks * pow(cosine, light::n) * s.li_array[i];
         }
         else
         {
             if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
-                ret = ret + ks * pow(cosine, light::n);
+                ret = ret + ks * pow(cosine, light::n) * s.li_array[i];
         }
     }
     ret = ret * (1. / s.size_il);
@@ -98,9 +99,9 @@ inline Vec local_ill(const Ray &r, const Scene &s, int E = 1)
     {
         Vec des = r.o + r.d * t;
         Vec N(get_phong_shading_vector(s.f_array[id], des, s));
-        return ambient_light(des, Vec(.2, .2, .2)) +
+        return (ambient_light(des, Vec(.2, .2, .2)) +
                diffuse_light(des, Vec(.4, .4, .4), N, s) +
-               specular_light(des, Vec(.4, .4, .4), N, Vec(-r.d.x, -r.d.y, -r.d.z), s);
+               specular_light(des, Vec(.4, .4, .4), N, Vec(-r.d.x, -r.d.y, -r.d.z), s)) * get_texture_at_pos(s.f_array[id], des, s);
     }
     else
     {

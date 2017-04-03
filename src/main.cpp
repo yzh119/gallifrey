@@ -8,7 +8,15 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
-#define ADD_WALL(arg1, arg2, arg3, arg4) \
+#define YELLOW  1,1,0
+#define WHITE   1,1,1
+#define RED     1,0,0
+#define GREEN   0,1,0
+#define CYAN    0,1,1
+#define BLUE    0,0,1
+#define PINK    1,0,1
+#define ADD_WALL(arg1, arg2, arg3, arg4, arg5) \
+scene.f_array[scene.size_f].material = (arg5);\
 scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, -1); \
 scene.f_array[scene.size_f].add_vx(idx - (arg2), -1, -1); \
 scene.f_array[scene.size_f].add_vx(idx - (arg3), -1, -1); \
@@ -16,6 +24,10 @@ scene.f_array[scene.size_f].add_vx(idx - (arg4), -1, -1); \
 ++scene.size_f
 #define ADD_CORD(x, y, z) \
 scene.vx_array[scene.size_vx++].set_coordinate((x), (y), (z))
+#define ADD_ILLU(color, X, Y, Z) \
+scene.li_array[scene.size_il].set_coordinate(color); \
+scene.il_array[scene.size_il++].set_coordinate((X), (Y), (Z)) \
+
 
 extern const unsigned int width;
 extern const unsigned int height;
@@ -33,12 +45,15 @@ bool enable_global = false;
 char model_name[max_name];
 int num_workers = 4;
 
+cv::Mat wall_mat = cv::imread("../wall.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat ground_mat = cv::imread("../ground.jpg", CV_LOAD_IMAGE_COLOR);
 
 Face fArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
 Vec fnArray[max_face];
 Vec ilArray[max_illu];
+Vec liArray[max_illu];
 size_t l_face, l_vertex, l_normal;
 
 Scene scene;
@@ -92,9 +107,7 @@ inline void add_wall_illumination()
     max_z += view_dis * len_z;
 
     // Set the illumination;
-
-    scene.il_array[scene.size_il++].set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
-                                                       max_z - len_z / 2);
+    ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, max_z - len_z / 2);
 
     // Set multi-illumination to enable soft shadow.
     if (enable_shadow)
@@ -104,9 +117,7 @@ inline void add_wall_illumination()
                 for (int k = -2; k < 3; ++k)
                 {
                     if (i == 0 && j == 0 && k == 0) continue;
-                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x * (.5 + 5e-2 * i)),
-                                                                   (float) (max_y - len_y * (.5 + 5e-2 * j)),
-                                                                   (float) (max_z - len_z * (.5 + 5e-2 * k)));
+                    ADD_ILLU(YELLOW, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (max_z - len_z * (.5 + 5e-2 * k)));
                 }
 
         for (int i = -2; i < 3; ++i)
@@ -114,11 +125,8 @@ inline void add_wall_illumination()
                 for (int k = -2; k < 3; ++k)
                 {
                     if (i == 0 && j == 0 && k == 0) continue;
-                    scene.il_array[scene.size_il++].set_coordinate((float) (max_x - len_x * (.5 + 5e-2 * i)),
-                                                                   (float) (max_y - len_y * (.5 + 5e-2 * j)),
-                                                                   (float) (min_z + len_z * (.5 + 5e-2 * k)));
+                    ADD_ILLU(YELLOW, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (min_z + len_z * (.5 + 5e-2 * k)));
                 }
-
     }
 
     // Change the camera's view point.
@@ -139,12 +147,15 @@ inline void add_wall_illumination()
     ADD_CORD(max_x, max_y, max_z);
 
     int idx = (int) scene.size_vx;
-    ADD_WALL(6, 5, 7, 8);
-    ADD_WALL(4, 3, 1, 2);
-    ADD_WALL(8, 7, 3, 4);
-    ADD_WALL(2, 1, 5, 6);
-    ADD_WALL(4, 2, 6, 8);
-    ADD_WALL(7, 5, 1, 3);
+    Material
+            wall(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &wall_mat),
+            ground(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &ground_mat);
+    ADD_WALL(6, 5, 7, 8, wall);
+    ADD_WALL(4, 3, 1, 2, wall);
+    ADD_WALL(8, 7, 3, 4, wall);
+    ADD_WALL(2, 1, 5, 6, wall);
+    ADD_WALL(4, 2, 6, 8, wall);
+    ADD_WALL(7, 5, 1, 3, wall);
 
     // Set the 'ka' parameter manually.
     for (int i = (int) (scene.size_f - 6); i < scene.size_f; ++i)
@@ -164,6 +175,7 @@ void load_and_construct_scene()
     scene.vx_array  = vxArray;
     scene.fn_array  = fnArray;
     scene.il_array  = ilArray;
+    scene.li_array  = liArray;
     scene.size_f    = l_face;
     scene.size_vn   = l_normal;
     scene.size_vx   = l_vertex;
@@ -280,6 +292,7 @@ void rendering()
         {
             xys.emplace_back(x, y);
         }
+
     std::random_shuffle(xys.begin(), xys.end());
 
     for (const auto &xy: xys)
@@ -415,9 +428,9 @@ int main(int argc, char *argv[])
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
     enable_anti_aliasing = true;
-    enable_shadow = true;
+    enable_shadow = false;
     enable_global = false;
-    strcpy(model_name, "sphere");
+    strcpy(model_name, "diamond");
 #else
     parse_argument(argc, argv);
 #endif

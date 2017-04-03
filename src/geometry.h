@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <opencv2/opencv.hpp>
 
 const float pi = (const float) acos(-1.);
 
@@ -92,7 +93,8 @@ class Material
 {
 public:
     Vec ka, kd, ks;
-    Material(const Vec &ka, const Vec &kd, const Vec &ks): ka(ka), kd(kd), ks(ks) {}
+    cv::Mat *image;
+    Material(const Vec &ka, const Vec &kd, const Vec &ks, cv::Mat *img = nullptr): ka(ka), kd(kd), ks(ks), image(img) {}
 };
 
 /*
@@ -221,6 +223,7 @@ struct Scene
     Vec *vx_array;
     Vec *fn_array;
     Vec *il_array;
+    Vec *li_array;
     size_t size_f, size_vn, size_vx, size_il;
 };
 

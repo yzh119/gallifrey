@@ -37,7 +37,7 @@ If you would like to run the code on CPU with more then 4 cores, please refer to
 ## Requirements
 
 - GCC/G++(mingw) 4.8+, std-c++11
-- OPENCV 2+
+- OPENCV 2+(for loading textures)
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 

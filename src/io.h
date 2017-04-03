@@ -70,7 +70,7 @@ static inline char *get_next_str(char *buffer, char *target) {
     if (*buffer == '\0') return buffer;
     while (isblank(*buffer)) ++buffer;
     char *ptr = buffer;
-    while (isalpha(*ptr)) ++ptr;
+    while (!isblank(*ptr) && *ptr != '\n' && *ptr != '\r' && *ptr != 0) ++ptr;
     strncpy(target, buffer, ptr - buffer);
     target[ptr - buffer] = '\0';
     return ptr;
@@ -83,7 +83,7 @@ static inline char *get_next_float(char *buffer, float &target) {
     if (*buffer == '\0') return buffer;
     while (isblank(*buffer)) ++buffer;
     char *ptr = buffer;
-    while (isdigit(*ptr) || *ptr == 'e' || *ptr == '-' || *ptr == '+' || *ptr == '.') ++ptr;
+    while (isdigit(*ptr) || *ptr == 'e' || *ptr == 'E' || *ptr == '-' || *ptr == '+' || *ptr == '.') ++ptr;
     char str_target[20];
     strncpy(str_target, buffer, ptr - buffer);
     str_target[ptr - buffer] = '\0';
@@ -173,10 +173,11 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
             ptr = get_next_str(buffer, type);
             if (strcmp(type, "v") == 0)
             {
-                float x, y, z, w = (float) 0.;
+                float x, y, z, w = 0;
                 ptr = get_next_float(ptr, x);
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
+                ptr = get_next_float(ptr, w);
                 vx_array[l_vx++].set_coordinate(x, y, z);;
             }
             else if (strcmp(type, "vn") == 0)
@@ -186,6 +187,13 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
                 vn_array[l_vn++].set_coordinate(x, y, z);
+            }
+            else if (strcmp(type, "vt") == 0)
+            {
+                float u, v, w = 0;
+                ptr = get_next_float(ptr, u);
+                ptr = get_next_float(ptr, v);
+                ptr = get_next_float(ptr, w);
             }
             else if (strcmp(type, "f") == 0)
             {
