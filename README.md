@@ -50,7 +50,7 @@ For Unix/Linux users:
     cd gallifrey/
     cmake -DCMAKE_BUILD_TYPE=RELEASE .
     make && cd bin
-    ./gallifrey [--model MODEL_NAME] [--core CORE] [--anti_aliasing] [--shadow] [--global] [--help]  # MODEL_NAME specifies the program will render resources/MODEL_NAME.obj, CORE specifies the number of threads.
+    ./gallifrey [--model MODEL_NAME] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` environment variable):
@@ -60,7 +60,7 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
     cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .
     mingw32-make
     cd bin
-    ./gallifrey [--model MODEL_NAME] [--core CORE] [--anti_aliasing] [--shadow] [--global] [--help]  # MODEL_NAME specifies the program will render resources/MODEL_NAME.obj, CORE specifies the number of threads.
+    ./gallifrey [--model MODEL_NAME] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 ## Milestone
