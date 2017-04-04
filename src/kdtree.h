@@ -12,9 +12,19 @@
 #include <algorithm>
 #include "aabb.h"
 
+
+inline Vec vec_max(const Vec &a, const Vec &b)
+{
+    return Vec(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+}
+
+inline Vec vec_min(const Vec &a, const Vec &b)
+{
+    return Vec(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+}
+
 class KDTree {
 private:
-    bool flag;
     class node
     {
     public:
@@ -26,6 +36,7 @@ private:
         Box box;
         std::shared_ptr <node> ptl, ptr;
     };
+    bool flag;
     Scene *s;
     std::chrono::high_resolution_clock::time_point start;
     void recursive_build_kd_node(std::shared_ptr<node> &v, int depth);
@@ -35,35 +46,25 @@ public:
         fprintf(stderr, "Building SAH-KDTree...\n");
         Vec vmin(1e8, 1e8, 1e8), vmax((float) -1e8, (float) -1e8, (float) -1e8);
 
-        // Here s->size_f - 6 means we don't take the bounding into account.
         for (int i = 0; i < s->size_f; ++i)
         {
             Vec current_vmin(1e8, 1e8, 1e8), current_vmax((float) -1e8, (float) -1e8, (float) -1e8);
             for (int j = 0; j < s->f_array[i].get_size(); ++j) {
                 int v = s->f_array[i].get_elem_idxV(j);
-                if (s->vx_array[v].x < current_vmin.x) current_vmin.x = s->vx_array[v].x;
-                if (s->vx_array[v].y < current_vmin.y) current_vmin.y = s->vx_array[v].y;
-                if (s->vx_array[v].z < current_vmin.z) current_vmin.z = s->vx_array[v].z;
-                if (s->vx_array[v].x > current_vmax.x) current_vmax.x = s->vx_array[v].x;
-                if (s->vx_array[v].y > current_vmax.y) current_vmax.y = s->vx_array[v].y;
-                if (s->vx_array[v].z > current_vmax.z) current_vmax.z = s->vx_array[v].z;
+                current_vmin = vec_min(current_vmin, s->vx_array[v]);
+                current_vmax = vec_max(current_vmax, s->vx_array[v]);
             }
             current_vmin.x -= eps; current_vmax.x += eps;
             current_vmin.y -= eps; current_vmax.y += eps;
             current_vmin.z -= eps; current_vmax.z += eps;
             fmin.push_back(current_vmin);
             fmax.push_back(current_vmax);
-            if (vmin.x > current_vmin.x) vmin.x = current_vmin.x;
-            if (vmin.y > current_vmin.y) vmin.y = current_vmin.y;
-            if (vmin.z > current_vmin.z) vmin.z = current_vmin.z;
 
-            if (vmax.x < current_vmax.x) vmax.x = current_vmax.x;
-            if (vmax.y < current_vmax.y) vmax.y = current_vmax.y;
-            if (vmax.z < current_vmax.z) vmax.z = current_vmax.z;
+            vmin = vec_min(current_vmin, vmin);
+            vmax = vec_max(current_vmax, vmax);
         }
 
         std::vector<int> all_faces;
-        // s->size_f - 6: for the same reason above.
         for (int i = 0; i < s->size_f; ++i)
             all_faces.emplace_back(i);
 
@@ -96,9 +97,10 @@ inline void KDTree::build_tree() {
 void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
     if (depth == 100) return ;                  // If too deep, prune it.
     if (v->elems.size() <= 20) return ;         // If too small, prune it.
-    bool splix_x, split_y, split_z = splix_x = split_y = false;
+    bool split_x, split_y, split_z = split_x = split_y = false;
     int k_x, k_y, k_z = k_x = k_y = -1;
-    float minc = 1e8, current;
+    std::pair<Vec, Vec> box_x_l, box_x_r, box_y_l, box_y_r, box_z_l, box_z_r;
+    float minc = 1e9, current_c;                // minc is the min cost, and current_c is the current cost.
 
     std::vector<std::pair<std::pair<int, int>, float> > x_sort, y_sort, z_sort;
     for (int i = 0; i < v->elems.size(); ++i)
@@ -120,31 +122,169 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     std::sort(z_sort.begin(), z_sort.end(), comp);
 
     std::vector<std::pair<Vec, Vec> > reversed(x_sort.size());
+    std::vector<int> N_reversed(x_sort.size());
     // To test whether it's best to split x axis;
-    reversed[x_sort.size() - 1] = std::make_pair(Vec(x_sort.back().first.first), Vec());
-    for (int i = x_sort.size() - 1; i > 0; i--)
+    reversed[x_sort.size() - 1] = std::make_pair(fmin[x_sort.back().first.first], fmax[x_sort.back().first.first]);
+    N_reversed[x_sort.size() - 1] = 1;
+    for (int i = (int) (x_sort.size() - 1); i > 0; i--)
     {
-        reversed[i] =
+        reversed[i] = reversed[i + 1];
+        N_reversed[i] = N_reversed[i + 1];
+        if (x_sort[i].first.second == 1)
+        {
+            reversed[i].first   = vec_min(reversed[i].first, fmin[x_sort[i].first.first]);
+            reversed[i].second  = vec_max(reversed[i].first, fmax[x_sort[i].first.first]);
+            ++N_reversed[i];
+        }
     }
+
+    std::pair<Vec, Vec> current = std::make_pair(fmin[x_sort.front().first.first], fmax[x_sort.front().first.first]);
+    int N_current = 1;
     for (int i = 0; i < x_sort.size() - 1; ++i)
     {
+        if (x_sort[i].first.second == 0)
+        {
+            current.first   = vec_min(current.first, fmin[x_sort[i].first.first]);
+            current.second  = vec_max(current.first, fmax[x_sort[i].first.first]);
+            ++N_current;
+        }
 
+        current_c = cost(
+                surface_area(current.first, current.second), N_current,
+                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+
+        if (current_c < minc)
+        {
+            minc = current_c;
+            k_x = i;
+            split_x = true;
+            box_x_l = current;
+            box_x_r = reversed[i + 1];
+        }
     }
 
     // To test whether it's best to split y axis;
+    reversed[y_sort.size() - 1] = std::make_pair(fmin[y_sort.back().first.first], fmax[y_sort.back().first.first]);
+    N_reversed[y_sort.size() - 1] = 1;
+    for (int i = (int) (y_sort.size() - 1); i > 0; i--)
+    {
+        reversed[i] = reversed[i + 1];
+        N_reversed[i] = N_reversed[i + 1];
+        if (y_sort[i].first.second == 1)
+        {
+            reversed[i].first   = vec_min(reversed[i].first, fmin[y_sort[i].first.first]);
+            reversed[i].second  = vec_max(reversed[i].first, fmax[y_sort[i].first.first]);
+            ++N_reversed[i];
+        }
+    }
+
+    current = std::make_pair(fmin[y_sort.front().first.first], fmax[y_sort.front().first.first]);
+    N_current = 1;
+    for (int i = 0; i < y_sort.size() - 1; ++i)
+    {
+        if (y_sort[i].first.second == 0)
+        {
+            current.first   = vec_min(current.first, fmin[y_sort[i].first.first]);
+            current.second  = vec_max(current.first, fmax[y_sort[i].first.first]);
+            ++N_current;
+        }
+
+        current_c = cost(
+                surface_area(current.first, current.second), N_current,
+                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+
+        if (current_c < minc)
+        {
+            minc = current_c;
+            k_y = i;
+            split_x = false;
+            split_y = true;
+            box_y_l = current;
+            box_y_r = reversed[i + 1];
+        }
+    }
 
     // To test whether it's best to split z axis;
-    // TODO
-
-    if (splix_x)                // split_x
+    reversed[z_sort.size() - 1] = std::make_pair(fmin[z_sort.back().first.first], fmax[z_sort.back().first.first]);
+    N_reversed[z_sort.size() - 1] = 1;
+    for (int i = (int) (z_sort.size() - 1); i > 0; i--)
     {
+        reversed[i] = reversed[i + 1];
+        N_reversed[i] = N_reversed[i + 1];
+        if (z_sort[i].first.second == 1)
+        {
+            reversed[i].first   = vec_min(reversed[i].first, fmin[z_sort[i].first.first]);
+            reversed[i].second  = vec_max(reversed[i].first, fmax[z_sort[i].first.first]);
+            ++N_reversed[i];
+        }
+    }
 
+    current = std::make_pair(fmin[z_sort.front().first.first], fmax[z_sort.front().first.first]);
+    N_current = 1;
+    for (int i = 0; i < z_sort.size() - 1; ++i)
+    {
+        if (z_sort[i].first.second == 0)
+        {
+            current.first   = vec_min(current.first, fmin[z_sort[i].first.first]);
+            current.second  = vec_max(current.first, fmax[z_sort[i].first.first]);
+            ++N_current;
+        }
+
+        current_c = cost(
+                surface_area(current.first, current.second), N_current,
+                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+
+        if (current_c < minc)
+        {
+            minc = current_c;
+            k_z = i;
+            split_x = false;
+            split_y = false;
+            split_z = true;
+            box_z_l = current;
+            box_z_r = reversed[i + 1];
+        }
+    }
+    // divide and conquer
+    if (split_x)                // split_x
+    {
+        std::vector<int> v_left, v_right;
+        for (int i = 0; i <= k_x; ++i)
+            if (x_sort[i].first.second == 0)
+                v_left.push_back(i);
+
+        for (int i = k_x + 1; i < x_sort.size(); ++i)
+            if (x_sort[i].first.second == 1)
+                v_right.push_back(i);
+
+        v->ptl = std::make_shared<node> (v_left, Box(box_x_l.first, box_x_l.second));
+        v->ptr = std::make_shared<node> (v_right,Box(box_x_r.first, box_x_r.second));
     } else if (split_y)         // split_y
     {
+        std::vector<int> v_left, v_right;
+        for (int i = 0; i <= k_y; ++i)
+            if (y_sort[i].first.second == 0)
+                v_left.push_back(i);
 
+        for (int i = k_y + 1; i < y_sort.size(); ++i)
+            if (y_sort[i].first.second == 1)
+                v_right.push_back(i);
+
+        v->ptl = std::make_shared<node> (v_left, Box(box_y_l.first, box_y_l.second));
+        v->ptr = std::make_shared<node> (v_right,Box(box_y_l.first, box_y_r.second));
     } else                      // split_z
     {
+        std::vector<int> v_left, v_right;
+        for (int i = 0; i <= k_z; ++i)
+            if (z_sort[i].first.second == 0)
+                v_left.push_back(i);
 
+        for (int i = k_z + 1; i < z_sort.size(); ++i)
+            if (z_sort[i].first.second == 1)
+                v_right.push_back(i);
+
+        v->ptl = std::make_shared<node> (v_left, Box(box_z_l.first, box_z_r.second));
+        v->ptr = std::make_shared<node> (v_right,Box(box_z_r.first, box_z_r.second));
     }
 
     return ;
@@ -198,7 +338,7 @@ inline float KDTree::surface_area(const Vec &min, const Vec &max) const {
     return (float) (2.0 * (x * y + y * z + z * x));
 }
 
-/*
+/*\
  * INTERSECTS RAY WITH SCENE
  * Using SHA-KD Tree api;
  */

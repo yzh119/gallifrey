@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/kdtree.h" line="43" />
-  </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" buildAllGenerated="true">
     <generated>
       <config projectName="gallifrey" targetName="gallifrey" />
@@ -18,16 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="af1fcc81-0ce4-4bca-a168-8851dbb81a91" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demo/teapot.bmp" afterPath="$PROJECT_DIR$/demo/teapot.bmp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/aabb.h" afterPath="$PROJECT_DIR$/src/aabb.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/geometry.h" afterPath="$PROJECT_DIR$/src/geometry.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/io.h" afterPath="$PROJECT_DIR$/src/io.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kdtree.h" afterPath="$PROJECT_DIR$/src/kdtree.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/texture.h" afterPath="$PROJECT_DIR$/src/texture.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tracing.h" afterPath="$PROJECT_DIR$/src/tracing.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -53,21 +42,16 @@
               <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
               <folding>
                 <element signature="e#94#115#0" expanded="true" />
-                <marker date="1491275136518" expanded="true" signature="217:1282" ph="{...}" />
-                <marker date="1491275136518" expanded="true" signature="600:860" ph="{...}" />
-                <marker date="1491275136518" expanded="true" signature="1316:1725" ph="{...}" />
-                <marker date="1491275136518" expanded="true" signature="1779:1915" ph="{...}" />
-                <marker date="1491275136518" expanded="true" signature="1952:2097" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kdtree.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="kdtree.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/kdtree.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="428">
-              <caret line="122" column="49" lean-forward="true" selection-start-line="122" selection-start-column="49" selection-end-line="122" selection-end-column="49" />
+            <state relative-caret-position="162">
+              <caret line="279" column="36" lean-forward="false" selection-start-line="279" selection-start-column="36" selection-end-line="279" selection-end-column="36" />
               <folding>
                 <element signature="e#127#144#0" expanded="true" />
               </folding>
@@ -100,8 +84,8 @@
       <file leaf-file-name="tracing.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tracing.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="98" column="14" lean-forward="false" selection-start-line="98" selection-start-column="14" selection-end-line="98" selection-end-column="14" />
+            <state relative-caret-position="390">
+              <caret line="102" column="47" lean-forward="false" selection-start-line="102" selection-start-column="47" selection-end-line="102" selection-end-column="47" />
               <folding>
                 <element signature="e#103#124#0" expanded="true" />
               </folding>
@@ -131,15 +115,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4361">
-              <caret line="484" column="24" lean-forward="true" selection-start-line="484" selection-start-column="24" selection-end-line="484" selection-end-column="24" />
+            <state relative-caret-position="273">
+              <caret line="469" column="33" lean-forward="true" selection-start-line="469" selection-start-column="33" selection-end-line="469" selection-end-column="33" />
               <folding>
                 <element signature="e#38#53#0" expanded="true" />
                 <element signature="e#12349#14693#0" expanded="true" />
-                <element signature="e#17752#17779#0" expanded="true" />
+                <element signature="e#17754#17781#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -169,9 +153,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>num_workers</find>
-      <find>local</find>
-      <find>cube</find>
       <find>eps</find>
       <find>num</find>
       <find>text</find>
@@ -199,6 +180,9 @@
       <find>Face</find>
       <find>emplaec</find>
       <find>recur</find>
+      <find>current</find>
+      <find>x</find>
+      <find>y</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -224,11 +208,11 @@
         <option value="$PROJECT_DIR$/src/io.h" />
         <option value="$PROJECT_DIR$/src/texture.h" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/src/aabb.h" />
         <option value="$PROJECT_DIR$/src/tracing.h" />
         <option value="$PROJECT_DIR$/src/geometry.h" />
         <option value="$PROJECT_DIR$/src/kdtree.h" />
+        <option value="$PROJECT_DIR$/src/main.cpp" />
       </list>
     </option>
   </component>
@@ -519,12 +503,12 @@
       <workItem from="1491121556796" duration="17918000" />
       <workItem from="1491148873093" duration="7645000" />
       <workItem from="1491159425595" duration="10115000" />
-      <workItem from="1491208032968" duration="60917000" />
+      <workItem from="1491208032968" duration="63846000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="334003000" />
+    <option name="totallyTimeSpent" value="336932000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -607,7 +591,7 @@
           <folding>
             <element signature="e#38#53#0" expanded="true" />
             <element signature="e#12349#14693#0" expanded="true" />
-            <element signature="e#17752#17779#0" expanded="true" />
+            <element signature="e#17754#17781#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -642,7 +626,7 @@
           <folding>
             <element signature="e#38#53#0" expanded="true" />
             <element signature="e#12349#14693#0" expanded="true" />
-            <element signature="e#17752#17779#0" expanded="true" />
+            <element signature="e#17754#17781#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -677,7 +661,7 @@
           <folding>
             <element signature="e#38#53#0" expanded="true" />
             <element signature="e#12349#14693#0" expanded="true" />
-            <element signature="e#17752#17779#0" expanded="true" />
+            <element signature="e#17754#17781#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -712,7 +696,7 @@
           <folding>
             <element signature="e#38#53#0" expanded="true" />
             <element signature="e#12349#14693#0" expanded="true" />
-            <element signature="e#17752#17779#0" expanded="true" />
+            <element signature="e#17754#17781#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -828,43 +812,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/image.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-          <folding>
-            <element signature="e#94#115#0" expanded="true" />
-            <marker date="1491275136518" expanded="true" signature="217:1282" ph="{...}" />
-            <marker date="1491275136518" expanded="true" signature="600:860" ph="{...}" />
-            <marker date="1491275136518" expanded="true" signature="1316:1725" ph="{...}" />
-            <marker date="1491275136518" expanded="true" signature="1779:1915" ph="{...}" />
-            <marker date="1491275136518" expanded="true" signature="1952:2097" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shader.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="19" column="22" lean-forward="false" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-          <folding>
-            <element signature="e#96#113#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4361">
-          <caret line="484" column="24" lean-forward="true" selection-start-line="484" selection-start-column="24" selection-end-line="484" selection-end-column="24" />
-          <folding>
-            <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#12349#14693#0" expanded="true" />
-            <element signature="e#17752#17779#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -881,22 +828,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/texture.h">
+    <entry file="file://$PROJECT_DIR$/src/kdtree.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="16" column="6" lean-forward="false" selection-start-line="16" selection-start-column="5" selection-end-line="16" selection-end-column="6" />
+        <state relative-caret-position="162">
+          <caret line="279" column="36" lean-forward="false" selection-start-line="279" selection-start-column="36" selection-end-line="279" selection-end-column="36" />
           <folding>
-            <element signature="e#95#116#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tracing.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="98" column="14" lean-forward="false" selection-start-line="98" selection-start-column="14" selection-end-line="98" selection-end-column="14" />
-          <folding>
-            <element signature="e#103#124#0" expanded="true" />
+            <element signature="e#127#144#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -909,12 +846,54 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kdtree.h">
+    <entry file="file://$PROJECT_DIR$/src/image.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="428">
-          <caret line="122" column="49" lean-forward="true" selection-start-line="122" selection-start-column="49" selection-end-line="122" selection-end-column="49" />
+        <state relative-caret-position="390">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
           <folding>
-            <element signature="e#127#144#0" expanded="true" />
+            <element signature="e#94#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tracing.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="102" column="47" lean-forward="false" selection-start-line="102" selection-start-column="47" selection-end-line="102" selection-end-column="47" />
+          <folding>
+            <element signature="e#103#124#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/texture.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="16" column="6" lean-forward="false" selection-start-line="16" selection-start-column="5" selection-end-line="16" selection-end-column="6" />
+          <folding>
+            <element signature="e#95#116#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shader.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="19" column="22" lean-forward="false" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
+          <folding>
+            <element signature="e#96#113#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="469" column="33" lean-forward="true" selection-start-line="469" selection-start-column="33" selection-end-line="469" selection-end-column="33" />
+          <folding>
+            <element signature="e#38#53#0" expanded="true" />
+            <element signature="e#12349#14693#0" expanded="true" />
+            <element signature="e#17754#17781#0" expanded="true" />
           </folding>
         </state>
       </provider>
