@@ -3,7 +3,15 @@ project(gallifrey)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+if (WIN32)
+include_directories(C:\\\\opencv\\\\install\\\\include)
+set(TARGET_LIBS
+        C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_core2413.dll.a
+        C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_highgui2413.dll.a
+        C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_imgproc2413.dll.a)
+else()
 find_package( OpenCV REQUIRED )
+endif()
 
 if (CMAKE_BUILD_TYPE MATCHES RELEASE)
 set(EXECUTABLE_OUTPUT_PATH bin)
@@ -20,4 +28,8 @@ add_executable(gallifrey
         ${SOURCE_CODE} )
 
 target_link_libraries(gallifrey
-        pthread ${OpenCV_LIBS})
+        pthread)
+
+if (WIN32)
+    target_link_libraries(gallifrey ${TARGET_LIBS})
+endif()

@@ -11,9 +11,14 @@
 
 inline float erand()
 {
+#ifdef __linux__
     static unsigned short Xi[3] = {0, 0, 0};
     Xi[2] += (Xi[1] += ++Xi[0] == 0) == 0;
     return (float) erand48(Xi);
+#endif
+#ifdef _WIN32
+    return (float) (1. * rand() / RAND_MAX);
+#endif
 }
 
 /*
