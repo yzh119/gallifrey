@@ -11,6 +11,13 @@
 #include <cstdlib>
 #include <climits>
 #include <cctype>
+#define YELLOW  1,1,0
+#define WHITE   1,1,1
+#define RED     1,0,0
+#define GREEN   0,1,0
+#define CYAN    0,1,1
+#define BLUE    0,0,1
+#define PINK    1,0,1
 
 const unsigned int width = 640;
 const unsigned int height = 480;
@@ -157,6 +164,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
 {
     int cnt = 0;
     char *ptr = buffer;
+    bool if_mtl = false;
     while (*buffer)
     {
         if (isblank(*buffer)) ++buffer;
@@ -204,7 +212,13 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                     f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 }
                 f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
-                f_array[l_f++].set_ka(Vec(1, 1, 1));
+                if (!if_mtl)
+                {
+                    f_array[l_f].set_ka(Vec(RED) * .4);
+                    f_array[l_f].set_kd(Vec(RED) * .4);
+                    f_array[l_f].set_ks(Vec(WHITE) * .4);
+                    l_f++;
+                }
             }
             else if (strcmp(type, "g") == 0)
             {

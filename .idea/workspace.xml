@@ -15,11 +15,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="af1fcc81-0ce4-4bca-a168-8851dbb81a91" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demo/softshadow_cube.bmp" afterPath="$PROJECT_DIR$/demo/softshadow_cube.bmp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demo/softshadow_sphere.bmp" afterPath="$PROJECT_DIR$/demo/softshadow_sphere.bmp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/zhy96.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/zhy96.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/image.h" afterPath="$PROJECT_DIR$/src/image.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/io.h" afterPath="$PROJECT_DIR$/src/io.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tracing.h" afterPath="$PROJECT_DIR$/src/tracing.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,8 +43,8 @@
       <file leaf-file-name="image.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/image.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="80" column="32" lean-forward="true" selection-start-line="80" selection-start-column="32" selection-end-line="80" selection-end-column="32" />
+            <state relative-caret-position="-579">
+              <caret line="29" column="50" lean-forward="true" selection-start-line="29" selection-start-column="50" selection-end-line="29" selection-end-column="50" />
               <folding>
                 <element signature="e#94#115#0" expanded="true" />
               </folding>
@@ -63,8 +65,8 @@
       <file leaf-file-name="texture.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/texture.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="18" column="23" lean-forward="false" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="51" />
+            <state relative-caret-position="361">
+              <caret line="19" column="40" lean-forward="false" selection-start-line="19" selection-start-column="40" selection-end-line="19" selection-end-column="40" />
               <folding>
                 <element signature="e#95#116#0" expanded="true" />
               </folding>
@@ -75,8 +77,8 @@
       <file leaf-file-name="tracing.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tracing.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1320">
-              <caret line="20" column="1" lean-forward="false" selection-start-line="20" selection-start-column="1" selection-end-line="20" selection-end-column="1" />
+            <state relative-caret-position="342">
+              <caret line="102" column="50" lean-forward="false" selection-start-line="102" selection-start-column="50" selection-end-line="102" selection-end-column="50" />
               <folding>
                 <element signature="e#103#124#0" expanded="true" />
               </folding>
@@ -109,11 +111,11 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="354">
-              <caret line="441" column="49" lean-forward="true" selection-start-line="441" selection-start-column="49" selection-end-line="441" selection-end-column="49" />
+            <state relative-caret-position="205">
+              <caret line="342" column="33" lean-forward="true" selection-start-line="342" selection-start-column="33" selection-end-line="342" selection-end-column="33" />
               <folding>
                 <element signature="e#38#53#0" expanded="true" />
-                <element signature="e#15995#16022#0" expanded="true" />
+                <element signature="e#16200#16227#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -122,8 +124,8 @@
       <file leaf-file-name="io.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/io.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1429">
-              <caret line="196" column="55" lean-forward="false" selection-start-line="196" selection-start-column="55" selection-end-line="196" selection-end-column="55" />
+            <state relative-caret-position="314">
+              <caret line="216" column="55" lean-forward="true" selection-start-line="216" selection-start-column="55" selection-end-line="216" selection-end-column="55" />
               <folding />
             </state>
           </provider>
@@ -208,11 +210,11 @@
         <option value="$PROJECT_DIR$/src/kdtree.h" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/io.h" />
         <option value="$PROJECT_DIR$/src/shader.h" />
         <option value="$PROJECT_DIR$/src/texture.h" />
         <option value="$PROJECT_DIR$/src/geometry.h" />
         <option value="$PROJECT_DIR$/src/tracing.h" />
+        <option value="$PROJECT_DIR$/src/io.h" />
         <option value="$PROJECT_DIR$/src/image.h" />
         <option value="$PROJECT_DIR$/src/main.cpp" />
       </list>
@@ -505,12 +507,12 @@
       <workItem from="1491121556796" duration="17918000" />
       <workItem from="1491148873093" duration="7645000" />
       <workItem from="1491159425595" duration="10115000" />
-      <workItem from="1491208032968" duration="27575000" />
+      <workItem from="1491208032968" duration="29720000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="300661000" />
+    <option name="totallyTimeSpent" value="302806000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -531,7 +533,7 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32782552" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32368702" sideWeight="0.50208336" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32848644" sideWeight="0.49791667" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3226152" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3226152" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Execute Anonymous" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32848644" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.171875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -589,7 +591,7 @@
           <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#15995#16022#0" expanded="true" />
+            <element signature="e#16200#16227#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -625,7 +627,7 @@
           <caret line="7" column="1" lean-forward="false" selection-start-line="7" selection-start-column="1" selection-end-line="7" selection-end-column="1" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#15995#16022#0" expanded="true" />
+            <element signature="e#16200#16227#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -661,7 +663,7 @@
           <caret line="7" column="1" lean-forward="false" selection-start-line="7" selection-start-column="1" selection-end-line="7" selection-end-column="1" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#15995#16022#0" expanded="true" />
+            <element signature="e#16200#16227#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -697,7 +699,7 @@
           <caret line="7" column="1" lean-forward="true" selection-start-line="7" selection-start-column="1" selection-end-line="7" selection-end-column="1" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#15995#16022#0" expanded="true" />
+            <element signature="e#16200#16227#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -817,29 +819,57 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/io.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1429">
-          <caret line="196" column="55" lean-forward="false" selection-start-line="196" selection-start-column="55" selection-end-line="196" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/geometry.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5729">
-          <caret line="365" column="9" lean-forward="false" selection-start-line="365" selection-start-column="9" selection-end-line="365" selection-end-column="9" />
-          <folding>
-            <element signature="e#100#118#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
           <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/aabb.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="17" column="17" lean-forward="false" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/texture.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="19" column="40" lean-forward="false" selection-start-line="19" selection-start-column="40" selection-end-line="19" selection-end-column="40" />
+          <folding>
+            <element signature="e#95#116#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/io.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="216" column="55" lean-forward="true" selection-start-line="216" selection-start-column="55" selection-end-line="216" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/image.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-579">
+          <caret line="29" column="50" lean-forward="true" selection-start-line="29" selection-start-column="50" selection-end-line="29" selection-end-column="50" />
+          <folding>
+            <element signature="e#94#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tracing.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="102" column="50" lean-forward="false" selection-start-line="102" selection-start-column="50" selection-end-line="102" selection-end-column="50" />
+          <folding>
+            <element signature="e#103#124#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -853,51 +883,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tracing.h">
+    <entry file="file://$PROJECT_DIR$/src/geometry.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1320">
-          <caret line="20" column="1" lean-forward="false" selection-start-line="20" selection-start-column="1" selection-end-line="20" selection-end-column="1" />
+        <state relative-caret-position="5729">
+          <caret line="365" column="9" lean-forward="false" selection-start-line="365" selection-start-column="9" selection-end-line="365" selection-end-column="9" />
           <folding>
-            <element signature="e#103#124#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/texture.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="18" column="23" lean-forward="false" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="51" />
-          <folding>
-            <element signature="e#95#116#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/aabb.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="17" column="17" lean-forward="false" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/image.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="80" column="32" lean-forward="true" selection-start-line="80" selection-start-column="32" selection-end-line="80" selection-end-column="32" />
-          <folding>
-            <element signature="e#94#115#0" expanded="true" />
+            <element signature="e#100#118#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="354">
-          <caret line="441" column="49" lean-forward="true" selection-start-line="441" selection-start-column="49" selection-end-line="441" selection-end-column="49" />
+        <state relative-caret-position="205">
+          <caret line="342" column="33" lean-forward="true" selection-start-line="342" selection-start-column="33" selection-end-line="342" selection-end-column="33" />
           <folding>
             <element signature="e#38#53#0" expanded="true" />
-            <element signature="e#15995#16022#0" expanded="true" />
+            <element signature="e#16200#16227#0" expanded="true" />
           </folding>
         </state>
       </provider>

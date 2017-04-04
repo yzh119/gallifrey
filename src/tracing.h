@@ -15,7 +15,7 @@ extern bool enable_shadow;
 
 namespace light
 {
-    const Vec Ia(.3, .3, .3);
+    const Vec Ia(.5, .5, .5);
     const int samps = 1;
     const float n = 1.7;
 }
@@ -99,9 +99,9 @@ inline Vec local_ill(const Ray &r, const Scene &s, int E = 1)
     {
         Vec des = r.o + r.d * t;
         Vec N(get_phong_shading_vector(s.f_array[id], des, s));
-        return (ambient_light(des, Vec(.2, .2, .2)) +
-               diffuse_light(des, Vec(.4, .4, .4), N, s) +
-               specular_light(des, Vec(.4, .4, .4), N, Vec(-r.d.x, -r.d.y, -r.d.z), s)) * get_texture_at_pos(s.f_array[id], des, s);
+        return (ambient_light(des, s.f_array[id].material.ka) +
+               diffuse_light(des, s.f_array[id].material.kd, N, s) +
+               specular_light(des, s.f_array[id].material.ks, N, Vec(-r.d.x, -r.d.y, -r.d.z), s)) * get_texture_at_pos(s.f_array[id], des, s);
     }
     else
     {

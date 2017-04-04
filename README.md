@@ -37,7 +37,7 @@ If you would like to run the code on CPU with more then 4 cores, please refer to
 ## Requirements
 
 - GCC/G++(mingw) 4.8+, std-c++11
-- OPENCV 2+(for loading textures)
+- OpenCV 2.4
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 
@@ -82,6 +82,7 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 ![airboat](demo/airboat.bmp)
 ![cube_with_shadow](demo/softshadow_cube.bmp)
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
+![sphere_with_shadow_color](demo/softshadow_sphere_color.bmp)
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

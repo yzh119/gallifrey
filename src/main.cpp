@@ -46,6 +46,7 @@ bool enable_global  = false;
 bool enable_display = false;
 char model_name[max_name];
 int num_workers = 4;
+int num_samples = 1;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
@@ -251,7 +252,7 @@ void rendering()
                 for (int sy = 0; sy < 2; ++sy)
                     for (int sx = 0; sx < 2; ++sx) {
                         Vec r(0, 0, 0);
-                        for (int s = 0; s < img.samps; ++s) {
+                        for (int s = 0; s < num_samples; ++s) {
                             float
                                     r1 = 2 * erand(),
                                     r2 = 2 * erand();
@@ -262,9 +263,9 @@ void rendering()
                                     d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                         img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
                             if (enable_global)
-                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / num_samples);
                             else
-                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / img.samps);
+                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / num_samples);
                         }
                         col = col + r * .25;
                     }
@@ -338,7 +339,7 @@ void rendering()
                 for (unsigned int sy = 0; sy < 2; ++sy)
                     for (unsigned int sx = 0; sx < 2; ++sx) {
                         Vec r(0, 0, 0);
-                        for (int s = 0; s < img.samps; ++s) {
+                        for (int s = 0; s < num_samples; ++s) {
                             float
                                     r1 = 2 * erand(),
                                     r2 = 2 * erand();
@@ -349,9 +350,9 @@ void rendering()
                                     d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                         img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
                             if (enable_global)
-                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / img.samps);
+                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / num_samples);
                             else
-                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / img.samps);
+                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / num_samples);
                         }
                         col = col + r * .25;
                     }
@@ -403,19 +404,19 @@ void parse_argument(int argc, char *argv[]) {
             enable_anti_aliasing = true;
         } else if (strcmp(argv[i], "--shadow") == 0) {
             enable_shadow = true;
-        } else if (strcmp(argv[i], "--display") == 0)
-        {
+        } else if (strcmp(argv[i], "--display") == 0) {
             enable_display = true;
-        } else if (strcmp(argv[i], "--global") == 0)
-        {
+        } else if (strcmp(argv[i], "--global") == 0) {
             enable_global = true;
-        } else if (strcmp(argv[i], "--core") == 0)
-        {
+        } else if (strcmp(argv[i], "--core") == 0) {
             num_workers = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--samples") == 0) {
+            num_samples = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--help") == 0)
         {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
             fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
+            fprintf(stdout, "--samples SAMPLES:\t  specifies the number of samples in MCPT.\n");
             fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
             fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
             fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow.\n");
@@ -441,11 +442,11 @@ int main(int argc, char *argv[])
     // Initialization
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
-    enable_shadow = false;
+    enable_anti_aliasing = true;
+    enable_shadow = true;
     enable_global = false;
     enable_display = true;
-    strcpy(model_name, "cube");
+    strcpy(model_name, "sphere");
 #else
     parse_argument(argc, argv);
 #endif

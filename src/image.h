@@ -26,7 +26,6 @@ public:
         cy = (Vec(cam.d.y, -cam.d.x, 0).norm() * tan);
         cx = (cy % cam.d).norm() * (tan * width / height);
         cy = Vec(-cy.x, -cy.y, -cy.z);
-        samps = 1;
         col     = new float[3 * width * height];
         output  = new uint8_t[3 * width * height];
     }
@@ -37,7 +36,6 @@ public:
     Vec cx;
     Vec cy;
     Ray cam;
-    int samps;                                              // number of samples.
     inline void adjust_camera();
 };
 
