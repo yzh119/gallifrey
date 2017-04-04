@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
     enable_global = false;
     enable_display = true;
     num_samples = 1;
-    strcpy(model_name, "sphere");
+    strcpy(model_name, "teapot");
 #else
     parse_argument(argc, argv);
 #endif

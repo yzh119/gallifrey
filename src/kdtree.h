@@ -95,8 +95,10 @@ inline void KDTree::build_tree() {
  * Recursively build the KD-Tree.
  */
 void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
+    // printf("%d %d\n", v->elems.size(), depth);
     if (depth == 100) return ;                  // If too deep, prune it.
     if (v->elems.size() <= 20) return ;         // If too small, prune it.
+
     bool split_x, split_y, split_z = split_x = split_y = false;
     int k_x, k_y, k_z = k_x = k_y = -1;
     std::pair<Vec, Vec> box_x_l, box_x_r, box_y_l, box_y_r, box_z_l, box_z_r;
@@ -115,6 +117,7 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
 
     auto comp = [](const std::pair<std::pair<int, int>, float> &a, const std::pair<std::pair<int, int>, float> &b)
     {
+        if (a.second == b.second) return a.first.second < b.first.second;
         return a.second < b.second;
     };
     std::sort(x_sort.begin(), x_sort.end(), comp);
@@ -126,7 +129,7 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     // To test whether it's best to split x axis;
     reversed[x_sort.size() - 1] = std::make_pair(fmin[x_sort.back().first.first], fmax[x_sort.back().first.first]);
     N_reversed[x_sort.size() - 1] = 1;
-    for (int i = (int) (x_sort.size() - 1); i > 0; i--)
+    for (int i = (int) (x_sort.size() - 2); i > 0; i--)
     {
         reversed[i] = reversed[i + 1];
         N_reversed[i] = N_reversed[i + 1];
@@ -166,7 +169,7 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     // To test whether it's best to split y axis;
     reversed[y_sort.size() - 1] = std::make_pair(fmin[y_sort.back().first.first], fmax[y_sort.back().first.first]);
     N_reversed[y_sort.size() - 1] = 1;
-    for (int i = (int) (y_sort.size() - 1); i > 0; i--)
+    for (int i = (int) (y_sort.size() - 2); i > 0; i--)
     {
         reversed[i] = reversed[i + 1];
         N_reversed[i] = N_reversed[i + 1];
@@ -207,7 +210,7 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     // To test whether it's best to split z axis;
     reversed[z_sort.size() - 1] = std::make_pair(fmin[z_sort.back().first.first], fmax[z_sort.back().first.first]);
     N_reversed[z_sort.size() - 1] = 1;
-    for (int i = (int) (z_sort.size() - 1); i > 0; i--)
+    for (int i = (int) (z_sort.size() - 2); i > 0; i--)
     {
         reversed[i] = reversed[i + 1];
         N_reversed[i] = N_reversed[i + 1];
@@ -245,6 +248,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
             box_z_r = reversed[i + 1];
         }
     }
+
+    assert((int)split_x + (int)split_y + (int)split_z == 1);
+
     // divide and conquer
     if (split_x)                // split_x
     {
@@ -287,6 +293,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
         v->ptr = std::make_shared<node> (v_right,Box(box_z_r.first, box_z_r.second));
     }
 
+    assert(!(v->ptl == nullptr xor v->ptr == nullptr));
+    if (v->ptl != nullptr) recursive_build_kd_node(v->ptl, depth + 1);
+    if (v->ptr != nullptr) recursive_build_kd_node(v->ptr, depth + 1);
     return ;
 }
 
