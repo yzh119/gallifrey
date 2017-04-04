@@ -33,6 +33,7 @@ public:
 
     inline void set_pixel(int x, int y, const Vec &rad);    // Set pixel at coordinate (x, y)
     inline uint8_t *to_bmp_pixel();                         // Convert float pixel (range from 0 to 1) to int8 pixel(range from 0 to 255).
+    inline cv::Mat to_cv2_pixel();                         // Convert float pixel (range from 0 to 1) to cv2 pixel.
     Vec cx;
     Vec cy;
     Ray cam;
@@ -66,6 +67,21 @@ inline void Image::adjust_camera() {
     cy = (Vec(cam.d.y, 2 * -cam.d.x).norm() * tan);
     cx = (cy % cam.d).norm() * (tan * width / height);
     cy = Vec(-cy.x, -cy.y, -cy.z);
+}
+
+cv::Mat Image::to_cv2_pixel() {
+    cv::Mat ret(height, width, cv::DataType<cv::Vec3b>::type);
+
+    for (unsigned int y = 0; y < height; ++y)
+        for (unsigned int x = 0; x < width; ++x)
+        {
+            int pos = y * width + x;
+            ret.at<cv::Vec3b>(y, x)[2] = to_int(col[3 * pos]);
+            ret.at<cv::Vec3b>(y, x)[1] = to_int(col[3 * pos + 1]);
+            ret.at<cv::Vec3b>(y, x)[0] = to_int(col[3 * pos + 2]);
+        }
+
+    return ret;
 }
 
 #endif //GALLIFREY_IMAGE_H

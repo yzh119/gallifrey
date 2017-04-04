@@ -41,8 +41,9 @@ const float view_dis = 2;
 
 // Arguments
 bool enable_anti_aliasing = false;
-bool enable_shadow = false;
-bool enable_global = false;
+bool enable_shadow  = false;
+bool enable_global  = false;
+bool enable_display = false;
 char model_name[max_name];
 int num_workers = 4;
 
@@ -383,21 +384,28 @@ void dump_image()
     dump_bitmap((char *) "../out/dump.bmp", img.to_bmp_pixel());
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Generate successful in %.3fs.\n", (now - start).count() / 1e9);
+
+    if (enable_display)
+    {
+        cv::namedWindow("Display " + std::string(model_name), cv::WINDOW_AUTOSIZE);
+        cv::imshow("Display " + std::string(model_name), img.to_cv2_pixel());
+        cvWaitKey(0);
+    }
+
     return ;
 }
 
 void parse_argument(int argc, char *argv[]) {
-    for (int i = 1; i < argc; ++i)
-    {
-        if (strcmp(argv[i], "--model") == 0)
-        {
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--model") == 0) {
             strcpy(model_name, argv[++i]);
-        } else if (strcmp(argv[i], "--anti_aliasing") == 0)
-        {
+        } else if (strcmp(argv[i], "--anti_aliasing") == 0) {
             enable_anti_aliasing = true;
-        } else if (strcmp(argv[i], "--shadow") == 0)
-        {
+        } else if (strcmp(argv[i], "--shadow") == 0) {
             enable_shadow = true;
+        } else if (strcmp(argv[i], "--display") == 0)
+        {
+            enable_display = true;
         } else if (strcmp(argv[i], "--global") == 0)
         {
             enable_global = true;
@@ -412,6 +420,7 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
             fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow.\n");
             fprintf(stdout, "--global:\t\t specifies whether to enable global illumination.\n");
+            fprintf(stdout, "--display:\t\t specifies whether to display the picture right now.\n");
             fprintf(stdout, "--help:\t\t\t display this information.\n");
             fprintf(stdout, "Please refer to README.md for more details.\n");
         } else {
@@ -432,9 +441,10 @@ int main(int argc, char *argv[])
     // Initialization
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
-    enable_anti_aliasing = true;
-    enable_shadow = true;
+    enable_anti_aliasing = false;
+    enable_shadow = false;
     enable_global = false;
+    enable_display = true;
     strcpy(model_name, "cube");
 #else
     parse_argument(argc, argv);
