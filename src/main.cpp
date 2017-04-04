@@ -50,6 +50,8 @@ int num_samples = 1;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat elder_mat = cv::imread("../resources/elder2.png", CV_LOAD_IMAGE_COLOR);
+cv::Mat elder1_mat = cv::imread("../resources/elder1.jpg", CV_LOAD_IMAGE_COLOR);
 
 Face fArray[max_face];
 Vec vxArray[max_vx];
@@ -103,7 +105,6 @@ inline void add_wall_illumination()
 
     // Calculate size of the box;
     min_x -= view_dis * len_x;
-    //min_y -= view_dis * len_y;
     min_z -= view_dis * len_z;
 
     max_x += view_dis * len_x;
@@ -160,13 +161,15 @@ inline void add_wall_illumination()
         idt = (int) scene.size_vt;
     Material
             wall(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &wall_mat),
-            ground(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &ground_mat);
-    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, wall);
+            ground(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &ground_mat),
+            elder(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &elder_mat),
+            elder1(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &elder1_mat);
+    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, elder);
     ADD_WALL(4, 3, 1, 2, 4, 3, 2, 1, wall);
     ADD_WALL(8, 7, 3, 4, 4, 3, 2, 1, ground);
     ADD_WALL(2, 1, 5, 6, 4, 3, 2, 1, wall);
     ADD_WALL(4, 2, 6, 8, 4, 3, 2, 1, wall);
-    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, wall);
+    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, elder1);
     return ;
 }
 
@@ -446,7 +449,7 @@ int main(int argc, char *argv[])
     enable_shadow = true;
     enable_global = false;
     enable_display = true;
-    strcpy(model_name, "sphere");
+    strcpy(model_name, "cube");
 #else
     parse_argument(argc, argv);
 #endif

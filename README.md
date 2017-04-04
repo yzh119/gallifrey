@@ -21,7 +21,8 @@ If you would like to run the code on CPU with more then 4 cores, please refer to
     | io.h          # To implement some functions to parse `.obj` files and dump `.bmp` files.
     | kdtree.h      # To implement the SAH-KDTree
     | shader.h      # To implement the Phong Shading algorithm.
-    | tracing.h     # To implement some functions
+    | texture.h     # To implement some functions that deal with textures.
+    | tracing.h     # To implement Local Illuminaion and MCPT.
     | main.cpp      # Set parameters
 
 ## Features
@@ -82,7 +83,6 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 ![airboat](demo/airboat.bmp)
 ![cube_with_shadow](demo/softshadow_cube.bmp)
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
-![sphere_with_shadow_color](demo/softshadow_sphere_color.bmp)
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

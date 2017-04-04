@@ -127,4 +127,6 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
 }
 
 
+
+
 #endif //GALLIFREY_TRACING_H_H
