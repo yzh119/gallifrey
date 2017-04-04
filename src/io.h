@@ -22,6 +22,8 @@
 const unsigned int width = 640;
 const unsigned int height = 480;
 
+extern bool enable_global;
+
 /*
  * Generate .bmp file from pixels.
  */
@@ -214,10 +216,20 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 if (!if_mtl)
                 {
-                    f_array[l_f].set_ka(Vec(RED) * .2);
-                    f_array[l_f].set_kd(Vec(RED) * .4);
-                    f_array[l_f].set_ks(Vec(WHITE) * .4);
-                    l_f++;
+                    if (!enable_global)
+                    {
+                        f_array[l_f].set_ka(Vec(PINK) * .2);
+                        f_array[l_f].set_kd(Vec(PINK) * .4);
+                        f_array[l_f].set_ks(Vec(WHITE) * .4);
+                        l_f++;
+                    }
+                    else
+                    {
+                        f_array[l_f].set_c(Vec(WHITE) * .9);
+                        f_array[l_f].set_refl(DIFF);
+                        f_array[l_f].set_e(Vec());
+                        l_f++;
+                    }
                 }
             }
             else if (strcmp(type, "g") == 0)

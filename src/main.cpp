@@ -5,16 +5,10 @@
 #include "image.h"
 #include "tracing.h"
 #include "concurrentqueue.h"
+#include "kdtree.h"
 #include <thread>
 #include <chrono>
 #include <atomic>
-#define YELLOW  1,1,0
-#define WHITE   1,1,1
-#define RED     1,0,0
-#define GREEN   0,1,0
-#define CYAN    0,1,1
-#define BLUE    0,0,1
-#define PINK    1,0,1
 #define ADD_WALL(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
 scene.f_array[scene.size_f].material = (arg9);\
 scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, idt - (arg5)); \
@@ -62,6 +56,8 @@ Vec ilArray[max_illu];
 Vec liArray[max_illu];
 size_t l_face, l_vertex, l_normal, l_texture;
 
+KDTree *tree;
+
 Scene scene;
 Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
 
@@ -73,11 +69,6 @@ inline float eta(int progress, int total,
 {
     assert(progress != 0);
     return (float) ((1. * (total - progress) / progress) * ((now - start).count() / 1e9));
-}
-
-inline float erand()
-{
-    return (float) rand() / RAND_MAX;
 }
 
 /*
@@ -112,28 +103,41 @@ inline void add_wall_illumination()
     max_z += view_dis * len_z;
 
     // Set the illumination;
-    ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, max_z - len_z / 2);
-    ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, min_z + len_z / 2);
-    // Set multi-illumination to enable soft shadow.
-    if (enable_shadow)
+    if (!enable_global)
     {
-        for (int i = -1; i < 2; ++i)
-            for (int j = -1; j < 2; ++j)
-                for (int k = -1; k < 2; ++k)
-                {
-                    if (i == 0 && j == 0 && k == 0) continue;
-                    ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (max_z - len_z * (.5 + 5e-2 * k)));
-                }
+        ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, max_z - len_z / 2);
+        ADD_ILLU(WHITE, max_x - len_x / 2, max_y - len_y / 2, min_z + len_z / 2);
+        // Set multi-illumination to enable soft shadow.
+        if (enable_shadow) {
+            for (int i = -1; i < 2; ++i)
+                for (int j = -1; j < 2; ++j)
+                    for (int k = -1; k < 2; ++k) {
+                        if (i == 0 && j == 0 && k == 0) continue;
+                        ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)),
+                                 (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (max_z - len_z * (.5 + 5e-2 * k)));
+                    }
 
-        for (int i = -1; i < 2; ++i)
-            for (int j = -1; j < 2; ++j)
-                for (int k = -1; k < 2; ++k)
-                {
-                    if (i == 0 && j == 0 && k == 0) continue;
-                    ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)), (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (min_z + len_z * (.5 + 5e-2 * k)));
-                }
+            for (int i = -1; i < 2; ++i)
+                for (int j = -1; j < 2; ++j)
+                    for (int k = -1; k < 2; ++k) {
+                        if (i == 0 && j == 0 && k == 0) continue;
+                        ADD_ILLU(WHITE, (float) (max_x - len_x * (.5 + 5e-2 * i)),
+                                 (float) (max_y - len_y * (.5 + 5e-2 * j)), (float) (min_z + len_z * (.5 + 5e-2 * k)));
+                    }
+        }
     }
-
+    else
+    {
+        ADD_CORD(min_x + .5 * view_dis * len_x, max_y - eps, min_z + .5 * view_dis * len_z);
+        ADD_CORD(min_x + .5 * view_dis * len_x, max_y - eps, max_z - .5 * view_dis * len_z);
+        ADD_CORD(max_x - .5 * view_dis * len_x, max_y - eps, max_z - .5 * view_dis * len_z);
+        ADD_CORD(max_x - .5 * view_dis * len_x, max_y - eps, min_z + .5 * view_dis * len_z);
+        int idx = (int) scene.size_vx,
+            idt = 0;
+        Material
+            light(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), nullptr, Vec(WHITE), Vec(WHITE), DIFF);
+        ADD_WALL(4, 3, 2, 1, 1, 1, 1, 1, light);
+    }
     // Change the camera's view point.
     img.cam.d = Vec(-(2 + view_dis), -(1 + view_dis), (2 + view_dis)).norm();
     img.cam.o.set_coordinate(max_x - len_x / 2, max_y - len_y / 2,
@@ -164,12 +168,26 @@ inline void add_wall_illumination()
             ground(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &ground_mat),
             elder(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &elder_mat),
             elder1(Vec(.2, .2, .2), Vec(.4, .4, .4), Vec(.4, .4, .4), &elder1_mat);
-    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, elder);
+
+    if (enable_global)  // Set the property of wall when global illumination is enabled.
+    {
+        wall.refl   = DIFF;
+        ground.refl = DIFF;
+        elder.refl  = DIFF;
+        elder1.refl = DIFF;
+
+        wall.c      = Vec(WHITE) * .7;
+        ground.c    = Vec(WHITE) * .7;
+        elder.c     = Vec(WHITE) * .7;
+        elder1.c    = Vec(WHITE) * .7;
+    }
+
+    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, wall); // elder
     ADD_WALL(4, 3, 1, 2, 4, 3, 2, 1, wall);
     ADD_WALL(8, 7, 3, 4, 4, 3, 2, 1, ground);
     ADD_WALL(2, 1, 5, 6, 4, 3, 2, 1, wall);
     ADD_WALL(4, 2, 6, 8, 4, 3, 2, 1, wall);
-    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, elder1);
+    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, wall); // elder1
     return ;
 }
 
@@ -275,13 +293,15 @@ void rendering()
             }
             else
             {
-                Vec
-                        d = img.cx * (1. * x / width  - .5) +
-                            img.cy * (1. * y / height - .5) + img.cam.d;
-                if (enable_global)
-                    col = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
-                else
-                    col = local_ill(Ray(img.cam.o, d.norm()), scene);
+                for (int s = 0; s < num_samples; ++s) {
+                    Vec
+                            d = img.cx * (1. * x / width - .5) +
+                                img.cy * (1. * y / height - .5) + img.cam.d;
+                    if (enable_global)
+                        col = col + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / num_samples);
+                    else
+                        col = col + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / num_samples);
+                }
             }
 
             img.set_pixel(x, y, col);
@@ -362,13 +382,15 @@ void rendering()
             }
             else
             {
-                Vec
-                        d = img.cx * (1. * x / width  - .5) +
-                            img.cy * (1. * y / height - .5) + img.cam.d;
-                if (enable_global)
-                    col = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
-                else
-                    col = local_ill(Ray(img.cam.o, d.norm()), scene);
+                for (int s = 0; s < num_samples; ++s) {
+                    Vec
+                            d = img.cx * (1. * x / width - .5) +
+                                img.cy * (1. * y / height - .5) + img.cam.d;
+                    if (enable_global)
+                        col = col + global_ill(Ray(img.cam.o, d.norm()), 0, scene);
+                    else
+                        col = col + local_ill(Ray(img.cam.o, d.norm()), scene);
+                }
             }
             img.set_pixel(x, y, col);
         }
@@ -445,21 +467,28 @@ int main(int argc, char *argv[])
     // Initialization
     memset(model_name, '\0', sizeof(model_name));
 #ifdef DEBUG
-    enable_anti_aliasing = true;
-    enable_shadow = true;
+    enable_anti_aliasing = false;
+    enable_shadow = false;
     enable_global = false;
     enable_display = true;
+    num_samples = 1;
     strcpy(model_name, "cube");
 #else
     parse_argument(argc, argv);
 #endif
 
+    assert(!enable_global or !enable_shadow);
+    assert(enable_global or (num_samples == 1));
+
     // unit test.
     test_dump_image();
     test_intersection();
+    test_aabb();
 
     // main.
     load_and_construct_scene();
+    tree = new KDTree(&scene);
+    tree->build_tree();
     rendering();
     dump_image();
     fprintf(stderr, "DONE.\n");

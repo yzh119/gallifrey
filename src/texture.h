@@ -11,7 +11,6 @@
 inline Vec get_pixel(cv::Mat *img, const Vec& pos)
 {
     assert (img->data);
-    //printf("%d %d\n", img->rows, img->cols);
     float x = pos.x, y = pos.y;
     x -= floor(pos.x);
     y -= floor(pos.y);

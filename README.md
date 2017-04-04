@@ -69,10 +69,10 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 - [x] Anti Aliasing
 - [x] Phong Shader
 - [x] Ray Casting (Local illumination)
-- [ ] Ray Tracing (Global illumination)
+- [x] Ray Tracing (Global illumination)
 - [x] Soft Shadow
-- [ ] Transparent
-- [ ] Color Blending
+- [x] Transparent
+- [x] Color Blending
 - [x] Texture
 - [x] Multi-threading
 
@@ -83,6 +83,7 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 ![airboat](demo/airboat.bmp)
 ![cube_with_shadow](demo/softshadow_cube.bmp)
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
+![global_sphere](demo/global_sphere.bmp)
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

@@ -9,7 +9,12 @@
 #include <cmath>
 #include <opencv2/opencv.hpp>
 
-const float pi = (const float) acos(-1.);
+inline float erand()
+{
+    static unsigned short Xi[3] = {0, 0, 0};
+    Xi[2] += (Xi[1] += ++Xi[0] == 0) == 0;
+    return (float) erand48(Xi);
+}
 
 /*
  * Class Vector:
@@ -41,7 +46,6 @@ public:
     float y;
     float z;
 };
-
 
 Vec &Vec::norm()
 {
@@ -86,15 +90,20 @@ Vec Vec::operator*(const Vec &b) const {
     return Vec(x * b.x, y * b.y, z * b.z);
 }
 
+enum refl_t {DIFF, SPEC, REFR};
+
 /*
  * Class Material
  */
 class Material
 {
 public:
-    Vec ka, kd, ks;
+    Vec ka, kd, ks;         // k_ambient, k_diffusion, k_specular, used for local illumination.
+    Vec e, c;               // emission, color, used for global illumination
     cv::Mat *image;
-    Material(const Vec &ka, const Vec &kd, const Vec &ks, cv::Mat *img = nullptr): ka(ka), kd(kd), ks(ks), image(img) {}
+    refl_t refl;
+    Material(const Vec &ka, const Vec &kd, const Vec &ks, cv::Mat *img = nullptr, const Vec &e = Vec(), const Vec &c = Vec(), refl_t refl = DIFF):
+            ka(ka), kd(kd), ks(ks), image(img), e(e), c(c), refl(refl) {}
 };
 
 /*
@@ -104,17 +113,34 @@ public:
  */
 class Ray
 {
+private:
+    const float eps = 1e-8;
 public:
-    Ray(const Vec &o, const Vec &d): o(o), d(d) {}
+    Ray(const Vec &o, const Vec &d): o(o), d(d) {
+        if (d.x >= 0 && d.x < eps) this->d.x += eps;
+        if (d.x <= 0 && d.x > -eps) this->d.x -= eps;
+        if (d.y >= 0 && d.y < eps) this->d.y += eps;
+        if (d.y <= 0 && d.y > -eps) this->d.y -= eps;
+        if (d.z >= 0 && d.z < eps) this->d.z += eps;
+        if (d.z <= 0 && d.z > -eps) this->d.z -= eps;
+        inv_d = Vec((float) (1. / d.x), (float) (1. / d.y), (float) (1. / d.z));
+        sign[0] = (d.x < 0);
+        sign[1] = (d.y < 0);
+        sign[2] = (d.z < 0);
+    }
     Ray(const Ray &ray)
     {
         d = ray.d;
         o = ray.o;
+        inv_d = ray.inv_d;
+        for (int i = 0; i < 3; ++i)
+            sign[i] = ray.sign[i];
     }
     ~Ray() {}
 
-    Vec d;
+    Vec d, inv_d;
     Vec o;
+    int sign[3];
 };
 
 /*
@@ -146,6 +172,9 @@ public:
     inline void set_ka(const Vec &ka);
     inline void set_kd(const Vec &kd);
     inline void set_ks(const Vec &ks);
+    inline void set_e(const Vec &e);
+    inline void set_c(const Vec &c);
+    inline void set_refl(refl_t refl);
 };
 
 float eps = 1e-6;
@@ -244,6 +273,22 @@ inline void Face::modify_vt(int key, int idx_vt) {
     return;
 }
 
+inline void Face::set_e(const Vec &e) {
+    material.e = e;
+    return;
+}
+
+inline void Face::set_c(const Vec &c) {
+    material.c = c;
+    return;
+}
+
+void Face::set_refl(refl_t refl) {
+    material.refl = refl;
+    return;
+}
+
+
 struct Scene
 {
     Face *f_array;
@@ -321,7 +366,7 @@ inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
             }
         }
     }
-    return t >= 0.;
+    return t >= eps;
 }
 
 /*
