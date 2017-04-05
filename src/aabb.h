@@ -15,7 +15,7 @@ public:
         bounds[1] = max;
     }
     Vec bounds[2];
-    inline bool intersect_with_ray(const Ray &r, float t0, float t1) const;
+    inline bool intersect_with_ray(const Ray &r, float t0, float t1, float &min_t) const;
 };
 
 /*
@@ -23,7 +23,7 @@ public:
  * From **An Efficient and Robust Ray-Box Intersection Algorithm. by Amy Williams, et al.**
  */
 
-inline bool Box::intersect_with_ray(const Ray &r, float t0, float t1) const
+inline bool Box::intersect_with_ray(const Ray &r, float t0, float t1, float &min_t) const
 {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
@@ -53,6 +53,7 @@ inline bool Box::intersect_with_ray(const Ray &r, float t0, float t1) const
     if (tzmax < tmax)
         tmax = tzmax;
 
+    min_t = tmin;
     return ((tmin < t1) && (tmax > t0));
 }
 
@@ -61,8 +62,9 @@ inline void test_aabb()
     Box box(Vec(0, 0, 0), Vec(1, 1, 1));
     Ray r(Vec(0, -1, 0), Vec(1, 1.0001, 1)),
         r1(Vec(0, -1, 0), Vec(1, 0.9999, 1));
-    assert(box.intersect_with_ray(r, eps, 1e8));
-    assert(!box.intersect_with_ray(r1, eps, 1e8));
+    float t_min;
+    assert(box.intersect_with_ray(r, eps, 1e8, t_min));
+    assert(!box.intersect_with_ray(r1, eps, 1e8, t_min));
 }
 
 #endif //GALLIFREY_AABB_H

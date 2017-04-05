@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 if (WIN32)
 include_directories(C:\\\\opencv\\\\install\\\\include)
-set(TARGET_LIBS
+set(OpenCV_LIBS
         C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_core2413.dll.a
         C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_highgui2413.dll.a
         C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib\\\\libopencv_imgproc2413.dll.a)
@@ -25,11 +25,7 @@ set(SOURCE_CODE
         src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h)
 
 add_executable(gallifrey
-        ${SOURCE_CODE} )
+        ${SOURCE_CODE})
 
 target_link_libraries(gallifrey
-        pthread)
-
-if (WIN32)
-    target_link_libraries(gallifrey ${TARGET_LIBS})
-endif()
+        pthread ${OpenCV_LIBS})

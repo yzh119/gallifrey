@@ -48,7 +48,7 @@ inline Vec diffuse_light(const Vec &pos, const Vec &kd, const Vec &N, const Scen
         }
         else
         {
-            if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
+            if (cosine > 0 && !high_level_oriented_segment_intersect(pos, s.il_array[i], s))
                 ret = ret + kd * cosine * s.li_array[i];
         }
 
@@ -80,7 +80,7 @@ inline Vec specular_light(const Vec &pos, const Vec &ks, const Vec &N, Vec V, co
         }
         else
         {
-            if (cosine > 0 && !oriented_segment_intersect(pos, s.il_array[i], s))
+            if (cosine > 0 && !high_level_oriented_segment_intersect(pos, s.il_array[i], s))
                 ret = ret + ks * pow(cosine, light::n) * s.li_array[i];
         }
     }
@@ -120,7 +120,6 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
         Face &f = s.f_array[id];
         Vec c = f.material.c;
         float p = c.x > c.y && c.x > c.z ? c.x : c.y > c.z ? c.y : c.z;
-        //printf("%f %f %f\n", f.material.e.x, f.material.e.y, f.material.e.z);
         if (++depth > 5)
         {
             if (erand() < p)
@@ -130,8 +129,6 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
         }
         Vec n(get_phong_shading_vector(s.f_array[id], des, s)),
             nl = (n.dot(r.d) < 0) ? n: Vec(-n.x, -n.y, -n.z);
-        //if (depth == 1)
-        //    n = get_phong_shading_vector(f, des, s);
 
         switch (f.material.refl) {
             case DIFF:              // Diffusion

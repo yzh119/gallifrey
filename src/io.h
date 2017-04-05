@@ -218,9 +218,9 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 {
                     if (!enable_global)
                     {
-                        f_array[l_f].set_ka(Vec(PINK) * .2);
-                        f_array[l_f].set_kd(Vec(PINK) * .4);
-                        f_array[l_f].set_ks(Vec(WHITE) * .4);
+                        f_array[l_f].set_ka(Vec(GREEN) * .2);
+                        f_array[l_f].set_kd(Vec(GREEN) * .4);
+                        f_array[l_f].set_ks(Vec(GREEN) * .4);
                         l_f++;
                     }
                     else

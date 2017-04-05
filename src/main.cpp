@@ -31,13 +31,14 @@ const int max_face  = 120000;
 const int max_vx    = 120000;
 const int max_illu  = 300;
 const int max_name  = 40;
-const float view_dis = 2;
+const float view_dis = 1;
 
 // Arguments
 bool enable_anti_aliasing = false;
 bool enable_shadow  = false;
 bool enable_global  = false;
 bool enable_display = false;
+bool enable_sah     = false;
 char model_name[max_name];
 int num_workers = 4;
 int num_samples = 1;
@@ -182,12 +183,12 @@ inline void add_wall_illumination()
         elder1.c    = Vec(WHITE) * .7;
     }
 
-    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, wall); // elder
+    ADD_WALL(6, 5, 7, 8, 4, 3, 2, 1, elder); // elder
     ADD_WALL(4, 3, 1, 2, 4, 3, 2, 1, wall);
     ADD_WALL(8, 7, 3, 4, 4, 3, 2, 1, ground);
     ADD_WALL(2, 1, 5, 6, 4, 3, 2, 1, wall);
     ADD_WALL(4, 2, 6, 8, 4, 3, 2, 1, wall);
-    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, wall); // elder1
+    ADD_WALL(7, 5, 1, 3, 4, 3, 2, 1, elder1); // elder1
     return ;
 }
 
@@ -429,6 +430,8 @@ void parse_argument(int argc, char *argv[]) {
             enable_anti_aliasing = true;
         } else if (strcmp(argv[i], "--shadow") == 0) {
             enable_shadow = true;
+        } else if (strcmp(argv[i], "--sah") == 0) {
+            enable_sah = true;
         } else if (strcmp(argv[i], "--display") == 0) {
             enable_display = true;
         } else if (strcmp(argv[i], "--global") == 0) {
@@ -441,6 +444,7 @@ void parse_argument(int argc, char *argv[]) {
         {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
             fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
+            fprintf(stdout, "--sah   ENABLE_SAH:\t specifies whether to use SAH KD Tree or SPACE MEDIUM KD Tree\n");
             fprintf(stdout, "--samples SAMPLES:\t  specifies the number of samples in MCPT.\n");
             fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
             fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
@@ -470,9 +474,10 @@ int main(int argc, char *argv[])
     enable_anti_aliasing = false;
     enable_shadow = false;
     enable_global = false;
+    enable_sah = true;
     enable_display = true;
     num_samples = 1;
-    strcpy(model_name, "sphere");
+    strcpy(model_name, "horse");
 #else
     parse_argument(argc, argv);
 #endif
@@ -484,12 +489,11 @@ int main(int argc, char *argv[])
     test_dump_image();
     test_intersection();
     test_aabb();
-    test_kd_tree();
 
     // main.
     load_and_construct_scene();
     tree = new KDTree(&scene);
-    tree->build_tree();
+    tree->build_tree(enable_sah);
     rendering();
     dump_image();
     fprintf(stderr, "DONE.\n");
