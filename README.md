@@ -84,6 +84,7 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 - [x] Multi-threading
 - [ ] Fix the bug in SAH KD-Tree
 - [ ] Use OPENCL to replace multi threading.
+- [ ] **Some errors in specular**.
 
 ## Statistics
 
@@ -107,17 +108,36 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 instance(#faces)	| build-tree(s)		| Render(s)
 --------------------|-------------------|----------------
 horse-li(96k)		| 0.594				| 13.883
-horse-li-aa(96k)	| 0.597				| 55.228
+horse-li-aa(96k)	| 0.591				| 55.228
+dinosaur-li(9k)		| 0.018				| 15.533				
 teapot-li-ss-aa(3.7k)| 0.033			| 632.007
 sphere-gi-sp200(0.1k)| 0.001			| 200.590
-teapot-gi-sp500(3.7k)| 0.033			| 2400
+teapot-gi-sp500(3.7k)| 0.033			| 2394.832
+sphere-gi-sp20(0.1k) | 0.001			| 15.938
+airboat-gi-sp20(6k)	 | 0.029			| 83.761
+dinosaur-gi-sp20(9k) | 0.018			| 58.081
+cube-gi-sp100(6)	 | 0.000			| 27.100
 
 ## Demo
-![teapot](demo/teapot.bmp)
-![airboat](demo/airboat.bmp)
+<center>
+![horse](demo/horse.bmp)
+![horse](demo/horse-aa.bmp)
+Horse(90k faces) with local illumination.
+</center>
 <center>
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
-sphere-li-ss-aa(0.1k)
+![sphere_with_shadow](demo/teapot-shadow-aa.bmp)
+Local illumination with soft shadow.
+</center>
+<center>
+![sphere-gi](demo/sphere-gi-sp20.bmp)
+Gloal illumination(200 samples)
+![teapot-gi](demo/teapot-gi-sp500.bmp)
+Gloal illumination(500 samples)
+![](demo/sphere-blending.bmp)
+Gloal illumination(20 samples)
+![](demo/airboat.bmp)
+Gloal illumination(20 samples)
 </center>
 
 ## Reference
