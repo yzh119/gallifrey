@@ -31,7 +31,6 @@ const int max_face  = 120000;
 const int max_vx    = 120000;
 const int max_illu  = 300;
 const int max_name  = 40;
-const float view_dis = 1.5;
 
 // Arguments
 bool enable_anti_aliasing = false;
@@ -39,6 +38,7 @@ bool enable_shadow  = false;
 bool enable_global  = false;
 bool enable_display = false;
 bool enable_sah     = false;
+float view_dis = 1.5;
 char model_name[max_name];
 int num_workers = 4;
 int num_samples = 2;
@@ -432,6 +432,8 @@ void parse_argument(int argc, char *argv[]) {
             enable_shadow = true;
         } else if (strcmp(argv[i], "--sah") == 0) {
             enable_sah = true;
+        } else if (strcmp(argv[i], "--distance") == 0) {
+            view_dis = (float) atof(argv[++i]);
         } else if (strcmp(argv[i], "--display") == 0) {
             enable_display = true;
         } else if (strcmp(argv[i], "--global") == 0) {
@@ -445,7 +447,8 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
             fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
             fprintf(stdout, "--sah   ENABLE_SAH:\t specifies whether to use SAH KD Tree or SPACE MEDIUM KD Tree\n");
-            fprintf(stdout, "--samples SAMPLES:\t  specifies the number of samples in MCPT.\n");
+            fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n")
+            fprintf(stdout, "--samples SAMPLES:\t specifies the number of samples in MCPT.\n");
             fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
             fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
             fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow.\n");
@@ -454,13 +457,13 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "--help:\t\t\t display this information.\n");
             fprintf(stdout, "Please refer to README.md for more details.\n");
         } else {
-            fprintf(stderr, "Argument error, please use %s --help to show help.", argv[0]);
+            fprintf(stderr, "Argument error, please use %s --help to show help.\n", argv[0]);
             exit(1);
         }
     }
     if (strlen(model_name) == 0)
     {
-        fprintf(stderr, "Model name must be specified, please use %s --help to show help.", argv[0]);
+        fprintf(stderr, "Model name must be specified, please use %s --help to show help.\n", argv[0]);
         exit(1);
     }
     return ;
@@ -473,7 +476,7 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
     enable_anti_aliasing = false;
     enable_shadow = false;
-    enable_global = true;
+    enable_global = false;
     enable_sah = false;
     enable_display = true;
     num_samples = 1;

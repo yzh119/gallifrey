@@ -51,7 +51,7 @@ For Unix/Linux users:
     cd gallifrey/
     cmake -DCMAKE_BUILD_TYPE=RELEASE .
     make && cd bin
-    ./gallifrey [--model MODEL_NAME] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
+    ./gallifrey --model MODEL_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` environment variable):
@@ -63,7 +63,7 @@ The default include path is `C:\opencv\install\include`, and the default library
     cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .
     mingw32-make
     cd bin
-    ./gallifrey [--model MODEL_NAME] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
+    ./gallifrey --model MODEL_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 # Notice
