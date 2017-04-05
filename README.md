@@ -121,17 +121,28 @@ cube-gi-sp100(6)	 | 0.000			| 27.100
 ## Demo
 ![horse](demo/horse.bmp)
 ![horse](demo/horse-aa.bmp)
+
 Local illumination.
+
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
 ![sphere_with_shadow](demo/teapot-shadow-aa.bmp)
+
 Local illumination with soft shadow.
+
 ![sphere-gi](demo/sphere-gi-sp20.bmp)
+
 Gloal illumination(200 samples)
+
 ![teapot-gi](demo/teapot-gi-sp500.bmp)
+
 Gloal illumination(500 samples)
+
 ![sphere-blending](demo/sphere-blending.bmp)
+
 Gloal illumination(20 samples)
+
 ![airboat-blending](demo/airboat.bmp)
+
 Gloal illumination(20 samples)
 
 ## Reference
