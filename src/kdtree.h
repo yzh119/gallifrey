@@ -39,7 +39,8 @@ private:
     bool flag;
     Scene *s;
     std::chrono::high_resolution_clock::time_point start;
-    void recursive_build_kd_node(std::shared_ptr<node> &v, int depth);
+    void recursively_build_sah_kd_node(std::shared_ptr<node> &v, int depth);
+    void recursively_build_mid_kd_node(std::shared_ptr<node> &v, int depth);
     std::vector<Vec> fmin, fmax;
 public:
     KDTree(Scene *s): flag(false), s(s), start(std::chrono::high_resolution_clock::now()) {
@@ -74,7 +75,7 @@ public:
 
     std::shared_ptr <node> root;
     inline void build_tree();
-    bool get_intersection(std::shared_ptr<node> &v, const Ray &r, float &t, int &id);
+    bool get_intersection(std::shared_ptr<node> &v, const Ray &r, float &t, int &id, int depth);
     inline float cost(float sa, int na, float sb, int nb) const ;
     inline float surface_area(const Vec &min, const Vec &max) const ;
 };
@@ -86,7 +87,7 @@ extern KDTree *tree;
  */
 inline void KDTree::build_tree() {
     flag = true;
-    recursive_build_kd_node(root, 0);
+    recursively_build_mid_kd_node(root, 0);
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Building successful in %.3fs.\n", (now - start).count() / 1e9);
 }
@@ -94,15 +95,16 @@ inline void KDTree::build_tree() {
 /*
  * Recursively build the KD-Tree.
  */
-void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
-    // printf("%d %d\n", v->elems.size(), depth);
+void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
     if (depth == 100) return ;                  // If too deep, prune it.
     if (v->elems.size() <= 20) return ;         // If too small, prune it.
+
+    //printf("%d %d\n", depth, v->elems.size());
 
     bool split_x, split_y, split_z = split_x = split_y = false;
     int k_x, k_y, k_z = k_x = k_y = -1;
     std::pair<Vec, Vec> box_x_l, box_x_r, box_y_l, box_y_r, box_z_l, box_z_r;
-    float minc = 1e9, current_c;                // minc is the min cost, and current_c is the current cost.
+    float maxc = (float) -1e9, current_c;                // maxc is the max cost, and current_c is the current cost.
 
     std::vector<std::pair<std::pair<int, int>, float> > x_sort, y_sort, z_sort;
     for (int i = 0; i < v->elems.size(); ++i)
@@ -111,7 +113,7 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
         x_sort.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].x));
         y_sort.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].y));
         y_sort.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].y));
-        z_sort.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].z));
+        z_sort.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].z)) ;
         z_sort.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].z));
     }
 
@@ -145,10 +147,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     int N_current = 1;
     for (int i = 0; i < x_sort.size() - 1; ++i)
     {
-        if (x_sort[i].first.second == 0)
-        {
-            current.first   = vec_min(current.first, fmin[x_sort[i].first.first]);
-            current.second  = vec_max(current.first, fmax[x_sort[i].first.first]);
+        if (x_sort[i].first.second == 0) {
+            current.first = vec_min(current.first, fmin[x_sort[i].first.first]);
+            current.second = vec_max(current.first, fmax[x_sort[i].first.first]);
             ++N_current;
         }
 
@@ -156,9 +157,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
                 surface_area(current.first, current.second), N_current,
                 surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
 
-        if (current_c < minc)
+        if (current_c > maxc)
         {
-            minc = current_c;
+            maxc = current_c;
             k_x = i;
             split_x = true;
             box_x_l = current;
@@ -196,9 +197,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
                 surface_area(current.first, current.second), N_current,
                 surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
 
-        if (current_c < minc)
+        if (current_c > maxc)
         {
-            minc = current_c;
+            maxc = current_c;
             k_y = i;
             split_x = false;
             split_y = true;
@@ -237,9 +238,9 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
                 surface_area(current.first, current.second), N_current,
                 surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
 
-        if (current_c < minc)
+        if (current_c > maxc)
         {
-            minc = current_c;
+            maxc = current_c;
             k_z = i;
             split_x = false;
             split_y = false;
@@ -252,63 +253,67 @@ void KDTree::recursive_build_kd_node(std::shared_ptr<KDTree::node> &v, int depth
     assert((int)split_x + (int)split_y + (int)split_z == 1);
 
     // divide and conquer
-    if (split_x)                // split_x
+    if (split_x)                                                                // split_x
     {
         std::vector<int> v_left, v_right;
         for (int i = 0; i <= k_x; ++i)
             if (x_sort[i].first.second == 0)
-                v_left.push_back(i);
+                v_left.push_back(x_sort[i].first.first);
 
         for (int i = k_x + 1; i < x_sort.size(); ++i)
             if (x_sort[i].first.second == 1)
-                v_right.push_back(i);
+                v_right.push_back(x_sort[i].first.first);
 
+        if (v_left.size() >= v->elems.size() || v_right.size() >= v->elems.size()) return;
         v->ptl = std::make_shared<node> (v_left, Box(box_x_l.first, box_x_l.second));
         v->ptr = std::make_shared<node> (v_right,Box(box_x_r.first, box_x_r.second));
-    } else if (split_y)         // split_y
+    } else if (split_y)                                                         // split_y
     {
         std::vector<int> v_left, v_right;
         for (int i = 0; i <= k_y; ++i)
             if (y_sort[i].first.second == 0)
-                v_left.push_back(i);
+                v_left.push_back(y_sort[i].first.first);
 
         for (int i = k_y + 1; i < y_sort.size(); ++i)
             if (y_sort[i].first.second == 1)
-                v_right.push_back(i);
+                v_right.push_back(y_sort[i].first.first);
 
+        if (v_left.size() >= v->elems.size() || v_right.size() >= v->elems.size()) return;
         v->ptl = std::make_shared<node> (v_left, Box(box_y_l.first, box_y_l.second));
         v->ptr = std::make_shared<node> (v_right,Box(box_y_l.first, box_y_r.second));
-    } else                      // split_z
+    } else                                                                      // split_z
     {
         std::vector<int> v_left, v_right;
         for (int i = 0; i <= k_z; ++i)
             if (z_sort[i].first.second == 0)
-                v_left.push_back(i);
+                v_left.push_back(z_sort[i].first.first);
 
         for (int i = k_z + 1; i < z_sort.size(); ++i)
             if (z_sort[i].first.second == 1)
-                v_right.push_back(i);
+                v_right.push_back(z_sort[i].first.first);
 
-        v->ptl = std::make_shared<node> (v_left, Box(box_z_l.first, box_z_r.second));
+        if (v_left.size() >= v->elems.size() || v_right.size() >= v->elems.size()) return;
+        v->ptl = std::make_shared<node> (v_left, Box(box_z_l.first, box_z_l.second));
         v->ptr = std::make_shared<node> (v_right,Box(box_z_r.first, box_z_r.second));
     }
 
-    assert(!(v->ptl == nullptr xor v->ptr == nullptr));
-    if (v->ptl != nullptr) recursive_build_kd_node(v->ptl, depth + 1);
-    if (v->ptr != nullptr) recursive_build_kd_node(v->ptr, depth + 1);
+    recursively_build_sah_kd_node(v->ptl, depth + 1);
+    recursively_build_sah_kd_node(v->ptr, depth + 1);
     return ;
 }
 
 /*
  * To get the intersection of a ray and a bunch of faces.
  */
-bool KDTree::get_intersection(std::shared_ptr<KDTree::node> &v, const Ray &r, float &t, int &id) {
+bool KDTree::get_intersection(std::shared_ptr<KDTree::node> &v, const Ray &r, float &t, int &id, int depth) {
     assert(!(v->ptl == nullptr xor v->ptr == nullptr));
     if (v->ptl == nullptr && v->ptr == nullptr)
     {
         for (int i = 0; i < v->elems.size(); ++i)
         {
             int current_id = v->elems[i];
+            assert(current_id < s->size_f);
+
             float d = intersect_with_face(r, s->f_array[current_id], s->vx_array);
             if (d > eps)
             {
@@ -324,10 +329,10 @@ bool KDTree::get_intersection(std::shared_ptr<KDTree::node> &v, const Ray &r, fl
 
     bool ret = false;
     if (v->ptl->box.intersect_with_ray(r, eps, t))
-        ret |= get_intersection(v->ptl, r, t, id);
+        ret |= get_intersection(v->ptl, r, t, id, depth + 1);
 
     if (v->ptr->box.intersect_with_ray(r, eps, t))
-        ret |= get_intersection(v->ptr, r, t, id);
+        ret |= get_intersection(v->ptr, r, t, id, depth + 1);
 
     return ret;
 }
@@ -347,13 +352,98 @@ inline float KDTree::surface_area(const Vec &min, const Vec &max) const {
     return (float) (2.0 * (x * y + y * z + z * x));
 }
 
-/*\
+/*
+ * Recursively build the KD-tree by selecting the mid point as splitting plane.
+ */
+void KDTree::recursively_build_mid_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
+    if (depth == 100) return ;                  // If too deep, prune it.
+    if (v->elems.size() <= 20) return ;         // If too small, prune it.
+
+    std::pair<Vec, Vec> box_l, box_r;
+
+    std::vector<std::pair<std::pair<int, int>, float> > sorted;
+    if (depth % 3 == 0)
+    {
+        for (int i = 0; i < v->elems.size(); ++i)
+        {
+            sorted.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].x));
+            sorted.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].x));
+        }
+    } else if (depth % 3 == 1)
+    {
+        for (int i = 0; i < v->elems.size(); ++i)
+        {
+            sorted.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].y));
+            sorted.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].y));
+        }
+    } else
+    {
+        for (int i = 0; i < v->elems.size(); ++i)
+        {
+            sorted.push_back(std::make_pair(std::make_pair(i, 0), fmin[v->elems[i]].z));
+            sorted.push_back(std::make_pair(std::make_pair(i, 1), fmax[v->elems[i]].z));
+        }
+    }
+
+    auto comp = [](const std::pair<std::pair<int, int>, float> &a, const std::pair<std::pair<int, int>, float> &b)
+    {
+        if (a.second == b.second) return a.first.second < b.first.second;
+        return a.second < b.second;
+    };
+    std::sort(sorted.begin(), sorted.end(), comp);
+    std::sort(sorted.begin(), sorted.end(), comp);
+    std::sort(sorted.begin(), sorted.end(), comp);
+
+    int split = sorted.size() / 2;
+
+    std::vector<int> v_left, v_right;
+    box_l = std::make_pair(fmin[sorted.front().first.first], fmax[sorted.front().first.first]);
+    box_r = std::make_pair(fmin[sorted.back().first.first], fmax[sorted.back().first.first]);
+    for (int i = 0; i <= split; ++i)
+    {
+        if (sorted[i].first.second == 0)
+        {
+            v_left.push_back(sorted[i].first.first);
+            box_l.first = vec_min(box_l.first, fmin[sorted[i].first.first]);
+            box_l.second = vec_max(box_l.second, fmax[sorted[i].first.first]);
+        }
+    }
+    for (int i = sorted.size() - 1; i > split; --i)
+    {
+        if (sorted[i].first.second == 1)
+        {
+            v_right.push_back(sorted[i].first.first);
+            box_r.first = vec_min(box_r.first, fmin[sorted[i].first.first]);
+            box_r.second = vec_max(box_r.second, fmax[sorted[i].first.first]);
+        }
+    }
+
+    if (v_left.size() + v_right.size() > 1.5 * v->elems.size()) return ;
+
+    v->ptl = std::make_shared<node> (v_left, Box(box_l.first, box_r.second));
+    v->ptr = std::make_shared<node> (v_right,Box(box_l.first, box_r.second));
+
+    recursively_build_mid_kd_node(v->ptl, depth + 1);
+    recursively_build_mid_kd_node(v->ptr, depth + 1);
+}
+
+/*
  * INTERSECTS RAY WITH SCENE
  * Using SHA-KD Tree api;
  */
 inline bool high_level_intersect(const Ray &r, float &t, int &id, const Scene &s)
 {
-    return tree->get_intersection(tree->root, r, t, id);
+    return tree->get_intersection(tree->root, r, t, id, 0);
+}
+
+inline void test_kd_tree()
+{
+/*
+    KDTree *kdtree;
+    Scene scene;
+    kdtree = new KDTree();
+    kdtree->build_tree();
+    */
 }
 
 #endif //GALLIFREY_KDTREE_H

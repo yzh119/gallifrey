@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
     enable_global = false;
     enable_display = true;
     num_samples = 1;
-    strcpy(model_name, "teapot");
+    strcpy(model_name, "sphere");
 #else
     parse_argument(argc, argv);
 #endif
@@ -484,6 +484,7 @@ int main(int argc, char *argv[])
     test_dump_image();
     test_intersection();
     test_aabb();
+    test_kd_tree();
 
     // main.
     load_and_construct_scene();
