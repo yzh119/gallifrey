@@ -54,9 +54,9 @@ For Unix/Linux users:
     ./gallifrey --model MODEL_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
-For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` environment variable):
+For Windows users, please using Powershell and make sure that `git`, `mingw`, `cmake` are all in your `PATH` environment variable):
 
-The default include path is `C:\opencv\install\include`, and the default library path is `C:\opencv\install\x86\mingw\lib`; you could set them as you like in `CMakeLists.txt`.
+The default `OPENCV` include path is `C:\opencv\install\include`, and the default library path is `C:\opencv\install\x86\mingw\lib`; you could set them as you like in `CMakeLists.txt`.
 
     git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
     cd gallifrey/
@@ -68,7 +68,7 @@ The default include path is `C:\opencv\install\include`, and the default library
 
 # Notice
 
-**There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**
+`--sah` is not recommended. **There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**
 
 ## Milestone
 - [x] Surface Area Heuristic KD-Tree
@@ -87,12 +87,38 @@ The default include path is `C:\opencv\install\include`, and the default library
 
 ## Statistics
 
+- Environment: 
+	- Aliyun Cloud HPC(G4): 64 core CPU.
+- Nomenclature: 
+	- li(Local Illumination)
+	- gi(Global Illumination)
+	- aa(Anti Aliasing)
+	- ss(Soft Shadow)
+	- sp(Samples)
+	- n(#faces).
+
+### Note: 
+
+	time\_render(aa) 	= 4 	* time\_render(<del>aa</del>)			# Sample 4 times per pixel.
+	time\_render(spAAA) = AAA 	* time\_render(<del>sp1</del>)			# Sample AAA times per pixel.
+	time\_render(ss)	= 27 	* log(n) * time\_render(<del>ss</del>) 	# Illumination: 54/2(for soft shadow)
+	time\_build(n)		= O(n log^2 n)									# Recursively build the KD-Tree
+
+instance(#faces)	| build-tree(s)		| Render(s)
+--------------------|-------------------|----------------
+horse-li(96k)		| 0.594				| 13.883
+horse-li-aa(96k)	| 0.597				| 55.228
+teapot-li-ss-aa(3.7k)| 0.033			| 632.007
+sphere-gi-sp200(0.1k)| 0.001			| 200.590
+teapot-gi-sp500(3.7k)| 0.033			| 2400
+
 ## Demo
 ![teapot](demo/teapot.bmp)
 ![airboat](demo/airboat.bmp)
-![cube_with_shadow](demo/softshadow_cube.bmp)
+<center>
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
-![global_sphere](demo/global_sphere.bmp)
+sphere-li-ss-aa(0.1k)
+</center>
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
