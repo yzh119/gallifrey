@@ -119,26 +119,20 @@ dinosaur-gi-sp20(9k) | 0.018			| 58.081
 cube-gi-sp100(6)	 | 0.000			| 27.100
 
 ## Demo
-<center>
 ![horse](demo/horse.bmp)
 ![horse](demo/horse-aa.bmp)
-Horse(90k faces) with local illumination.
-</center>
-<center>
+Local illumination.
 ![sphere_with_shadow](demo/softshadow_sphere.bmp)
 ![sphere_with_shadow](demo/teapot-shadow-aa.bmp)
 Local illumination with soft shadow.
-</center>
-<center>
 ![sphere-gi](demo/sphere-gi-sp20.bmp)
 Gloal illumination(200 samples)
 ![teapot-gi](demo/teapot-gi-sp500.bmp)
 Gloal illumination(500 samples)
-![](demo/sphere-blending.bmp)
+![sphere-blending](demo/sphere-blending.bmp)
 Gloal illumination(20 samples)
-![](demo/airboat.bmp)
+![airboat-blending](demo/airboat.bmp)
 Gloal illumination(20 samples)
-</center>
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
