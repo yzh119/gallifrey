@@ -447,7 +447,7 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
             fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
             fprintf(stdout, "--sah   ENABLE_SAH:\t specifies whether to use SAH KD Tree or SPACE MEDIUM KD Tree\n");
-            fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n")
+            fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n");
             fprintf(stdout, "--samples SAMPLES:\t specifies the number of samples in MCPT.\n");
             fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
             fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
