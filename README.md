@@ -30,15 +30,15 @@ If you would like to run the code on CPU with more then 4 cores, please refer to
 - Phong Shading
 - Anti Aliasing
 - Global / Local illumination
-- SAH KDTree
+- Space Medium/SAH KD-Tree
 - Multi Threading
-- Monte Carlo Ray Tracing
+- Monte Carlo Path Tracing
 - Texture
 
 ## Requirements
 
 - GCC/G++(mingw) 4.8+, std-c++11
-- OpenCV 2.4
+- OpenCV 2.4+
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 
@@ -56,6 +56,8 @@ For Unix/Linux users:
 
 For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` environment variable):
 
+The default include path is `C:\opencv\install\include`, and the default library path is `C:\opencv\install\x86\mingw\lib`; you could set them as you like in `CMakeLists.txt`.
+
     git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
     cd gallifrey/
     cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .
@@ -63,6 +65,10 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
     cd bin
     ./gallifrey [--model MODEL_NAME] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
+
+# Notice
+
+**There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**
 
 ## Milestone
 - [x] Surface Area Heuristic KD-Tree
@@ -76,6 +82,8 @@ For Windows users(using Powershell, with `git`, `mingw`, 'cmake' in your `PATH` 
 - [x] Color Blending
 - [x] Texture
 - [x] Multi-threading
+- [ ] Fix the bug in SAH KD-Tree
+- [ ] Use OPENCL to replace multi threading.
 
 ## Statistics
 

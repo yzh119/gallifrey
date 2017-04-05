@@ -31,7 +31,7 @@ const int max_face  = 120000;
 const int max_vx    = 120000;
 const int max_illu  = 300;
 const int max_name  = 40;
-const float view_dis = 1;
+const float view_dis = 1.5;
 
 // Arguments
 bool enable_anti_aliasing = false;
@@ -41,7 +41,7 @@ bool enable_display = false;
 bool enable_sah     = false;
 char model_name[max_name];
 int num_workers = 4;
-int num_samples = 1;
+int num_samples = 2;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
@@ -473,11 +473,11 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
     enable_anti_aliasing = false;
     enable_shadow = false;
-    enable_global = false;
-    enable_sah = true;
+    enable_global = true;
+    enable_sah = false;
     enable_display = true;
     num_samples = 1;
-    strcpy(model_name, "horse");
+    strcpy(model_name, "sphere");
 #else
     parse_argument(argc, argv);
 #endif

@@ -101,7 +101,7 @@ inline void KDTree::build_tree(bool enable_sah) {
  */
 void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
     if (depth == 100) return ;                  // If too deep, prune it.
-    if (v->elems.size() <= 15) return ;         // If too small, prune it.
+    if (v->elems.size() <= 20) return ;         // If too small, prune it.
 
     bool split_x, split_y, split_z = split_x = split_y = false;
     int k_x, k_y, k_z = k_x = k_y = -1;
@@ -383,7 +383,7 @@ inline float KDTree::surface_area(const Vec &min, const Vec &max) const {
  */
 void KDTree::recursively_build_mid_kd_node(std::shared_ptr<KDTree::node> &v, int depth) {
     if (depth == 100) return ;                  // If too deep, prune it.
-    if (v->elems.size() <= 15) return ;         // If too small, prune it.
+    if (v->elems.size() <= 20) return ;         // If too small, prune it.
 
     std::pair<Vec, Vec> box_l, box_r;
 
@@ -496,7 +496,7 @@ inline bool high_level_oriented_segment_intersect(const Vec &start, const Vec &t
 {
     Ray r(start, (target - start).norm());
     int id;
-    float dis = (target - start).dot(target - start) - eps;
+    float dis = (float) (sqrt((target - start).dot(target - start)) + eps);
     return tree->get_intersection(tree->root, r, dis, id, 0);
 }
 

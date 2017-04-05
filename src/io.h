@@ -226,7 +226,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                     else
                     {
                         f_array[l_f].set_c(Vec(WHITE) * .9);
-                        f_array[l_f].set_refl(DIFF);
+                        f_array[l_f].set_refl(REFR);
                         f_array[l_f].set_e(Vec());
                         l_f++;
                     }

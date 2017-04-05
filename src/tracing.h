@@ -114,7 +114,7 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
 {
     float t = 1e8;
     int id;
-    if (naive_intersect(r, t, id, s))
+    if (high_level_intersect(r, t, id, s))
     {
         Vec des = r.o + r.d * t;
         Face &f = s.f_array[id];
@@ -130,6 +130,8 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
         Vec n(get_phong_shading_vector(s.f_array[id], des, s)),
             nl = (n.dot(r.d) < 0) ? n: Vec(-n.x, -n.y, -n.z);
 
+
+        // The following codes are copied from http://www.kevinbeason.com/smallpt/
         switch (f.material.refl) {
             case DIFF:              // Diffusion
             {
@@ -144,19 +146,16 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
             }
             case REFR:              // Reflection
             {
-                /*
-                Ray reflRay(x, r.d - n * 2 * n.dot(r.d));     // Ideal dielectric REFRACTION
+                Ray reflRay(des, r.d - n * 2 * n.dot(r.d));     // Ideal dielectric REFRACTION
                 bool into = n.dot(nl)>0;                // Ray from outside going in?
-                double nc=1, nt=1.5, nnt=into?nc/nt:nt/nc, ddn=r.d.dot(nl), cos2t;
-                if ((cos2t=1-nnt*nnt*(1-ddn*ddn))<0)    // Total internal reflection
-                    return obj.e + f.mult(radiance(reflRay,depth,Xi));
-                Vec tdir = (r.d*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm();
-                double a=nt-nc, b=nt+nc, R0=a*a/(b*b), c = 1-(into?-ddn:tdir.dot(n));
-                double Re=R0+(1-R0)*c*c*c*c*c,Tr=1-Re,P=.25+.5*Re,RP=Re/P,TP=Tr/(1-P);
-                return obj.e + f.mult(depth>2 ? (erand48(Xi)<P ?   // Russian roulette
-                                                 radiance(reflRay,depth,Xi)*RP:radiance(Ray(x,tdir),depth,Xi)*TP) :
-                                      radiance(reflRay,depth,Xi)*Re+radiance(Ray(x,tdir),depth,Xi)*Tr);
-                */
+                double nc = 1, nt = 1.5, nnt = into ? nc / nt : nt / nc, ddn = r.d.dot(nl), cos2t;
+                if ((cos2t = 1 - nnt * nnt * (1 - ddn * ddn)) < 0)    // Total internal reflection
+                    return get_texture_at_pos(f, des, s) * (f.material.e + c * global_ill(reflRay, depth, s));
+                Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).norm();
+                double a = nt - nc, b = nt + nc, R0 = a * a / (b * b), c1 = 1-(into?-ddn:tdir.dot(n));
+                double Re = R0 + (1 - R0) * c1 * c1 * c1 * c1 * c1, Tr = 1 - Re, P = .25 + .5 * Re, RP = Re / P, TP = Tr / (1 - P);
+                return get_texture_at_pos(f, des, s) * (f.material.e + c * (depth > 2 ? (erand() < P ? global_ill(reflRay, depth, s) * RP: global_ill(Ray(des, tdir), depth, s) * TP):
+                                           global_ill(reflRay, depth, s) * Re + global_ill(Ray(des, tdir), depth, s)*Tr)); // Russian roulette
             }
         }
     } else
