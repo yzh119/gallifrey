@@ -5,8 +5,6 @@ To implement <del>an efficient</del> Ray Tracing algorithm on CPU.
 
 Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and set the value of `height` and `width`.
 
-If you would like to run the code on CPU with more then 4 cores, please refer to `src/main.cpp` and set the value of `num_workers`.
-
 ## Structure
 
     demo/           # To store some selected outputs
@@ -51,7 +49,7 @@ For Unix/Linux users:
     cd gallifrey/
     cmake -DCMAKE_BUILD_TYPE=RELEASE .
     make && cd bin
-    ./gallifrey --model MODEL_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
+    ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 For Windows users, please using Powershell and make sure that `git`, `mingw`, `cmake` are all in your `PATH` environment variable):
@@ -63,7 +61,7 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
     cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .
     mingw32-make
     cd bin
-    ./gallifrey --model MODEL_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
+    ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
 # Notice
@@ -84,7 +82,7 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 - [x] Multi-threading
 - [ ] Fix the bug in SAH KD-Tree
 - [ ] Use OPENCL to replace multi threading.
-- [ ] **Some errors in specular**.
+- [x] <del>**Some errors in specular**</del>(You should only apply interpolation on the normal vector when the face is small).
 
 ## Statistics
 

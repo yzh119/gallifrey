@@ -103,6 +103,8 @@ inline void add_wall_illumination()
     max_y += view_dis * len_y;
     max_z += view_dis * len_z;
 
+    scene.area = (max_z - min_z) * (max_x - min_x);
+
     // Set the illumination;
     if (!enable_global)
     {
@@ -175,7 +177,7 @@ inline void add_wall_illumination()
         wall.refl   = DIFF;
         ground.refl = DIFF;
         elder.refl  = DIFF;
-        elder1.refl = DIFF;
+        elder1.refl = SPEC;
 
         wall.c      = Vec(WHITE) * .7;
         ground.c    = Vec(WHITE) * .7;
@@ -219,6 +221,7 @@ void load_and_construct_scene()
         for (int j = 0; j < scene.f_array[i].get_size(); ++j)
             v = v + (scene.vx_array[scene.f_array[i].get_elem_idxV(j)] %
                     scene.vx_array[scene.f_array[i].get_elem_idxV(j + 1)]);
+        scene.f_array[i].area = (float) sqrt(v.dot(v)) / 2;
         v.norm();
     }
 
@@ -424,7 +427,7 @@ void dump_image()
 
 void parse_argument(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--model") == 0) {
+        if (strcmp(argv[i], "--config") == 0) {
             strcpy(model_name, argv[++i]);
         } else if (strcmp(argv[i], "--anti_aliasing") == 0) {
             enable_anti_aliasing = true;
@@ -445,7 +448,7 @@ void parse_argument(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--help") == 0)
         {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
-            fprintf(stdout, "--model MODEL_NAME:\t specifies the model name that the program loads\n");
+            fprintf(stdout, "--config CONFIG_NAME:\t specifies config file name.\n");
             fprintf(stdout, "--sah   ENABLE_SAH:\t specifies whether to use SAH KD Tree or SPACE MEDIUM KD Tree\n");
             fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n");
             fprintf(stdout, "--samples SAMPLES:\t specifies the number of samples in MCPT.\n");
@@ -480,6 +483,7 @@ int main(int argc, char *argv[])
     enable_sah = false;
     enable_display = true;
     num_samples = 1;
+    view_dis = 1;
     strcpy(model_name, "sphere");
 #else
     parse_argument(argc, argv);

@@ -127,9 +127,15 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
             else
                 return f.material.e;
         }
-        Vec n(get_phong_shading_vector(s.f_array[id], des, s)),
+        Vec n = s.fn_array[id],
             nl = (n.dot(r.d) < 0) ? n: Vec(-n.x, -n.y, -n.z);
 
+        // Interpolate normal vector.
+        if (f.area < s.area * 1e-2)
+        {
+            n = get_phong_shading_vector(s.f_array[id], des, s);
+            nl = (n.dot(r.d) < 0) ? n: Vec(-n.x, -n.y, -n.z);
+        }
 
         // The following codes are copied from http://www.kevinbeason.com/smallpt/
         switch (f.material.refl) {

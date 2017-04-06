@@ -159,6 +159,7 @@ private:
     size_t sz;
 public:
     Material material;
+    float area;
     Face():
         material(Vec(0, 0, 0),
                  Vec(0, 0, 0),
@@ -304,6 +305,7 @@ struct Scene
     Vec *il_array;
     Vec *li_array;
     size_t size_f, size_vn, size_vx, size_vt, size_il;
+    float area;
 };
 
 /*

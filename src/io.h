@@ -164,6 +164,7 @@ static inline char *parse_face(char *ptr, int &idx_v, int &idx_vt, int &idx_vn)
  */
 static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vn, size_t &l_vx, size_t &l_vt)
 {
+    size_t offset_vx = l_vx, offset_vn = l_vn, offset_vt = l_vt;
     int cnt = 0;
     char *ptr = buffer;
     bool if_mtl = false;
@@ -211,8 +212,14 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 int idx_v = 0, idx_vt = 0, idx_vn = 0;
                 while (isdigit(*(ptr = parse_face(ptr, idx_v, idx_vt, idx_vn))))
                 {
+                    idx_v += (idx_v > 0) * offset_vx;
+                    idx_vt += (idx_vt > 0) * offset_vt;
+                    idx_vn += (idx_vn > 0) * offset_vn;
                     f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 }
+                idx_v += (idx_v > 0) * offset_vx;
+                idx_vt += (idx_vt > 0) * offset_vt;
+                idx_vn += (idx_vn > 0) * offset_vn;
                 f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
                 if (!if_mtl)
                 {
@@ -226,7 +233,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                     else
                     {
                         f_array[l_f].set_c(Vec(WHITE) * .9);
-                        f_array[l_f].set_refl(REFR);
+                        f_array[l_f].set_refl(DIFF);
                         f_array[l_f].set_e(Vec());
                         l_f++;
                     }

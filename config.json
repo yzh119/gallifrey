@@ -1,0 +1,51 @@
+/*
+	Format:
+	
+{
+	"walls":
+		[
+
+		],
+
+	"objects":
+		[
+			{								// model 1
+				"model": 	modelname_1,
+				"scale": 	scale,
+				"ka":		[r, g, b],		// ka, for Local illumination
+				"ks":		[r, g, b],		// ks, for Local illumination
+				"kd":		[r, g, b],		// kd, for Local illumination
+				"c":		[r, g, b],		// Color, for global illumination
+				"e":		[r, g, b], 		// Emission, for global illumination
+				"refl":		refl			// "SPEC"/"DIFF"/"RERF", for global illumination
+			},
+
+			{
+				"model": 	modelname_2,
+				...
+			},
+
+			...
+		]
+}
+*/
+{
+"walls":
+	[
+		
+	],
+
+"objects":
+	[
+		{
+			"model": "sphere",
+			"scale": 1,
+			"ka": [0.2, 0.2, 0.2],
+			"ks": [0.4, 0.4, 0.4],
+			"kd": [0.4, 0.4, 0.4],
+			"c": [1, 1, 1],				// White
+			"e": [0, 0, 0],
+			"refl": "DIFF"
+		}
+	]
+}
