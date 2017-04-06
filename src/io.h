@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <climits>
 #include <cctype>
+#include "json.hpp"
 #define YELLOW  1,1,0
 #define WHITE   1,1,1
 #define RED     1,0,0
@@ -23,6 +24,8 @@ const unsigned int width = 640;
 const unsigned int height = 480;
 
 extern bool enable_global;
+
+using json = nlohmann::json ;
 
 /*
  * Generate .bmp file from pixels.
@@ -162,12 +165,19 @@ static inline char *parse_face(char *ptr, int &idx_v, int &idx_vt, int &idx_vn)
 /*
  * Extract information from .obj file.
  */
-static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vn, size_t &l_vx, size_t &l_vt)
+static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vn, size_t &l_vx, size_t &l_vt, json &config)
 {
     size_t offset_vx = l_vx, offset_vn = l_vn, offset_vt = l_vt;
-    int cnt = 0;
+    auto offset = config["offset"].get<std::vector<float> >();
+    auto scale = config["scale"].get<float> ();
+    auto emission = config["e"].get<std::vector<float> >();
+    auto color = config["c"].get<std::vector<float> >();
+    auto refl_t = config["refl"].get<std::string>();
+    auto ka = config["ka"].get<std::vector<float> > ();
+    auto ks = config["ks"].get<std::vector<float> > ();
+    auto kd = config["kd"].get<std::vector<float> > ();
+
     char *ptr = buffer;
-    bool if_mtl = false;
     while (*buffer)
     {
         if (isblank(*buffer)) ++buffer;
@@ -189,7 +199,9 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
                 ptr = get_next_float(ptr, w);
-                vx_array[l_vx++].set_coordinate(x, y, z);;
+                x += offset[0];
+                z += offset[1];
+                vx_array[l_vx++].set_coordinate(x * scale, y * scale, z * scale);
             }
             else if (strcmp(type, "vn") == 0)
             {
@@ -197,7 +209,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 ptr = get_next_float(ptr, x);
                 ptr = get_next_float(ptr, y);
                 ptr = get_next_float(ptr, z);
-                vn_array[l_vn++].set_coordinate(x, y, z);
+                vn_array[l_vn++].set_coordinate(x * scale, y * scale, z * scale);
             }
             else if (strcmp(type, "vt") == 0)
             {
@@ -221,22 +233,29 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
                 idx_vt += (idx_vt > 0) * offset_vt;
                 idx_vn += (idx_vn > 0) * offset_vn;
                 f_array[l_f].add_vx(idx_v - 1, idx_vt - 1, idx_vn - 1);
-                if (!if_mtl)
+
+                if (!enable_global)
                 {
-                    if (!enable_global)
-                    {
-                        f_array[l_f].set_ka(Vec(WHITE) * .2);
-                        f_array[l_f].set_kd(Vec(WHITE) * .4);
-                        f_array[l_f].set_ks(Vec(WHITE) * .4);
-                        l_f++;
-                    }
-                    else
-                    {
-                        f_array[l_f].set_c(Vec(WHITE) * .9);
+                    f_array[l_f].set_ka(Vec(ka[0], ka[1], ka[2]));
+                    f_array[l_f].set_kd(Vec(kd[0], kd[1], kd[2]));
+                    f_array[l_f].set_ks(Vec(ks[0], ks[1], ks[2]));
+                    l_f++;
+                }
+                else
+                {
+                    f_array[l_f].set_c(Vec(color[0], color[1], color[2]));
+                    if (refl_t == "DIFF"){
                         f_array[l_f].set_refl(DIFF);
-                        f_array[l_f].set_e(Vec());
-                        l_f++;
+                    } else if (refl_t == "SPEC") {
+                        f_array[l_f].set_refl(SPEC);
+                    } else if (refl_t == "REFR") {
+                        f_array[l_f].set_refl(REFR);
+                    } else {
+                        fprintf(stderr, "Config Error!");
+                        exit(1);
                     }
+                    f_array[l_f].set_e(Vec(emission[0], emission[1], emission[2]));
+                    l_f++;
                 }
             }
             else if (strcmp(type, "g") == 0)
@@ -304,7 +323,7 @@ static inline void parse_obj(char *buffer, Face *f_array, Vec *vn_array, Vec *vx
  * ...
  */
 
-void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vx, size_t &l_vn, size_t &l_vt)
+void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, Vec *vt_array, size_t &l_f, size_t &l_vx, size_t &l_vn, size_t &l_vt, json &config)
 {
     FILE *pFile;
     char *buffer;
@@ -332,7 +351,7 @@ void inline obj_loader(char *path, Face *f_array, Vec *vn_array, Vec *vx_array, 
         exit(3);
     }
 
-    parse_obj(buffer, f_array, vn_array, vx_array, vt_array, l_f, l_vn, l_vx, l_vt);
+    parse_obj(buffer, f_array, vn_array, vx_array, vt_array, l_f, l_vn, l_vx, l_vt, config);
 
     // terminate
     fclose (pFile);

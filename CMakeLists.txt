@@ -21,7 +21,7 @@ else()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 endif()
 
-include_directories( vendor/bitmap vendor/concurrentqueue)
+include_directories( vendor/bitmap vendor/concurrentqueue vendor/json/src)
 
 set(SOURCE_CODE
         src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h)

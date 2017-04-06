@@ -39,6 +39,7 @@ Default resolution is 640 x 480, if you would like to use other configurations, 
 - OpenCV 2.4+
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
+- Json(https://github.com/nlohmann/json.git)
 
 ## Compile & Run
 This project is cross-platform (Windows, Unix/Linux). But it's not recommended to compile & run on Windows cause multi-threading is disabled, thus rendering may take a long time.
@@ -63,6 +64,32 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
     cd bin
     ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
+
+# Format(config.json)
+
+    {
+        "objects":
+            [
+                {                               // Model 1
+                    "model":    modelname_1,
+                    "scale":    scale,
+                    "ka":       [r, g, b],      // ka, for Local illumination
+                    "ks":       [r, g, b],      // ks, for Local illumination
+                    "kd":       [r, g, b],      // kd, for Local illumination
+                    "c":        [r, g, b],      // Color, for global illumination
+                    "e":        [r, g, b],      // Emission, for global illumination
+                    "refl":     refl            // "SPEC"/"DIFF"/"RERF", for global illumination
+                },
+
+                {                               // Model 2
+                    "model":    modelname_2,
+                    ...
+                },
+
+                ...
+            ]
+    }
+
 
 # Notice
 

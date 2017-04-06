@@ -5,6 +5,7 @@
 #include "image.h"
 #include "tracing.h"
 #include "concurrentqueue.h"
+#include "json.hpp"
 #include "kdtree.h"
 #include <thread>
 #include <chrono>
@@ -39,7 +40,7 @@ bool enable_global  = false;
 bool enable_display = false;
 bool enable_sah     = false;
 float view_dis = 1.5;
-char model_name[max_name];
+char config_name[max_name];
 int num_workers = 4;
 int num_samples = 2;
 
@@ -58,18 +59,34 @@ Vec liArray[max_illu];
 size_t l_face, l_vertex, l_normal, l_texture;
 
 KDTree *tree;
-
 Scene scene;
 Image img(Vec(0, -5, -5), Vec(0, 1, 1), 1);
 
 std::atomic<int> cnt_pixels;
 
+using json = nlohmann::json ;
+json js;
+
+/*
+ * ETA
+ */
 inline float eta(int progress, int total,
         const std::chrono::high_resolution_clock::time_point &start,
         const std::chrono::high_resolution_clock::time_point &now)
 {
     assert(progress != 0);
     return (float) ((1. * (total - progress) / progress) * ((now - start).count() / 1e9));
+}
+
+inline void load_config()
+{
+    fprintf(stderr, "Loading scene config... \n");
+    auto start = std::chrono::high_resolution_clock::now();
+    std::ifstream fin(std::string("../") + config_name);
+    fin >> js;
+    fin.close();
+    auto now = std::chrono::high_resolution_clock::now();
+    fprintf(stderr, "Load successful in %.3fs.\n", (now - start).count() / 1e9);
 }
 
 /*
@@ -197,8 +214,12 @@ inline void add_wall_illumination()
 void load_and_construct_scene()
 {
     auto start = std::chrono::high_resolution_clock::now();
-    fprintf(stderr, "Loading... \n");
-    obj_loader((char *) ("../resources/" + std::string(model_name) + ".obj").c_str(), fArray, vnArray, vxArray, vtArray, l_face, l_vertex, l_normal, l_texture);
+    fprintf(stderr, "Loading model... \n");
+    for (int i = 0; i < js["objects"].size(); ++i) {
+        json model = js["objects"][i];
+        obj_loader((char *) ("../resources/" + model["name"].get<std::string>() + ".obj").c_str(), fArray, vnArray, vxArray, vtArray,
+                   l_face, l_vertex, l_normal, l_texture, model);
+    }
     scene.f_array   = fArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
@@ -417,8 +438,8 @@ void dump_image()
 
     if (enable_display)
     {
-        cv::namedWindow("Display " + std::string(model_name), cv::WINDOW_AUTOSIZE);
-        cv::imshow("Display " + std::string(model_name), img.to_cv2_pixel());
+        cv::namedWindow("Display " + std::string(config_name), cv::WINDOW_AUTOSIZE);
+        cv::imshow("Display " + std::string(config_name), img.to_cv2_pixel());
         cvWaitKey(0);
     }
 
@@ -428,7 +449,7 @@ void dump_image()
 void parse_argument(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--config") == 0) {
-            strcpy(model_name, argv[++i]);
+            strcpy(config_name, argv[++i]);
         } else if (strcmp(argv[i], "--anti_aliasing") == 0) {
             enable_anti_aliasing = true;
         } else if (strcmp(argv[i], "--shadow") == 0) {
@@ -448,7 +469,7 @@ void parse_argument(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--help") == 0)
         {
             fprintf(stdout, "Gallifrey, a naive 3D engine.\n");
-            fprintf(stdout, "--config CONFIG_NAME:\t specifies config file name.\n");
+            fprintf(stdout, "--config CONFIG_NAME:\t specifies scene configuration file name.\n");
             fprintf(stdout, "--sah   ENABLE_SAH:\t specifies whether to use SAH KD Tree or SPACE MEDIUM KD Tree\n");
             fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n");
             fprintf(stdout, "--samples SAMPLES:\t specifies the number of samples in MCPT.\n");
@@ -464,9 +485,9 @@ void parse_argument(int argc, char *argv[]) {
             exit(1);
         }
     }
-    if (strlen(model_name) == 0)
+    if (strlen(config_name) == 0)
     {
-        fprintf(stderr, "Model name must be specified, please use %s --help to show help.\n", argv[0]);
+        fprintf(stderr, "Configuration name must be specified, please use %s --help to show help.\n", argv[0]);
         exit(1);
     }
     return ;
@@ -475,7 +496,7 @@ void parse_argument(int argc, char *argv[]) {
 int main(int argc, char *argv[])
 {
     // Initialization
-    memset(model_name, '\0', sizeof(model_name));
+    memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
     enable_anti_aliasing = false;
     enable_shadow = false;
@@ -484,7 +505,7 @@ int main(int argc, char *argv[])
     enable_display = true;
     num_samples = 1;
     view_dis = 1;
-    strcpy(model_name, "sphere");
+    strcpy(config_name, "config.json");
 #else
     parse_argument(argc, argv);
 #endif
@@ -498,6 +519,7 @@ int main(int argc, char *argv[])
     test_aabb();
 
     // main.
+    load_config();
     load_and_construct_scene();
     tree = new KDTree(&scene);
     tree->build_tree(enable_sah);
