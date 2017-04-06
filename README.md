@@ -53,7 +53,7 @@ For Unix/Linux users:
     ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
 
-For Windows users, please using Powershell and make sure that `git`, `mingw`, `cmake` are all in your `PATH` environment variable):
+For Windows users, please use Powershell and make sure that `git`, `mingw`, `cmake` are all in your `PATH` environment variable):
 
 The default `OPENCV` include path is `C:\opencv\install\include`, and the default library path is `C:\opencv\install\x86\mingw\lib`; you could set them as you like in `CMakeLists.txt`.
 
@@ -73,7 +73,7 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
                 {                               // Model 1
                     "model":    modelname_1,
                     "scale":    scale,
-                    "ka":       [r, g, b],      // ka, for Local illumination
+                    "ka":       [r, g, b],      // ka, for Local illumination (0 <= r, g, b <= 1, similarly hereinafter)
                     "ks":       [r, g, b],      // ks, for Local illumination
                     "kd":       [r, g, b],      // kd, for Local illumination
                     "c":        [r, g, b],      // Color, for global illumination
@@ -125,10 +125,10 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 
 ### Note: 
 
-	time\_render(aa) 	= 4 	* time\_render(<del>aa</del>)			# Sample 4 times per pixel.
-	time\_render(spAAA) = AAA 	* time\_render(<del>sp1</del>)			# Sample AAA times per pixel.
-	time\_render(ss)	= 27 	* log(n) * time\_render(<del>ss</del>) 	# Illumination: 54/2(for soft shadow)
-	time\_build(n)		= O(n log^2 n)									# Recursively build the KD-Tree
+	time_render(aa) 	= 4 	* time_render(no-aa)			# Sample 4 times per pixel.
+	time_render(spAAA) 	= AAA 	* time_render(sp1)			# Sample AAA times per pixel.
+	time_render(ss)		= 27 	* log(n) * time_render(no-ss) 		# Illumination: 54/2(for soft shadow)
+	time_build(n)		= O(n log^2 n)					# Recursively build the KD-Tree
 
 instance(#faces)	| build-tree(s)		| Render(s)
 --------------------|-------------------|----------------
@@ -162,13 +162,18 @@ Gloal illumination(200 samples)
 
 Gloal illumination(500 samples)
 
-![sphere-blending](demo/sphere-blending.bmp)
+![two-balls](demo/twoballs.bmp)
+![spec-cube](demo/spec_cube.bmp)
+![refr-teapot.bmp](demo/refr_teapot.bmp)
+![horse1](demo/horse1.bmp)
+![ball-ball](demo/ball_ball.bmp)
+![airboat](demo/airboat.bmp)
 
-Gloal illumination(20 samples)
+Global illumination(20 samples)
 
-![airboat-blending](demo/airboat.bmp)
+![sphere_spec](demo/sphere_spec.bmp)
 
-Gloal illumination(20 samples)
+Global illumination(100 samples) + Anti Aliasing
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman

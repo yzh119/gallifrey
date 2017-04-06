@@ -112,6 +112,7 @@ inline Vec local_ill(const Ray &r, const Scene &s, int E = 1)
 
 Vec global_ill(const Ray &r, int depth, const Scene &s)
 {
+	if (depth > 10) return Vec();	// To avoid segment fault.
     float t = 1e8;
     int id;
     if (high_level_intersect(r, t, id, s))
