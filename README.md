@@ -35,7 +35,8 @@ Default resolution is 640 x 480, if you would like to use other configurations, 
 
 ## Requirements
 
-- GCC/G++(mingw) 4.8+, std-c++11
+- GCC/G++(mingw) 4.9+, std-c++11
+- CMake 3.5+
 - OpenCV 2.4+
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
