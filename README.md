@@ -1,7 +1,7 @@
 # Gallifrey
-Course assignment(midterm) of CS230.
+Course final project of CS230.
 
-To implement <del>an efficient</del> Ray Tracing algorithm on CPU.
+To implement a 3D-engine using Monte Carlo Path Tracing and state-of-the-art "Adaptive Polynomial Rendering" algorithm (SIGGRAPH 2016) on GPU.
 
 Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and set the value of `height` and `width`.
 
@@ -38,6 +38,7 @@ Default resolution is 640 x 480, if you would like to use other configurations, 
 - GCC/G++(mingw) 4.9+, std-c++11
 - CMake 3.5+
 - OpenCV 2.4+
+- CUDA 8.0
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 - Json(https://github.com/nlohmann/json.git)
@@ -108,73 +109,12 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 - [x] Color Blending
 - [x] Texture
 - [x] Multi-threading
-- [ ] Fix the bug in SAH KD-Tree
-- [ ] Use OPENCL to replace multi threading.
 - [x] <del>**Some errors in specular**</del>(You should only apply interpolation on the normal vector when the face is small).
-
-## Statistics
-
-- Environment: 
-	- Aliyun Cloud HPC(G4): 64 core CPU.
-- Nomenclature: 
-	- li(Local Illumination)
-	- gi(Global Illumination)
-	- aa(Anti Aliasing)
-	- ss(Soft Shadow)
-	- sp(Samples)
-	- n(#faces).
-
-### Note: 
-
-	time_render(aa) 	= 4 	* time_render(no-aa)			# Sample 4 times per pixel.
-	time_render(spAAA) 	= AAA 	* time_render(sp1)			# Sample AAA times per pixel.
-	time_render(ss)		= 27 	* log(n) * time_render(no-ss) 		# Illumination: 54/2(for soft shadow)
-	time_build(n)		= O(n log^2 n)					# Recursively build the KD-Tree
-
-instance(#faces)	| build-tree(s)		| Render(s)
---------------------|-------------------|----------------
-horse-li(96k)		| 0.594				| 13.883
-horse-li-aa(96k)	| 0.591				| 55.228
-dinosaur-li(9k)		| 0.018				| 15.533				
-teapot-li-ss-aa(3.7k)| 0.033			| 632.007
-sphere-gi-sp200(0.1k)| 0.001			| 200.590
-teapot-gi-sp500(3.7k)| 0.033			| 2394.832
-sphere-gi-sp20(0.1k) | 0.001			| 15.938
-airboat-gi-sp20(6k)	 | 0.029			| 83.761
-dinosaur-gi-sp20(9k) | 0.018			| 58.081
-cube-gi-sp100(6)	 | 0.000			| 27.100
-
-## Demo
-![horse](demo/horse.bmp)
-![horse](demo/horse-aa.bmp)
-
-Local illumination.
-
-![sphere_with_shadow](demo/softshadow_sphere.bmp)
-![sphere_with_shadow](demo/teapot-shadow-aa.bmp)
-
-Local illumination with soft shadow.
-
-![sphere-gi](demo/sphere-gi-sp20.bmp)
-
-Gloal illumination(200 samples)
-
-![teapot-gi](demo/teapot-gi-sp500.bmp)
-
-Gloal illumination(500 samples)
-
-![two-balls](demo/twoballs.bmp)
-![spec-cube](demo/spec_cube.bmp)
-![refr-teapot.bmp](demo/refr_teapot.bmp)
-![horse1](demo/horse1.bmp)
-![ball-ball](demo/ball_ball.bmp)
-![airboat](demo/airboat.bmp)
-
-Global illumination(20 samples)
-
-![sphere_spec](demo/sphere_spec.bmp)
-
-Global illumination(100 samples) + Anti Aliasing
+- [ ] To reconstruct my project for further extension.
+- [ ] To use triangle instead of polygon in class `Face`.
+- [ ] To fix the bug in SAH KD-Tree
+- [ ] To use CUDA instead of multi threading.
+- [ ] To implement Adaptive Polynomial Rendering.
 
 ## Reference
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
@@ -183,3 +123,4 @@ Global illumination(100 samples) + Anti Aliasing
 - About how to load textures: https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/
 - Ray-Box Intersection: http://www.cs.utah.edu/~awilliam/box/box.pdf
 - Yuxin Wu's repository: https://github.com/ppwwyyxx/Ray-Tracing-Engine
+- Adaptive Polynomial Rendering(SIGGRAPH 2016): http://dl.acm.org/citation.cfm?id=2925936
