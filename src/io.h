@@ -20,8 +20,8 @@
 #define BLUE    0,0,1
 #define PINK    1,0,1
 
-const unsigned int width = 640;
-const unsigned int height = 480;
+const unsigned int width = 1280;
+const unsigned int height = 960;
 
 extern bool enable_global;
 

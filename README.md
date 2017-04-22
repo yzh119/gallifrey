@@ -3,7 +3,9 @@ Course final project of CS230.
 
 To implement a 3D-engine using Monte Carlo Path Tracing and state-of-the-art "Adaptive Polynomial Rendering" algorithm (SIGGRAPH 2016) on GPU.
 
-Default resolution is 640 x 480, if you would like to use other configurations, please refer to `src/image.h` and set the value of `height` and `width`.
+Default resolution is 1280 x 960, if you would like to use other configurations, Please run the script `set_resolution.py`:
+
+	python set_resolution WIDTH HEIGHT
 
 ## Structure
 

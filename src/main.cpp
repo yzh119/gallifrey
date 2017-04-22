@@ -500,7 +500,7 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
     enable_anti_aliasing = false;
     enable_shadow = false;
-    enable_global = false;
+    enable_global = true;
     enable_sah = false;
     enable_display = true;
     num_samples = 1;
