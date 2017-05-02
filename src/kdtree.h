@@ -44,7 +44,7 @@ private:
     std::vector<Vec> fmin, fmax;
 public:
     KDTree(Scene *s): flag(false), s(s), start(std::chrono::high_resolution_clock::now()) {
-        fprintf(stderr, "Building SAH-KDTree...\n");
+        fprintf(stderr, "Building KDTree...\n");
         Vec vmin(1e8, 1e8, 1e8), vmax((float) -1e8, (float) -1e8, (float) -1e8);
 
         for (int i = 0; i < s->size_f; ++i)
@@ -78,6 +78,7 @@ public:
     bool get_intersection(std::shared_ptr<node> &v, const Ray &r, float &t, int &id, int depth);
     inline float cost(float sa, int na, float sb, int nb) const ;
     inline float surface_area(const Vec &min, const Vec &max) const ;
+    inline float surface_area(const std::pair<Vec, Vec> ) const;
 };
 
 extern KDTree *tree;
@@ -106,7 +107,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     bool split_x, split_y, split_z = split_x = split_y = false;
     int k_x, k_y, k_z = k_x = k_y = -1;
     std::pair<Vec, Vec> box_x_l, box_x_r, box_y_l, box_y_r, box_z_l, box_z_r;
-    float maxc = (float) -1e9, current_c;                // maxc is the max cost, and current_c is the current cost.
+    float minc = (float) 1e9, current_c;                // minc is the max cost, and current_c is the current cost.
 
     std::vector<std::pair<std::pair<int, int>, float> > x_sort, y_sort, z_sort;
     for (int i = 0; i < v->elems.size(); ++i)
@@ -146,7 +147,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     }
 
     std::pair<Vec, Vec> current = std::make_pair(fmin[x_sort.front().first.first], fmax[x_sort.front().first.first]);
-    int N_current = 1;
+    int N_current = 0;
     for (int i = 0; i < x_sort.size() - 1; ++i)
     {
         if (x_sort[i].first.second == 0) {
@@ -155,15 +156,12 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
             ++N_current;
         }
 
-        current.second.x = x_sort[i].second;
-        reversed[i + 1].first.x = x_sort[i].second;
         current_c = cost(
-                surface_area(current.first, current.second), N_current,
-                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+                surface_area(current), N_current,
+                surface_area(reversed[i + 1]), N_reversed[i + 1]);
 
-        if (current_c > maxc)
-        {
-            maxc = current_c;
+        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
+            minc = current_c;
             k_x = i;
             split_x = true;
             box_x_l = current;
@@ -187,7 +185,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     }
 
     current = std::make_pair(fmin[y_sort.front().first.first], fmax[y_sort.front().first.first]);
-    N_current = 1;
+    N_current = 0;
     for (int i = 0; i < y_sort.size() - 1; ++i)
     {
         if (y_sort[i].first.second == 0)
@@ -197,15 +195,12 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
             ++N_current;
         }
 
-        current.second.y = y_sort[i].second;
-        reversed[i + 1].first.y = y_sort[i].second;
         current_c = cost(
-                surface_area(current.first, current.second), N_current,
-                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+                surface_area(current), N_current,
+                surface_area(reversed[i + 1]), N_reversed[i + 1]);
 
-        if (current_c > maxc)
-        {
-            maxc = current_c;
+        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
+            minc = current_c;
             k_y = i;
             split_x = false;
             split_y = true;
@@ -230,7 +225,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     }
 
     current = std::make_pair(fmin[z_sort.front().first.first], fmax[z_sort.front().first.first]);
-    N_current = 1;
+    N_current = 0;
     for (int i = 0; i < z_sort.size() - 1; ++i)
     {
         if (z_sort[i].first.second == 0)
@@ -240,15 +235,12 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
             ++N_current;
         }
 
-        current.second.z = z_sort[i].second;
-        reversed[i + 1].first.z = z_sort[i].second;
         current_c = cost(
-                surface_area(current.first, current.second), N_current,
-                surface_area(reversed[i + 1].first, reversed[i + 1].second), N_reversed[i + 1]);
+                surface_area(current), N_current,
+                surface_area(reversed[i + 1]), N_reversed[i + 1]);
 
-        if (current_c > maxc)
-        {
-            maxc = current_c;
+        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
+            minc = current_c;
             k_z = i;
             split_x = false;
             split_y = false;
@@ -473,11 +465,15 @@ void KDTree::recursively_build_mid_kd_node(std::shared_ptr<KDTree::node> &v, int
         default:break;
     }
 
-    v->ptl = std::make_shared<node> (v_left,  Box(box_l.first, box_l.second));
-    v->ptr = std::make_shared<node> (v_right, Box(box_r.first, box_r.second));
+    v->ptl = std::make_shared<node> (v_left,  box_l);
+    v->ptr = std::make_shared<node> (v_right, box_r);
 
     recursively_build_mid_kd_node(v->ptl, depth + 1);
     recursively_build_mid_kd_node(v->ptr, depth + 1);
+}
+
+inline float KDTree::surface_area(const std::pair<Vec, Vec> pair) const {
+    return surface_area(pair.first, pair.second);
 }
 
 /*

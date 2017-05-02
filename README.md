@@ -40,7 +40,7 @@ Default resolution is 1280 x 960, if you would like to use other configurations,
 - GCC/G++(mingw) 4.9+, std-c++11
 - CMake 3.5+
 - OpenCV 2.4+
-- CUDA 8.0
+- CUDA 7.5+
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 - Json(https://github.com/nlohmann/json.git)
@@ -97,7 +97,9 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 
 # Notice
 
-`--sah` is not recommended. **There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**
+<del>`--sah` is not recommended. **There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**</del>
+
+The bug has been fixed(2017-05-02), please use `--sah` to accelerate.
 
 ## Milestone
 - [x] Surface Area Heuristic KD-Tree
@@ -112,9 +114,9 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 - [x] Texture
 - [x] Multi-threading
 - [x] <del>**Some errors in specular**</del>(You should only apply interpolation on the normal vector when the face is small).
-- [ ] To reconstruct my project for further extension.
+- [x] To reconstruct my project for further extension.
 - [ ] To use triangle instead of polygon in class `Face`.
-- [ ] To fix the bug in SAH KD-Tree
+- [x] To fix the bug in SAH KD-Tree
 - [ ] To use CUDA instead of multi threading.
 - [ ] To implement Adaptive Polynomial Rendering.
 

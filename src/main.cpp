@@ -498,12 +498,12 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
+    enable_anti_aliasing = true;
     enable_shadow = false;
     enable_global = true;
-    enable_sah = false;
+    enable_sah = true;
     enable_display = true;
-    num_samples = 1;
+    num_samples = 20;
     view_dis = 1;
     strcpy(config_name, "config.json");
 #else

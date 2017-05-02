@@ -14,6 +14,10 @@ public:
         bounds[0] = min;
         bounds[1] = max;
     }
+    Box(const std::pair<Vec, Vec> pair) {
+        bounds[0] = pair.first;
+        bounds[1] = pair.second;
+    }
     Vec bounds[2];
     inline bool intersect_with_ray(const Ray &r, float t0, float t1, float &min_t) const;
 };
