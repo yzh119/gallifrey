@@ -9,9 +9,11 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include <thread>
 #include <algorithm>
+#include <future>
 #include "aabb.h"
-
+#define PARALLEL_DEPTH_THRES 1
 
 inline Vec vec_max(const Vec &a, const Vec &b)
 {
@@ -76,9 +78,9 @@ public:
     std::shared_ptr <node> root;
     inline void build_tree(bool enable_sah);
     bool get_intersection(std::shared_ptr<node> &v, const Ray &r, float &t, int &id, int depth);
-    inline float cost(float sa, int na, float sb, int nb) const ;
-    inline float surface_area(const Vec &min, const Vec &max) const ;
-    inline float surface_area(const std::pair<Vec, Vec> ) const;
+    static inline float cost(float sa, int na, float sb, int nb) ;
+    static inline float surface_area(const Vec &min, const Vec &max) ;
+    static inline float surface_area(const std::pair<Vec, Vec> ) ;
 };
 
 extern KDTree *tree;
@@ -104,201 +106,119 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     if (depth == 100) return ;                  // If too deep, prune it.
     if (v->elems.size() <= 20) return ;         // If too small, prune it.
 
-    bool split_x, split_y, split_z = split_x = split_y = false;
-    int k_x, k_y, k_z = k_x = k_y = -1;
-    std::pair<Vec, Vec> box_x_l, box_x_r, box_y_l, box_y_r, box_z_l, box_z_r;
+    bool parallel = depth < PARALLEL_DEPTH_THRES;
+
+    int selected_dim = -1;
+    int k = -1;
+    std::pair<Vec, Vec> box_l, box_r;
     float minc = (float) 1e9, current_c;                // minc is the max cost, and current_c is the current cost.
 
-    std::vector<std::pair<std::pair<int, int>, float> > x_sort, y_sort, z_sort;
-    for (int i = 0; i < v->elems.size(); ++i)
-    {
-        x_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].x));
-        x_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].x));
-        y_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].y));
-        y_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].y));
-        z_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].z)) ;
-        z_sort.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].z));
-    }
+    typedef std::pair<std::pair<int, int>, float> tuple;
 
-    auto comp = [](const std::pair<std::pair<int, int>, float> &a, const std::pair<std::pair<int, int>, float> &b)
+    auto comp = [](const tuple &a, const std::pair<std::pair<int, int>, float> &b)
     {
         if (a.second == b.second) return a.first.second < b.first.second;
         return a.second < b.second;
     };
-    std::sort(x_sort.begin(), x_sort.end(), comp);
-    std::sort(y_sort.begin(), y_sort.end(), comp);
-    std::sort(z_sort.begin(), z_sort.end(), comp);
 
-    std::vector<std::pair<Vec, Vec> > reversed(x_sort.size());
-    std::vector<int> N_reversed(x_sort.size());
-    // To test whether it's best to split x axis;
-    reversed[x_sort.size() - 1] = std::make_pair(fmin[x_sort.back().first.first], fmax[x_sort.back().first.first]);
-    N_reversed[x_sort.size() - 1] = 1;
-    for (int i = (int) (x_sort.size() - 2); i > 0; i--)
-    {
-        reversed[i] = reversed[i + 1];
-        N_reversed[i] = N_reversed[i + 1];
-        if (x_sort[i].first.second == 1)
-        {
-            reversed[i].first   = vec_min(reversed[i].first, fmin[x_sort[i].first.first]);
-            reversed[i].second  = vec_max(reversed[i].second, fmax[x_sort[i].first.first]);
-            ++N_reversed[i];
+    auto gen_sorted = [&](int dim) {
+        std::vector<tuple> ret;
+        for (int i = 0; i < v->elems.size(); ++i)
+            switch (dim) {
+                case 0:
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].x));
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].x));
+                    break;
+                case 1:
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].y));
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].y));
+                    break;
+                case 2:
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].z));
+                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].z));
+                default:break;
+            }
+        std::sort(ret.begin(), ret.end(), comp);
+        return ret;
+    };
+
+    std::future<std::vector<tuple> > task[3];
+    if (parallel) {
+        for (int i = 0; i < 3; ++i)
+            task[i] = std::async(std::launch::async, std::bind(gen_sorted, i));
+    }
+
+    std::vector<tuple> sorted[3];
+
+    for (int i = 0; i < 3; ++i)
+        sorted[i] = parallel ? task[i].get(): gen_sorted(i);
+
+    for (int dim = 0; dim < 3; ++dim) {
+        std::vector<std::pair<Vec, Vec> > reversed(sorted[dim].size());
+        std::vector<int> N_reversed(sorted[dim].size());
+        // To test whether it's best to split x axis;
+        reversed[sorted[dim].size() - 1] = std::make_pair(fmin[sorted[dim].back().first.first], fmax[sorted[dim].back().first.first]);
+        N_reversed[sorted[dim].size() - 1] = 1;
+        for (int i = (int) (sorted[dim].size() - 2); i > 0; i--) {
+            reversed[i] = reversed[i + 1];
+            N_reversed[i] = N_reversed[i + 1];
+            if (sorted[dim][i].first.second == 1) {
+                reversed[i].first = vec_min(reversed[i].first, fmin[sorted[dim][i].first.first]);
+                reversed[i].second = vec_max(reversed[i].second, fmax[sorted[dim][i].first.first]);
+                ++N_reversed[i];
+            }
+        }
+
+        std::pair<Vec, Vec> current = std::make_pair(fmin[sorted[dim].front().first.first],
+                                                     fmax[sorted[dim].front().first.first]);
+        int N_current = 0;
+        for (int i = 0; i < sorted[dim].size() - 1; ++i) {
+            if (sorted[dim][i].first.second == 0) {
+                current.first = vec_min(current.first, fmin[sorted[dim][i].first.first]);
+                current.second = vec_max(current.second, fmax[sorted[dim][i].first.first]);
+                ++N_current;
+            }
+
+            current_c = cost(
+                    surface_area(current), N_current,
+                    surface_area(reversed[i + 1]), N_reversed[i + 1]);
+
+            if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
+                minc = current_c;
+                k = i;
+                selected_dim = dim;
+                box_l = current;
+                box_r = reversed[i + 1];
+            }
         }
     }
 
-    std::pair<Vec, Vec> current = std::make_pair(fmin[x_sort.front().first.first], fmax[x_sort.front().first.first]);
-    int N_current = 0;
-    for (int i = 0; i < x_sort.size() - 1; ++i)
-    {
-        if (x_sort[i].first.second == 0) {
-            current.first = vec_min(current.first, fmin[x_sort[i].first.first]);
-            current.second = vec_max(current.second, fmax[x_sort[i].first.first]);
-            ++N_current;
-        }
-
-        current_c = cost(
-                surface_area(current), N_current,
-                surface_area(reversed[i + 1]), N_reversed[i + 1]);
-
-        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
-            minc = current_c;
-            k_x = i;
-            split_x = true;
-            box_x_l = current;
-            box_x_r = reversed[i + 1];
-        }
-    }
-
-    // To test whether it's best to split y axis;
-    reversed[y_sort.size() - 1] = std::make_pair(fmin[y_sort.back().first.first], fmax[y_sort.back().first.first]);
-    N_reversed[y_sort.size() - 1] = 1;
-    for (int i = (int) (y_sort.size() - 2); i > 0; i--)
-    {
-        reversed[i] = reversed[i + 1];
-        N_reversed[i] = N_reversed[i + 1];
-        if (y_sort[i].first.second == 1)
-        {
-            reversed[i].first   = vec_min(reversed[i].first, fmin[y_sort[i].first.first]);
-            reversed[i].second  = vec_max(reversed[i].second, fmax[y_sort[i].first.first]);
-            ++N_reversed[i];
-        }
-    }
-
-    current = std::make_pair(fmin[y_sort.front().first.first], fmax[y_sort.front().first.first]);
-    N_current = 0;
-    for (int i = 0; i < y_sort.size() - 1; ++i)
-    {
-        if (y_sort[i].first.second == 0)
-        {
-            current.first   = vec_min(current.first, fmin[y_sort[i].first.first]);
-            current.second  = vec_max(current.second, fmax[y_sort[i].first.first]);
-            ++N_current;
-        }
-
-        current_c = cost(
-                surface_area(current), N_current,
-                surface_area(reversed[i + 1]), N_reversed[i + 1]);
-
-        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
-            minc = current_c;
-            k_y = i;
-            split_x = false;
-            split_y = true;
-            box_y_l = current;
-            box_y_r = reversed[i + 1];
-        }
-    }
-
-    // To test whether it's best to split z axis;
-    reversed[z_sort.size() - 1] = std::make_pair(fmin[z_sort.back().first.first], fmax[z_sort.back().first.first]);
-    N_reversed[z_sort.size() - 1] = 1;
-    for (int i = (int) (z_sort.size() - 2); i > 0; i--)
-    {
-        reversed[i] = reversed[i + 1];
-        N_reversed[i] = N_reversed[i + 1];
-        if (z_sort[i].first.second == 1)
-        {
-            reversed[i].first   = vec_min(reversed[i].first, fmin[z_sort[i].first.first]);
-            reversed[i].second  = vec_max(reversed[i].second, fmax[z_sort[i].first.first]);
-            ++N_reversed[i];
-        }
-    }
-
-    current = std::make_pair(fmin[z_sort.front().first.first], fmax[z_sort.front().first.first]);
-    N_current = 0;
-    for (int i = 0; i < z_sort.size() - 1; ++i)
-    {
-        if (z_sort[i].first.second == 0)
-        {
-            current.first   = vec_min(current.first, fmin[z_sort[i].first.first]);
-            current.second  = vec_max(current.second, fmax[z_sort[i].first.first]);
-            ++N_current;
-        }
-
-        current_c = cost(
-                surface_area(current), N_current,
-                surface_area(reversed[i + 1]), N_reversed[i + 1]);
-
-        if (current_c < minc && N_current != v->elems.size() && N_reversed[i + 1] != v->elems.size()) {
-            minc = current_c;
-            k_z = i;
-            split_x = false;
-            split_y = false;
-            split_z = true;
-            box_z_l = current;
-            box_z_r = reversed[i + 1];
-        }
-    }
-
-    assert((int)split_x + (int)split_y + (int)split_z == 1);
+    assert(k >= 0 && selected_dim >= 0);
 
     // divide and conquer
-    if (split_x)                                                                // split_x
-    {
-        std::vector<int> v_left, v_right;
-        for (int i = 0; i <= k_x; ++i)
-            if (x_sort[i].first.second == 0)
-                v_left.push_back(x_sort[i].first.first);
+    std::vector<int> v_left, v_right;
+    for (int i = 0; i <= k; ++i)
+        if (sorted[selected_dim][i].first.second == 0)
+            v_left.push_back(sorted[selected_dim][i].first.first);
 
-        for (int i = k_x + 1; i < x_sort.size(); ++i)
-            if (x_sort[i].first.second == 1)
-                v_right.push_back(x_sort[i].first.first);
+    for (int i = k + 1; i < sorted[selected_dim].size(); ++i)
+        if (sorted[selected_dim][i].first.second == 1)
+            v_right.push_back(sorted[selected_dim][i].first.first);
 
-        if (v_left.size() + v_right.size() > 1.5 * v->elems.size()) return;
-        v->ptl = std::make_shared<node> (v_left, Box(box_x_l.first, box_x_l.second));
-        v->ptr = std::make_shared<node> (v_right,Box(box_x_r.first, box_x_r.second));
-    } else if (split_y)                                                         // split_y
-    {
-        std::vector<int> v_left, v_right;
-        for (int i = 0; i <= k_y; ++i)
-            if (y_sort[i].first.second == 0)
-                v_left.push_back(y_sort[i].first.first);
+    if (v_left.size() + v_right.size() > 1.5 * v->elems.size()) return;
+    v->ptl = std::make_shared<node> (v_left,  Box(box_l.first, box_l.second));
+    v->ptr = std::make_shared<node> (v_right, Box(box_r.first, box_r.second));
 
-        for (int i = k_y + 1; i < y_sort.size(); ++i)
-            if (y_sort[i].first.second == 1)
-                v_right.push_back(y_sort[i].first.first);
-
-        if (v_left.size() + v_right.size() > 1.5 * v->elems.size()) return;
-        v->ptl = std::make_shared<node> (v_left, Box(box_y_l.first, box_y_l.second));
-        v->ptr = std::make_shared<node> (v_right,Box(box_y_r.first, box_y_r.second));
-    } else                                                                      // split_z
-    {
-        std::vector<int> v_left, v_right;
-        for (int i = 0; i <= k_z; ++i)
-            if (z_sort[i].first.second == 0)
-                v_left.push_back(z_sort[i].first.first);
-
-        for (int i = k_z + 1; i < z_sort.size(); ++i)
-            if (z_sort[i].first.second == 1)
-                v_right.push_back(z_sort[i].first.first);
-
-        if (v_left.size() + v_right.size() > 1.5 * v->elems.size()) return;
-        v->ptl = std::make_shared<node> (v_left, Box(box_z_l.first, box_z_l.second));
-        v->ptr = std::make_shared<node> (v_right,Box(box_z_r.first, box_z_r.second));
+    if (!parallel) {
+        recursively_build_sah_kd_node(v->ptl, depth + 1);
+        recursively_build_sah_kd_node(v->ptr, depth + 1);
+    } else {
+        std::thread
+                build_l ( [=] {recursively_build_sah_kd_node(v->ptl, depth + 1);}),
+                build_r ( [=] {recursively_build_sah_kd_node(v->ptr, depth + 1);});
+        build_l.join();
+        build_r.join();
     }
-
-    recursively_build_sah_kd_node(v->ptl, depth + 1);
-    recursively_build_sah_kd_node(v->ptr, depth + 1);
     return ;
 }
 
@@ -358,11 +278,11 @@ bool KDTree::get_intersection(std::shared_ptr<KDTree::node> &v, const Ray &r, fl
 /*
  * To compute the heuristic cost.
  */
-inline float KDTree::cost(float sa, int na, float sb, int nb) const{
+inline float KDTree::cost(float sa, int na, float sb, int nb) {
     return sa * na + sb * nb;
 }
 
-inline float KDTree::surface_area(const Vec &min, const Vec &max) const {
+inline float KDTree::surface_area(const Vec &min, const Vec &max) {
     float
         x = max.x - min.x,
         y = max.y - min.y,
@@ -472,7 +392,7 @@ void KDTree::recursively_build_mid_kd_node(std::shared_ptr<KDTree::node> &v, int
     recursively_build_mid_kd_node(v->ptr, depth + 1);
 }
 
-inline float KDTree::surface_area(const std::pair<Vec, Vec> pair) const {
+inline float KDTree::surface_area(const std::pair<Vec, Vec> pair) {
     return surface_area(pair.first, pair.second);
 }
 

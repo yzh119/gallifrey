@@ -28,8 +28,8 @@ scene.vt_array[scene.size_vt++].set_coordinate((x), (y), 0)
 extern const unsigned int width;
 extern const unsigned int height;
 
-const int max_face  = 120000;
-const int max_vx    = 120000;
+const int max_face  = 400000;
+const int max_vx    = 400000;
 const int max_illu  = 300;
 const int max_name  = 40;
 
@@ -498,12 +498,12 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = true;
+    enable_anti_aliasing = false;
     enable_shadow = false;
     enable_global = true;
     enable_sah = true;
     enable_display = true;
-    num_samples = 20;
+    num_samples = 1;
     view_dis = 1;
     strcpy(config_name, "config.json");
 #else

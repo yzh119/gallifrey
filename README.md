@@ -99,7 +99,7 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
 
 <del>`--sah` is not recommended. **There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.**</del>
 
-The bug has been fixed(2017-05-02), please use `--sah` to accelerate.
+The bug has been fixed(2017-05-02), please enable `--sah` to accelerate.
 
 ## Milestone
 - [x] Surface Area Heuristic KD-Tree
