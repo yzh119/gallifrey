@@ -111,7 +111,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     int selected_dim = -1;
     int k = -1;
     std::pair<Vec, Vec> box_l, box_r;
-    float minc = (float) 1e9, current_c;                // minc is the max cost, and current_c is the current cost.
+    float minc = (float) 1e15, current_c;                // minc is the max cost, and current_c is the current cost.
 
     typedef std::pair<std::pair<int, int>, float> tuple;
 
@@ -138,6 +138,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
                     ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].z));
                 default:break;
             }
+
         std::sort(ret.begin(), ret.end(), comp);
         return ret;
     };
@@ -151,7 +152,7 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     std::vector<tuple> sorted[3];
 
     for (int i = 0; i < 3; ++i)
-        sorted[i] = parallel ? task[i].get(): gen_sorted(i);
+        sorted[i] = parallel ? task[i].get() : gen_sorted(i);
 
     for (int dim = 0; dim < 3; ++dim) {
         std::vector<std::pair<Vec, Vec> > reversed(sorted[dim].size());
@@ -192,7 +193,6 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
             }
         }
     }
-
     assert(k >= 0 && selected_dim >= 0);
 
     // divide and conquer
@@ -213,11 +213,21 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
         recursively_build_sah_kd_node(v->ptl, depth + 1);
         recursively_build_sah_kd_node(v->ptr, depth + 1);
     } else {
-        std::thread
-                build_l ( [=] {recursively_build_sah_kd_node(v->ptl, depth + 1);}),
-                build_r ( [=] {recursively_build_sah_kd_node(v->ptr, depth + 1);});
-        build_l.join();
-        build_r.join();
+        std::future<void> build_l =
+                std::async(std::launch::async,
+                    [&](){
+                        recursively_build_sah_kd_node(v->ptl, depth + 1);
+                    }
+                );
+        std::future<void> build_r =
+                std::async(std::launch::async,
+                    [&](){
+                        recursively_build_sah_kd_node(v->ptr, depth + 1);
+                    }
+                );
+
+        build_l.get();
+        build_r.get();
     }
     return ;
 }

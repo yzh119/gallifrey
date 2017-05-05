@@ -28,8 +28,8 @@ scene.vt_array[scene.size_vt++].set_coordinate((x), (y), 0)
 extern const unsigned int width;
 extern const unsigned int height;
 
-const int max_face  = 400000;
-const int max_vx    = 400000;
+const int max_face  = 1000000;
+const int max_vx    = 1000000;
 const int max_illu  = 300;
 const int max_name  = 40;
 
@@ -438,8 +438,8 @@ void dump_image()
 
     if (enable_display)
     {
-        cv::namedWindow("Display " + std::string(config_name), cv::WINDOW_AUTOSIZE);
-        cv::imshow("Display " + std::string(config_name), img.to_cv2_pixel());
+        cv::namedWindow("Display scene", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Display scene", img.to_cv2_pixel());
         cvWaitKey(0);
     }
 
@@ -498,14 +498,14 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
+    enable_anti_aliasing = true;
     enable_shadow = false;
     enable_global = true;
     enable_sah = true;
     enable_display = true;
-    num_samples = 1;
+    num_samples = 20;
     view_dis = 1;
-    strcpy(config_name, "config.json");
+    strcpy(config_name, "config-horse.json");
 #else
     parse_argument(argc, argv);
 #endif
