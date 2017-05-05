@@ -2,7 +2,7 @@
 "objects":
 	[
 		{
-			"name": "airboat",
+			"name": "sphere",
 			"scale": 0.1,
 			"ka": [0.2, 0.2, 0],
 			"ks": [0.4, 0.4, 0],

@@ -120,11 +120,21 @@ The bug has been fixed(2017-05-02), please enable `--sah` to accelerate.
 - [ ] To use CUDA instead of multi threading.
 - [ ] To implement Adaptive Polynomial Rendering.
 
+## Demo
+
+20 samples + anti-aliasing
+
+![](demo/airboat.bmp)
+![](demo/nine.bmp)
+![](demo/sphere.bmp)
+
 ## Reference
+- [Adaptive Polynomial Rendering(SIGGRAPH 2016)](www.iidi.napier.ac.uk/binary/dl/file/publicationid/13385782)
+- [Brook for GPUs: Stream Computing on Graphics Hardware(SIGGRAPH 2004)](Stream Computing on Graphics Hardware: https://graphics.stanford.edu/papers/brookgpu/brookgpu.pdf)
+- [KD-Tree Acceleration Structures for a GPU Raytracer(Eurographics 2005)](https://graphics.stanford.edu/papers/gpu_kdtree/kdtree.pdf)
+- [An efficient and robust ray-box intersection algorithm(SIGGRAPH 2005)](http://www.cs.utah.edu/~awilliam/box/box.pdf)
+- [On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) (2006 IEEE Symposium on Interactive Ray Tracing*)](http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf)
 - An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman
 - Global Illumination in 99 lines of C++: http://www.kevinbeason.com/smallpt/
-- SAH kd-tree: http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf
 - About how to load textures: https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/
-- Ray-Box Intersection: http://www.cs.utah.edu/~awilliam/box/box.pdf
 - Yuxin Wu's repository: https://github.com/ppwwyyxx/Ray-Tracing-Engine
-- Adaptive Polynomial Rendering(SIGGRAPH 2016): http://dl.acm.org/citation.cfm?id=2925936
