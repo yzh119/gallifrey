@@ -505,7 +505,7 @@ int main(int argc, char *argv[])
     enable_display = true;
     num_samples = 20;
     view_dis = 1;
-    strcpy(config_name, "config-horse.json");
+    strcpy(config_name, "config.json");
 #else
     parse_argument(argc, argv);
 #endif

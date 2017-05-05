@@ -9,6 +9,4 @@ struct Triangle{
     float cord[3][3];
 };
 
-
-
 #endif //GALLIFREY_TRIANGLE_H
