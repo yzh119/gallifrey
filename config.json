@@ -2,7 +2,7 @@
 "objects":
 	[
 		{
-			"name": "teapot",
+			"name": "airboat",
 			"scale": 0.1,
 			"ka": [0.2, 0.2, 0],
 			"ks": [0.4, 0.4, 0],
@@ -10,7 +10,7 @@
 			"offset": [0, 0],
 			"c": [1, 1, 1],				
 			"e": [0, 0, 0],
-			"refl": "SPEC"
+			"refl": "REFR"
 		}
 	]
 }

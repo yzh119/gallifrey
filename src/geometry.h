@@ -298,29 +298,6 @@ inline bool cross(const Vec &a, const Vec &b, const Vec &c)
     return (a % b).dot(a % c) < -eps;
 }
 
-/*
- * Test the accuracy of intersection.
- */
-/*
-void test_intersection()
-{
-    Vec v[4];
-    v[0].set_coordinate(0, 0, 0);
-    v[1].set_coordinate(10, 0, 0);
-    v[2].set_coordinate(0, 10, 0);
-    v[3].set_coordinate(-10, 10, 0);
-    Face f;
-    for (int i = 0; i < 3; ++i)
-        f.add_vx(i, 0, 0);
-    Ray r(Vec(2, 2, 2), Vec(0, 0, -1));
-    assert(fabs(intersect_with_face(r, f, v) - 2.) < eps);
-    Ray r1(Vec(-2, 4, 2), Vec(0, 0, -1));
-    assert(fabs(intersect_with_face(r1, f, v) + 1.) < eps);
-    f.add_vx(3, 0, 0);
-    Ray r2(Vec(-2, 4, 2), Vec(0, 0, -1));
-    assert(fabs(intersect_with_face(r2, f, v) - 2.) < eps);
-}*/
-
 struct Triangle{
     float vx[3][3];
     float vn[3][3];
@@ -390,22 +367,29 @@ inline float intersect_with_face(const Ray &r, const Triangle &t)
 inline void locate(const Triangle &t, const Vec &pos, float &alpha, float &beta, float &gamma)
 {
     alpha = beta = gamma = (float) (1 / 3.);
-    Vec v(pos - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2])),
-            v1(Vec(t.vx[1][0], t.vx[1][1], t.vx[1][2]) - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2])),
-            v2(Vec(t.vx[2][0], t.vx[2][1], t.vx[2][2]) - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2]));
-    if (fabs(v1.x * v2.y - v1.y * v2.x) > eps)
+    float v1x, v1y, v1z, v2x, v2y, v2z, vx, vy, vz;
+    vx = pos.x - t.vx[0][0];
+    vy = pos.y - t.vx[0][1];
+    vz = pos.z - t.vx[0][2];
+    v1x = t.vx[1][0] - t.vx[0][0];
+    v1y = t.vx[1][1] - t.vx[0][1];
+    v1z = t.vx[1][2] - t.vx[0][2];
+    v2x = t.vx[2][0] - t.vx[0][0];
+    v2y = t.vx[2][1] - t.vx[0][1];
+    v2z = t.vx[2][2] - t.vx[0][2];
+    if (fabs(v1x * v2y - v1y * v2x) > eps)
     {
-        beta = (v.x * v2.y - v.y * v2.x) / (v1.x * v2.y - v1.y * v2.x);
-        gamma = -(v.x * v1.y - v.y * v1.x) / (v1.x * v2.y - v1.y * v2.x);
+        beta = (vx * v2y - vy * v2x) / (v1x * v2y - v1y * v2x);
+        gamma = -(vx * v1y - vy * v1x) / (v1x * v2y - v1y * v2x);
     }
-    else if (fabs(v1.z * v2.y - v1.y * v2.z) > eps)
+    else if (fabs(v1z * v2y - v1y * v2z) > eps)
     {
-        beta = (v.z * v2.y - v.y * v2.z) / (v1.z * v2.y - v1.y * v2.z);
-        gamma = -(v.z * v1.y - v.y * v1.z) / (v1.z * v2.y - v1.y * v2.z);
+        beta = (vz * v2y - vy * v2z) / (v1z * v2y - v1y * v2z);
+        gamma = -(vz * v1y - vy * v1z) / (v1z * v2y - v1y * v2z);
     } else
     {
-        beta = (v.z * v2.x - v.x * v2.z) / (v1.z * v2.x - v1.x * v2.z);
-        gamma = -(v.z * v1.x - v.x * v1.z) / (v1.z * v2.x - v1.x * v2.z);
+        beta = (vz * v2x - vx * v2z) / (v1z * v2x - v1x * v2z);
+        gamma = -(vz * v1x - vx * v1z) / (v1z * v2x - v1x * v2z);
     }
     alpha = 1 - beta - gamma;
     if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))

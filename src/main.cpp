@@ -40,10 +40,10 @@ bool enable_shadow  = false;
 bool enable_global  = false;
 bool enable_display = false;
 bool enable_sah     = false;
-float view_dis = 1.5;
+float view_dis = 1;
 char config_name[max_name];
 int num_workers = 4;
-int num_samples = 2;
+int num_samples = 1;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = true;
+    enable_anti_aliasing = false;
     enable_shadow = false;
     enable_global = true;
     enable_sah = true;

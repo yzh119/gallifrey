@@ -117,7 +117,14 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
         Vec des = r.o + r.d * t;
         Triangle &f = s.t_array[id];
         Vec c = f.m->c;
+        float p = c.x < c.y ? c.x : c.y;
+        p = p < c.z ? p: c.z;
         if (++depth > 5)
+            if (erand() < p)
+                c = c * (1. / p);
+            else return f.m->e;
+
+        if (depth > 10)
             return f.m->e;
 
         Vec n = Vec(f.fn[0], f.fn[1], f.fn[2]),
