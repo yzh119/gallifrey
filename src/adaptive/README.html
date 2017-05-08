@@ -1014,130 +1014,99 @@ body .markdown-body
     page-break-after: avoid;
   }
 }
-</style><title>README</title></head><body><article class="markdown-body"><h1 id="gallifrey"><a name="user-content-gallifrey" href="#gallifrey" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Gallifrey</h1>
-<p>Course final project of CS230.</p>
-<p>To implement a 3D-engine using Monte Carlo Path Tracing and state-of-the-art &ldquo;Adaptive Polynomial Rendering&rdquo; algorithm (SIGGRAPH 2016) on GPU.</p>
-<p>Default resolution is 1280 x 960, if you would like to use other configurations, Please run the script <code>set_resolution.py</code>:</p>
-<pre><code>python set_resolution WIDTH HEIGHT
-</code></pre>
-<h2 id="structure"><a name="user-content-structure" href="#structure" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Structure</h2>
-<pre><code>demo/           # To store some selected outputs
-out/            # Output of the program will be directed here
-resources/      # To store `.obj` models
-vendor/         # To store third-party libraries
-src/            # Source code
-| aabb.h        # To implement the Axis-Aligned Bounding Box
-| colors.h      # To implement some functions related to color of pixels.
-| geometry.h    # To implement some classes and functions related to algebra and geometry.
-| image.h       # To implement a class that contains the information of the output.
-| io.h          # To implement some functions to parse `.obj` files and dump `.bmp` files.
-| kdtree.h      # To implement the SAH-KDTree
-| shader.h      # To implement the Phong Shading algorithm.
-| texture.h     # To implement some functions that deal with textures.
-| tracing.h     # To implement Local Illuminaion and MCPT.
-| main.cpp      # Set parameters
-</code></pre>
-<h2 id="features"><a name="user-content-features" href="#features" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Features</h2>
-<ul>
-<li>Phong Shading</li>
-<li>Anti Aliasing</li>
-<li>Global / Local illumination</li>
-<li>Space Medium/SAH KD-Tree</li>
-<li>Multi Threading</li>
-<li>Monte Carlo Path Tracing</li>
-<li>Texture</li>
-</ul>
-<h2 id="requirements"><a name="user-content-requirements" href="#requirements" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Requirements</h2>
-<ul>
-<li>GCC/G++(mingw) 4.9+, std-c++11</li>
-<li>CMake 3.5+</li>
-<li>OpenCV 2.4+</li>
-<li>CUDA 7.5+</li>
-<li>ConcurrentQueue(<a href="https://github.com/cameron314/concurrentqueue.git">https://github.com/cameron314/concurrentqueue.git</a>)</li>
-<li>Bitmap(<a href="https://github.com/ArashPartow/bitmap.git">https://github.com/ArashPartow/bitmap.git</a>)</li>
-<li>Json(<a href="https://github.com/nlohmann/json.git">https://github.com/nlohmann/json.git</a>)</li>
-</ul>
-<h2 id="compile-run"><a name="user-content-compile-run" href="#compile-run" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Compile &amp; Run</h2>
-<p>This project is cross-platform (Windows, Unix/Linux). But it&rsquo;s not recommended to compile &amp; run on Windows cause multi-threading is disabled, thus rendering may take a long time.</p>
-<p>For Unix/Linux users:</p>
-<pre><code>git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
-cd gallifrey/
-cmake -DCMAKE_BUILD_TYPE=RELEASE .
-make &amp;&amp; cd bin
-./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
-cd ../out
-</code></pre>
-<p>For Windows users, please use Powershell and make sure that <code>git</code>, <code>mingw</code>, <code>cmake</code> are all in your <code>PATH</code> environment variable):</p>
-<p>The default <code>OPENCV</code> include path is <code>C:\opencv\install\include</code>, and the default library path is <code>C:\opencv\install\x86\mingw\lib</code>; you could set them as you like in <code>CMakeLists.txt</code>.</p>
-<pre><code>git clone https://github.com/yzh119/gallifrey.git --recurse-submodules
-cd gallifrey/
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .
-mingw32-make
-cd bin
-./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
-cd ../out
-</code></pre>
-<h1 id="formatconfigjson"><a name="user-content-formatconfigjson" href="#formatconfigjson" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Format(config.json)</h1>
-<pre><code>{
-    "objects":
-        [
-            {                               // Model 1
-                "model":    modelname_1,
-                "scale":    scale,
-                "ka":       [r, g, b],      // ka, for Local illumination (0 &lt;= r, g, b &lt;= 1, similarly hereinafter)
-                "ks":       [r, g, b],      // ks, for Local illumination
-                "kd":       [r, g, b],      // kd, for Local illumination
-                "c":        [r, g, b],      // Color, for global illumination
-                "e":        [r, g, b],      // Emission, for global illumination
-                "refl":     refl            // "SPEC"/"DIFF"/"RERF", for global illumination
-            },
-
-            {                               // Model 2
-                "model":    modelname_2,
-                ...
-            },
-
-            ...
-        ]
-}
-</code></pre>
-<h1 id="notice"><a name="user-content-notice" href="#notice" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Notice</h1>
-<p><del><code>--sah</code> is not recommended. <strong>There are some bugs in my implementation of SAH KD-Tree, thus using space medium KDTree is far more faster.</strong></del></p>
-<p>The bug has been fixed(2017-05-02), please enable <code>--sah</code> to accelerate.</p>
-<h2 id="milestone"><a name="user-content-milestone" href="#milestone" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Milestone</h2>
-<ul class="task-list">
-<li class="task-list-item"><input type="checkbox" disabled checked> Surface Area Heuristic KD-Tree</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Space Medium KD-Tree</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Anti Aliasing</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Phong Shader</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Ray Casting (Local illumination)</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Ray Tracing (Global illumination)</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Soft Shadow</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Transparent</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Color Blending</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Texture</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> Multi-threading</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> <del><strong>Some errors in specular</strong></del>(You should only apply interpolation on the normal vector when the face is small).</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> To reconstruct my project for further extension.</li>
-<li class="task-list-item"><input type="checkbox" disabled> To use triangle instead of polygon in class <code>Face</code>.</li>
-<li class="task-list-item"><input type="checkbox" disabled checked> To fix the bug in SAH KD-Tree</li>
-<li class="task-list-item"><input type="checkbox" disabled> To use CUDA instead of multi threading.</li>
-<li class="task-list-item"><input type="checkbox" disabled> To implement Adaptive Polynomial Rendering.</li>
-</ul>
-<h2 id="demo"><a name="user-content-demo" href="#demo" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Demo</h2>
-<p>20 samples + anti-aliasing</p>
-<p><img alt="" src="/home/slhome/zhy96/gallifrey/demo/airboat.bmp" /><br />
-<img alt="" src="/home/slhome/zhy96/gallifrey/demo/nine.bmp" /><br />
-<img alt="" src="/home/slhome/zhy96/gallifrey/demo/sphere.bmp" /></p>
-<h2 id="reference"><a name="user-content-reference" href="#reference" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Reference</h2>
-<ul>
-<li><a href="www.iidi.napier.ac.uk/binary/dl/file/publicationid/13385782">Adaptive Polynomial Rendering(SIGGRAPH 2016)</a></li>
-<li><a href="Stream Computing on Graphics Hardware: https://graphics.stanford.edu/papers/brookgpu/brookgpu.pdf">Brook for GPUs: Stream Computing on Graphics Hardware(SIGGRAPH 2004)</a></li>
-<li><a href="https://graphics.stanford.edu/papers/gpu_kdtree/kdtree.pdf">KD-Tree Acceleration Structures for a GPU Raytracer(Eurographics 2005)</a></li>
-<li><a href="http://www.cs.utah.edu/~awilliam/box/box.pdf">An efficient and robust ray-box intersection algorithm(SIGGRAPH 2005)</a></li>
-<li><a href="http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf">On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) (2006 IEEE Symposium on Interactive Ray Tracing*)</a></li>
-<li>An Integrated Introduction to Computer Graphics and Geometric Modeling. Ron Goldman</li>
-<li>Global Illumination in 99 lines of C++: <a href="http://www.kevinbeason.com/smallpt/">http://www.kevinbeason.com/smallpt/</a></li>
-<li>About how to load textures: <a href="https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/">https://learnopengl-cn.readthedocs.io/zh/latest/01%20Getting%20started/06%20Textures/</a></li>
-<li>Yuxin Wu&rsquo;s repository: <a href="https://github.com/ppwwyyxx/Ray-Tracing-Engine">https://github.com/ppwwyyxx/Ray-Tracing-Engine</a></li>
-</ul></article></body></html>
+</style><style>/*github*/
+.codehilite {background-color:#fff;color:#333333;}
+.codehilite .hll {background-color:#ffffcc;}
+.codehilite .c{color:#999988;font-style:italic}
+.codehilite .err{color:#a61717;background-color:#e3d2d2}
+.codehilite .k{font-weight:bold}
+.codehilite .o{font-weight:bold}
+.codehilite .cm{color:#999988;font-style:italic}
+.codehilite .cp{color:#999999;font-weight:bold}
+.codehilite .c1{color:#999988;font-style:italic}
+.codehilite .cs{color:#999999;font-weight:bold;font-style:italic}
+.codehilite .gd{color:#000000;background-color:#ffdddd}
+.codehilite .ge{font-style:italic}
+.codehilite .gr{color:#aa0000}
+.codehilite .gh{color:#999999}
+.codehilite .gi{color:#000000;background-color:#ddffdd}
+.codehilite .go{color:#888888}
+.codehilite .gp{color:#555555}
+.codehilite .gs{font-weight:bold}
+.codehilite .gu{color:#800080;font-weight:bold}
+.codehilite .gt{color:#aa0000}
+.codehilite .kc{font-weight:bold}
+.codehilite .kd{font-weight:bold}
+.codehilite .kn{font-weight:bold}
+.codehilite .kp{font-weight:bold}
+.codehilite .kr{font-weight:bold}
+.codehilite .kt{color:#445588;font-weight:bold}
+.codehilite .m{color:#009999}
+.codehilite .s{color:#dd1144}
+.codehilite .n{color:#333333}
+.codehilite .na{color:teal}
+.codehilite .nb{color:#0086b3}
+.codehilite .nc{color:#445588;font-weight:bold}
+.codehilite .no{color:teal}
+.codehilite .ni{color:purple}
+.codehilite .ne{color:#990000;font-weight:bold}
+.codehilite .nf{color:#990000;font-weight:bold}
+.codehilite .nn{color:#555555}
+.codehilite .nt{color:navy}
+.codehilite .nv{color:teal}
+.codehilite .ow{font-weight:bold}
+.codehilite .w{color:#bbbbbb}
+.codehilite .mf{color:#009999}
+.codehilite .mh{color:#009999}
+.codehilite .mi{color:#009999}
+.codehilite .mo{color:#009999}
+.codehilite .sb{color:#dd1144}
+.codehilite .sc{color:#dd1144}
+.codehilite .sd{color:#dd1144}
+.codehilite .s2{color:#dd1144}
+.codehilite .se{color:#dd1144}
+.codehilite .sh{color:#dd1144}
+.codehilite .si{color:#dd1144}
+.codehilite .sx{color:#dd1144}
+.codehilite .sr{color:#009926}
+.codehilite .s1{color:#dd1144}
+.codehilite .ss{color:#990073}
+.codehilite .bp{color:#999999}
+.codehilite .vc{color:teal}
+.codehilite .vg{color:teal}
+.codehilite .vi{color:teal}
+.codehilite .il{color:#009999}
+.codehilite .gc{color:#999;background-color:#EAF2F5}
+</style><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+MathJax.Hub.Config({
+  config: ["MMLorHTML.js"],
+  extensions: ["tex2jax.js"],
+  jax: ["input/TeX"],
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: false
+  },
+  TeX: {
+    extensions: ["AMSmath.js", "AMSsymbols.js"],
+    TagSide: "right",
+    TagIndent: ".8em",
+    MultLineWidth: "85%",
+    equationNumbers: {
+      autoNumber: "AMS",
+    },
+    unicode: {
+      fonts: "STIXGeneral,'Arial Unicode MS'"
+    }
+  },
+  showProcessingMessages: false
+});
+</script>
+<title>README</title></head><body><article class="markdown-body"><h1 id="adaptive-polynomial-rendering"><a name="user-content-adaptive-polynomial-rendering" href="#adaptive-polynomial-rendering" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Adaptive Polynomial Rendering</h1>
+<p>This directory contains my implementation of the <em>Adaptive Polynomial Rendering</em>(SIGGRAPH 2016, Bochang et al.) algorithm.</p>
+<p>Here are my notes of this paper.</p>
+<h2 id="reconstruction-framework"><a name="user-content-reconstruction-framework" href="#reconstruction-framework" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Reconstruction Framework</h2>
+<p>$$ y(i) = \mu(i) + \epsilon(i) $$</p>
+<h2 id="adaptive-polynomial-reconstruction"><a name="user-content-adaptive-polynomial-reconstruction" href="#adaptive-polynomial-reconstruction" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Adaptive Polynomial Reconstruction</h2>
+<h2 id="adaptive-polynomial-sampling"><a name="user-content-adaptive-polynomial-sampling" href="#adaptive-polynomial-sampling" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Adaptive Polynomial Sampling</h2></article></body></html>

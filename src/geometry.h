@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cmath>
 #include <opencv2/opencv.hpp>
-
 inline float erand()
 {
 #ifdef __linux__
@@ -38,60 +37,57 @@ public:
         z = vec.z;
     }
     ~Vec() {}
-    void set_coordinate(float x, float y, float z);
-    Vec operator + (const Vec &b) const ;
-    Vec operator - (const Vec &b) const ;
-    Vec operator * (const Vec &b) const ;
-    Vec operator * (float b) const ;
-    Vec operator % (const Vec &b) const ;
-    Vec& norm();
-    float dot(const Vec &b) const ;
+    inline void set_coordinate(float x, float y, float z);
+    inline Vec operator + (const Vec &b) const ;
+    inline Vec operator - (const Vec &b) const ;
+    inline Vec operator * (const Vec &b) const ;
+    inline Vec operator * (float b) const ;
+    inline Vec operator % (const Vec &b) const ;
+    inline Vec& norm();
+    inline float dot(const Vec &b) const ;
 
     float x;
     float y;
     float z;
 };
 
-Vec &Vec::norm()
+inline Vec &Vec::norm()
 {
     return *this = *this * (1 / sqrt(x * x + y * y + z * z));
 }
 
-Vec Vec::operator*(float b) const
+inline Vec Vec::operator*(float b) const
 {
     return Vec(b * x, b * y, b * z);
 }
 
-Vec Vec::operator+(const Vec &b) const
+inline Vec Vec::operator+(const Vec &b) const
 {
     return Vec(x + b.x, y + b.y, z + b.z);
 }
 
-Vec Vec::operator-(const Vec &b) const
+inline Vec Vec::operator-(const Vec &b) const
 {
     return Vec(x - b.x, y - b.y, z - b.z);
 }
 
-float Vec::dot(const Vec &b) const
+inline float Vec::dot(const Vec &b) const
 {
     return x * b.x + y * b.y + z * b.z;
 }
 
-Vec Vec::operator%(const Vec &b) const
+inline Vec Vec::operator%(const Vec &b) const
 {
     return Vec(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 }
 
-void Vec::set_coordinate(float x, float y, float z) {
+inline void Vec::set_coordinate(float x, float y, float z) {
     this->x = x;
     this->y = y;
     this->z = z;
 }
 
-/*
- * Elementwise dot.
- */
-Vec Vec::operator*(const Vec &b) const {
+inline Vec Vec::operator*(const Vec &b) const {
     return Vec(x * b.x, y * b.y, z * b.z);
 }
 
@@ -294,20 +290,6 @@ void Face::set_refl(refl_t refl) {
     return;
 }
 
-
-struct Scene
-{
-    Face *f_array;
-    Vec *vn_array;
-    Vec *vx_array;
-    Vec *vt_array;
-    Vec *fn_array;
-    Vec *il_array;
-    Vec *li_array;
-    size_t size_f, size_vn, size_vx, size_vt, size_il;
-    float area;
-};
-
 /*
  * Cross function.
  */
@@ -317,84 +299,9 @@ inline bool cross(const Vec &a, const Vec &b, const Vec &c)
 }
 
 /*
- * Compute the intersection of a ray with a face.
- * If not intersect, return -1;
- * Else return the distance between origin of the ray and the intersection.
- */
-inline float intersect_with_face(const Ray &r, const Face &f, Vec *v_list)
-{
-    Vec v1 = v_list[f.get_elem_idxV(1)] - v_list[f.get_elem_idxV(0)],
-        v2 = v_list[f.get_elem_idxV(2)] - v_list[f.get_elem_idxV(1)];
-    Vec norm_vec = v1 % v2;
-    norm_vec.norm();
-
-    float denom = norm_vec.dot(r.d),
-          numer = norm_vec.dot(v_list[f.get_elem_idxV(0)] - r.o);
-
-    if (fabs(denom) < eps)
-        return (float) -1.;         // Case 1: parallel
-    else
-    {
-        float dis = numer / denom;
-        int cnt = 0;
-        Vec inter = r.o + r.d * dis;
-        Vec rand_vec = v1 * 1e4;
-
-        for (int i = 0; i < f.get_size(); ++i)
-            if (cross(rand_vec, v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i + 1)] - inter) &&
-                    cross(v_list[f.get_elem_idxV(i + 1)] - v_list[f.get_elem_idxV(i)], v_list[f.get_elem_idxV(i)] - inter, v_list[f.get_elem_idxV(i)] - inter - rand_vec))
-                ++cnt;
-
-        if (cnt % 2 == 1)
-            return dis;             // Case 2: intersect
-        else
-            return -1;              // Case 3: not parallel, but intersection is outside the polygon.
-    }
-}
-
-/*
- * INTERSECTS RAY WITH SCENE
- * Brute Force algorithm.
- */
-inline bool naive_intersect(const Ray &r, float &t, int &id, const Scene &s)
-{
-    float dis;
-    t = -1;
-
-    for (int i = 0; i < s.size_f; ++i)
-    {
-        dis = intersect_with_face(r, s.f_array[i], s.vx_array);
-        if (dis > eps)
-        {
-            if (t < 0 || dis < t)
-            {
-                t = dis;
-                id = i;
-            }
-        }
-    }
-    return t >= eps;
-}
-
-/*
- * To judge whether the given segment intersects with the scene.
- */
-inline bool oriented_segment_intersect(const Vec &start, const Vec &target, const Scene &s)
-{
-    Ray r(start, (target - start).norm());
-    for (int i = 0; i < s.size_f; ++i)
-    {
-        float dis = intersect_with_face(r, s.f_array[i], s.vx_array);
-        if (dis > eps)
-            if (dis * dis < (target - start).dot(target - start) - 10 * eps)
-                return true;
-    }
-    return false;
-}
-
-/*
  * Test the accuracy of intersection.
  */
+/*
 void test_intersection()
 {
     Vec v[4];
@@ -412,50 +319,98 @@ void test_intersection()
     f.add_vx(3, 0, 0);
     Ray r2(Vec(-2, 4, 2), Vec(0, 0, -1));
     assert(fabs(intersect_with_face(r2, f, v) - 2.) < eps);
+}*/
+
+struct Triangle{
+    float vx[3][3];
+    float vn[3][3];
+    float vt[3][2];
+    float fn[3];
+    float area;
+    Material *m;
+};
+
+struct Scene
+{
+    Face *f_array;
+    Triangle *t_array;
+    Vec *vn_array;
+    Vec *vx_array;
+    Vec *vt_array;
+    Vec *fn_array;
+    Vec *il_array;
+    Vec *li_array;
+    size_t size_f, size_vn, size_vx, size_vt, size_il, size_tr;
+    float area;
+};
+
+/*
+ * Compute the intersection of a ray with a face.
+ * If not intersect, return -1;
+ * Else return the distance between origin of the ray and the intersection.
+ */
+inline float intersect_with_face(const Ray &r, const Triangle &t)
+{
+    Vec
+            v0(t.vx[1][0] - t.vx[0][0], t.vx[1][1] - t.vx[0][1], t.vx[1][2] - t.vx[0][2]),
+            v1(t.vx[2][0] - t.vx[0][0], t.vx[2][1] - t.vx[0][1], t.vx[2][2] - t.vx[0][2]),
+            v2(t.vx[0][0], t.vx[0][1], t.vx[0][2]);
+    Vec norm_vec = v0 % v1;
+    float
+            denom = norm_vec.dot(r.d),
+            numer = norm_vec.dot(v2 - r.o);
+    if (fabs(denom) < eps)
+        return -1;         // Case 1: parallel
+    else
+    {
+        float dis = numer / denom;
+        v2 = r.o + r.d * dis - v2;
+
+        float
+                dot00 = v0.dot(v0),
+                dot01 = v0.dot(v1),
+                dot02 = v0.dot(v2),
+                dot11 = v1.dot(v1),
+                dot12 = v1.dot(v2);
+
+        float inver = 1 / (dot00 * dot11 - dot01 * dot01),
+            u = (dot11 * dot02 - dot01 * dot12) * inver,
+            v = (dot00 * dot12 - dot01 * dot02) * inver;
+
+        if (u >= 0 && u <= 1 && v >= 0 && v <= 1 && u + v <= 1)
+            return dis;
+        else
+            return -1;
+    }
 }
 
 /*
  * To locate the position of a vertex in the face, and derive alpha, beta, gamma.
  */
-inline void locate(const Face &f, const Vec &pos, const Scene &s, int &j, float &alpha, float &beta, float &gamma)
+inline void locate(const Triangle &t, const Vec &pos, float &alpha, float &beta, float &gamma)
 {
     alpha = beta = gamma = (float) (1 / 3.);
-    Vec *v_array = s.vx_array;
-    Vec v(pos - v_array[f.get_elem_idxV(0)]);
-    j = -1;
-    Vec v1(v_array[f.get_elem_idxV(1)] - v_array[f.get_elem_idxV(0)]),
-            v2(v_array[f.get_elem_idxV(2)] - v_array[f.get_elem_idxV(0)]);
-    for (int i = 1; i < f.get_size(); ++i)
+    Vec v(pos - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2])),
+            v1(Vec(t.vx[1][0], t.vx[1][1], t.vx[1][2]) - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2])),
+            v2(Vec(t.vx[2][0], t.vx[2][1], t.vx[2][2]) - Vec(t.vx[0][0], t.vx[0][1], t.vx[0][2]));
+    if (fabs(v1.x * v2.y - v1.y * v2.x) > eps)
     {
-        if ((v % v1).dot(v % v2) <= eps)
-        {
-            j = i;
-            if (fabs(v1.x * v2.y - v1.y * v2.x) > eps)
-            {
-                beta = (v.x * v2.y - v.y * v2.x) / (v1.x * v2.y - v1.y * v2.x);
-                gamma = -(v.x * v1.y - v.y * v1.x) / (v1.x * v2.y - v1.y * v2.x);
-            }
-            else if (fabs(v1.z * v2.y - v1.y * v2.z) > eps)
-            {
-                beta = (v.z * v2.y - v.y * v2.z) / (v1.z * v2.y - v1.y * v2.z);
-                gamma = -(v.z * v1.y - v.y * v1.z) / (v1.z * v2.y - v1.y * v2.z);
-            } else
-            {
-                beta = (v.z * v2.x - v.x * v2.z) / (v1.z * v2.x - v1.x * v2.z);
-                gamma = -(v.z * v1.x - v.x * v1.z) / (v1.z * v2.x - v1.x * v2.z);
-            }
-            alpha = 1 - beta - gamma;
-            break;
-        }
-        v1 = v2;
-        v2 = v_array[f.get_elem_idxV(i + 2)] - v_array[f.get_elem_idxV(0)];
+        beta = (v.x * v2.y - v.y * v2.x) / (v1.x * v2.y - v1.y * v2.x);
+        gamma = -(v.x * v1.y - v.y * v1.x) / (v1.x * v2.y - v1.y * v2.x);
     }
-    assert(j != -1);
+    else if (fabs(v1.z * v2.y - v1.y * v2.z) > eps)
+    {
+        beta = (v.z * v2.y - v.y * v2.z) / (v1.z * v2.y - v1.y * v2.z);
+        gamma = -(v.z * v1.y - v.y * v1.z) / (v1.z * v2.y - v1.y * v2.z);
+    } else
+    {
+        beta = (v.z * v2.x - v.x * v2.z) / (v1.z * v2.x - v1.x * v2.z);
+        gamma = -(v.z * v1.x - v.x * v1.z) / (v1.z * v2.x - v1.x * v2.z);
+    }
+    alpha = 1 - beta - gamma;
     if (!(0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && 0 <= alpha && alpha <= 1))
     {
         alpha = beta = gamma = (float) (1 / 3.);
-        // To deal with abnormal situations.
-        // TODO
     }
 }
 

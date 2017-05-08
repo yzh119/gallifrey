@@ -22,13 +22,18 @@ else()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 endif()
 
+if (FIND_CUDA)
+    message("Entering GPU acceleration mode...")
+    find_package(CUDA REQUIRED)
+else()
 include_directories( vendor/bitmap vendor/concurrentqueue vendor/json/src)
 
 set(SOURCE_CODE
-        src/main.cpp src/geometry.h src/shader.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h src/apr.h src/backend.h src/triangle.h)
+        src/main.cpp src/geometry.h src/interpolate.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h src/conversion.h src/adaptive/reconstruction.h src/adaptive/sampling.h)
 
 add_executable(gallifrey
         ${SOURCE_CODE})
 
 target_link_libraries(gallifrey
         pthread ${OpenCV_LIBS})
+endif()

@@ -17,12 +17,38 @@
 
 inline Vec vec_max(const Vec &a, const Vec &b)
 {
-    return Vec(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+    float
+            max_x = a.x > b.x ? a.x: b.x,
+            max_y = a.y > b.y ? a.y: b.y,
+            max_z = a.z > b.z ? a.z: b.z;
+    return Vec(max_x, max_y, max_z);
+}
+
+inline Vec vec_max(const Vec &a, float *b)
+{
+    float
+            max_x = a.x > b[0] ? a.x: b[0],
+            max_y = a.y > b[1] ? a.y: b[1],
+            max_z = a.z > b[2] ? a.z: b[2];
+    return Vec(max_x, max_y, max_z);
 }
 
 inline Vec vec_min(const Vec &a, const Vec &b)
 {
-    return Vec(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+    float
+            min_x = a.x < b.x ? a.x: b.x,
+            min_y = a.y < b.y ? a.y: b.y,
+            min_z = a.z < b.z ? a.z: b.z;
+    return Vec(min_x, min_y, min_z);
+}
+
+inline Vec vec_min(const Vec &a, float *b)
+{
+    float
+            min_x = a.x < b[0] ? a.x: b[0],
+            min_y = a.y < b[1] ? a.y: b[1],
+            min_z = a.z < b[2] ? a.z: b[2];
+    return Vec(min_x, min_y, min_z);
 }
 
 class KDTree {
@@ -49,13 +75,13 @@ public:
         fprintf(stderr, "Building KDTree...\n");
         Vec vmin(1e8, 1e8, 1e8), vmax((float) -1e8, (float) -1e8, (float) -1e8);
 
-        for (int i = 0; i < s->size_f; ++i)
+        for (int i = 0; i < s->size_tr; ++i)
         {
             Vec current_vmin(1e8, 1e8, 1e8), current_vmax((float) -1e8, (float) -1e8, (float) -1e8);
-            for (int j = 0; j < s->f_array[i].get_size(); ++j) {
-                int v = s->f_array[i].get_elem_idxV(j);
-                current_vmin = vec_min(current_vmin, s->vx_array[v]);
-                current_vmax = vec_max(current_vmax, s->vx_array[v]);
+            for (int j = 0; j < 3; ++j) {
+                float *pos = s->t_array[i].vx[j];
+                current_vmin = vec_min(current_vmin, pos);
+                current_vmax = vec_max(current_vmax, pos);
             }
             current_vmin.x -= eps; current_vmax.x += eps;
             current_vmin.y -= eps; current_vmax.y += eps;
@@ -68,7 +94,7 @@ public:
         }
 
         std::vector<int> all_faces;
-        for (int i = 0; i < s->size_f; ++i)
+        for (int i = 0; i < s->size_tr; ++i)
             all_faces.emplace_back(i);
 
         root = std::make_shared<node> (all_faces, Box(vmin, vmax));
@@ -193,7 +219,10 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
             }
         }
     }
-    assert(k >= 0 && selected_dim >= 0);
+
+    if (k < 0 || selected_dim < 0)
+        return;
+//    assert(k >= 0 && selected_dim >= 0);
 
     // divide and conquer
     std::vector<int> v_left, v_right;
@@ -243,9 +272,9 @@ bool KDTree::get_intersection(std::shared_ptr<KDTree::node> &v, const Ray &r, fl
         for (int i = 0; i < v->elems.size(); ++i)
         {
             int current_id = v->elems[i];
-            assert(current_id < s->size_f);
+            assert(current_id < s->size_tr);
 
-            float d = intersect_with_face(r, s->f_array[current_id], s->vx_array);
+            float d = intersect_with_face(r, s->t_array[current_id]);
             if (d > eps)
             {
                 if (d < t)

@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include "conversion.h"
 #define ADD_WALL(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
 scene.f_array[scene.size_f].material = (arg9);\
 scene.f_array[scene.size_f].add_vx(idx - (arg1), -1, idt - (arg5)); \
@@ -50,6 +51,7 @@ cv::Mat elder_mat = cv::imread("../resources/elder2.png", CV_LOAD_IMAGE_COLOR);
 cv::Mat elder1_mat = cv::imread("../resources/elder1.jpg", CV_LOAD_IMAGE_COLOR);
 
 Face fArray[max_face];
+Triangle tArray[max_face];
 Vec vxArray[max_vx];
 Vec vnArray[max_vx];
 Vec vtArray[max_vx];
@@ -221,6 +223,7 @@ void load_and_construct_scene()
                    l_face, l_vertex, l_normal, l_texture, model);
     }
     scene.f_array   = fArray;
+    scene.t_array   = tArray;
     scene.vn_array  = vnArray;
     scene.vx_array  = vxArray;
     scene.vt_array  = vtArray;
@@ -498,14 +501,14 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
+    enable_anti_aliasing = true;
     enable_shadow = false;
     enable_global = true;
     enable_sah = true;
     enable_display = true;
-    num_samples = 1;
-    view_dis = .7;
-    strcpy(config_name, "config-horse.json");
+    num_samples = 20;
+    view_dis = 1;
+    strcpy(config_name, "config.json");
 #else
     parse_argument(argc, argv);
 #endif
@@ -515,12 +518,12 @@ int main(int argc, char *argv[])
 
     // unit test.
     test_dump_image();
-    test_intersection();
     test_aabb();
 
     // main.
     load_config();
     load_and_construct_scene();
+    convert_poly_to_triangle(scene.vx_array, scene.vn_array, scene.vt_array, scene.fn_array , scene.f_array, scene.t_array, scene.size_f, scene.size_tr);
     tree = new KDTree(&scene);
     tree->build_tree(enable_sah);
     rendering();

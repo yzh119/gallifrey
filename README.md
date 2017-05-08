@@ -126,11 +126,11 @@ The bug has been fixed(2017-05-02), please enable `--sah` to accelerate.
 
 ![](demo/airboat.bmp)
 ![](demo/nine.bmp)
-![](demo/sphere.bmp)
+![](demo/teapot.bmp)
 
 ## Reference
 - [Adaptive Polynomial Rendering(SIGGRAPH 2016)](www.iidi.napier.ac.uk/binary/dl/file/publicationid/13385782)
-- [Brook for GPUs: Stream Computing on Graphics Hardware(SIGGRAPH 2004)](Stream Computing on Graphics Hardware: https://graphics.stanford.edu/papers/brookgpu/brookgpu.pdf)
+- [Brook for GPUs: Stream Computing on Graphics Hardware(SIGGRAPH 2004)](https://graphics.stanford.edu/papers/brookgpu/brookgpu.pdf)
 - [KD-Tree Acceleration Structures for a GPU Raytracer(Eurographics 2005)](https://graphics.stanford.edu/papers/gpu_kdtree/kdtree.pdf)
 - [An efficient and robust ray-box intersection algorithm(SIGGRAPH 2005)](http://www.cs.utah.edu/~awilliam/box/box.pdf)
 - [On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N) (2006 IEEE Symposium on Interactive Ray Tracing*)](http://dcgi.felk.cvut.cz/home/havran/ARTICLES/ingo06rtKdtree.pdf)

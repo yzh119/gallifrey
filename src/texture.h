@@ -19,22 +19,21 @@ inline Vec get_pixel(cv::Mat *img, const Vec& pos)
                (float) (img->at<cv::Vec3b>(j, i)[0] / 256.));
 }
 
-inline Vec get_texture_at_pos(const Face &f, Vec pos, const Scene &s)
+inline Vec get_texture_at_pos(const Triangle &t, Vec pos)
 {
     Vec col;
-    if (f.material.image == nullptr)
+    if (t.m->image == nullptr)
     {
         col = Vec(1, 1, 1);
     }
     else
     {
-        int j;
         float alpha, beta, gamma;
-        locate(f, pos, s, j, alpha, beta, gamma);
-        Vec t_pos = s.vt_array[f.get_elem_idxVt(0)] * alpha +
-              s.vt_array[f.get_elem_idxVt(j)] * beta +
-              s.vt_array[f.get_elem_idxVt(j + 1)] * gamma;
-        col = get_pixel(f.material.image, t_pos);
+        locate(t, pos, alpha, beta, gamma);
+        Vec t_pos = Vec(t.vt[0][0], t.vt[0][1], t.vt[0][2]) * alpha +
+              Vec(t.vt[1][0], t.vt[1][1], t.vt[1][2]) * beta +
+              Vec(t.vt[2][0], t.vt[2][1], t.vt[2][2]) * gamma;
+        col = get_pixel(t.m->image, t_pos);
     }
     return col;
 }
