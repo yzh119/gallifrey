@@ -115,7 +115,7 @@ The bug has been fixed(2017-05-02), please enable `--sah` to accelerate.
 - [x] Multi-threading
 - [x] <del>**Some errors in specular**</del>(You should only apply interpolation on the normal vector when the face is small).
 - [x] To reconstruct my project for further extension.
-- [ ] To use triangle instead of polygon in class `Face`.
+- [x] To use triangle instead of polygon in class `Face`.
 - [x] To fix the bug in SAH KD-Tree
 - [ ] To use CUDA instead of multi threading.
 - [ ] To implement Adaptive Polynomial Rendering.
