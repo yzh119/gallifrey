@@ -1077,7 +1077,7 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-</style><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</style><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
 MathJax.Hub.Config({
   config: ["MMLorHTML.js"],
@@ -1116,15 +1116,44 @@ where \(y\) is the generated image function, \(\mu\) is the ground truth intensi
 <p>More specifically, they decompose the ground truth into two functions: \(\mu(i) \equiv g(f_i) + p(i)\), the first function focuses on features related to 3D position while the second function focuses on pixel position.</p>
 <p>Locally, they approximate the unknown \(\mu\) function by using Taylor Polynomials:<br />
 $$\mu(i) \approx \nabla g(f_c) (f_i - f_c)^T + p(c) + \sum_{1\leq a \leq k} \frac{\nabla^a p(c)}{a!} ((i - c)^a)^T $$</p>
-<p>The coefficients could be optimized by least-square method:<br />
+<p>The coefficients could be optimized by minizing the following function (using least-square method):<br />
 $$\sum_{i\in \Omega_c} \left( y(i) - \alpha(f_i - f_c)^T - \beta_0 - \sum_{1\leq a \leq k} \beta_a ((i - c)^a)  \right)^2 K_h(i)$$</p>
+<p>After reconstruction, the output at pixel $i$ woule be:<br />
+$$\hat{y}(i) = \sum_{j\in \Omega_i} K_h^j(i) \hat{y}_k^j (i) / \sum_{j\in \Omega_{i}} K_h^j(i) $$</p>
 <h3 id="adaptive-polynomial-reconstruction"><a name="user-content-adaptive-polynomial-reconstruction" href="#adaptive-polynomial-reconstruction" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Adaptive Polynomial Reconstruction</h3>
 <p>To locally optimize the polynomial order \(k\), we have to optimize the fuction:<br />
 $$ \xi_c(k) \equiv \frac{1}{\sum K_h(i)} \sum_{i\in \Omega_c} K_h(i) (\hat{y}_k(i) - \mu(i))^2 $$</p>
-<p>where \(\mu\) is intractable, thus we need to find alternatives to optimize. The authors raised three methods to deal with this stuff.</p>
+<p>where \(\mu\) is intractable, thus we need to find alternatives to optimize. </p>
 <h4 id="bias-and-variance-expression"><a name="user-content-bias-and-variance-expression" href="#bias-and-variance-expression" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Bias and Variance Expression</h4>
+<p>According to the definition of variance: \(\sigma(X) = EX^2 - (EX)^2\), we derive:</p>
+<p>$$E(\hat{y}_k(i) - \mu(i))^2 = bias^2(\hat{y}_k(i)) + \sigma^2(\hat{y}_k(i)) $$</p>
+<p>where the bias and variance could be computed by the hat matrix:<br />
+$$E(\hat{y}_k(i)) \approx \sum_{j\in \Omega_c} H_{ij}(k) \mu(j) - \mu(i) $$</p>
+<p>$$\sigma^2(\hat{y}_k(i)) \approx \sum_{j\in \Omega^c} (H_{ij}(k))^2 \sigma^2(y(j)) $$</p>
+<p>then the optimal \(k\) could be chosen via</p>
+<p>$$k_{opt} = \arg\min_k \sum_{i\in \Omega_c} K_h(i) ((E(\hat{y}_k (i) - \mu(i)))^2 + \sigma^2(\hat{y}_k(i)))  $$</p>
+<p>in which the normalization term has been dropped out.</p>
 <h4 id="multi-stage-error-estimation"><a name="user-content-multi-stage-error-estimation" href="#multi-stage-error-estimation" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Multi-Stage Error Estimation</h4>
+<p>Directly use \(y\) and sample variance \(s\) to replace \(mu\) and \(\sigma\) will make them too noisy resulting in a noisy selection of polynomial order.</p>
+<p>The author proposed a multi-stage way to deal with this problem, </p>
 <h4 id="energy-preserving-outlier-removal"><a name="user-content-energy-preserving-outlier-removal" href="#energy-preserving-outlier-removal" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Energy-Preserving Outlier Removal</h4>
+<p>When MC renderer renders a scene includes glossy materials, the outlier (spike noise) pixels exhibit an excessive intensity. The outliers should be removed as a pre-process, making the optimization process for reconstruction more robustly.</p>
+<p>The side effect of outlier removal is the energy loss in the reconstructed image. The author proposed an energy-preserving outlier removal technique.</p>
+<p>If the difference between the intensity of the center pixel and the average intensity of all neighboring pixels is three times higher than the computed standard deviation, it is replaced with a pixel that has median intensity and its variance.</p>
+<p>Energy is preserved by</p>
+<p>$$\hat{y}(i) = \hat{y}(i) + \rho_o \hat{y}(i) $$</p>
+<p>where \(\rho\) is computed via</p>
+<p>$$e_o = \sum_{i\in\Omega_o} \rho_o \hat{y}(i)  $$</p>
 <h3 id="adaptive-polynomial-sampling"><a name="user-content-adaptive-polynomial-sampling" href="#adaptive-polynomial-sampling" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Adaptive Polynomial Sampling</h3>
+<p>The error could be further reduced by allocating ray samples adaptively.</p>
+<p>A weighting function: \(K\) is used to allocate ray samples.</p>
 <hr />
-<h2 id="details-in-implementation"><a name="user-content-details-in-implementation" href="#details-in-implementation" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Details in implementation</h2></article></body></html>
+<h2 id="details-in-implementation"><a name="user-content-details-in-implementation" href="#details-in-implementation" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Details in implementation</h2>
+<p>Since linear-algebra related operations are called frequently in this paper, I use highly-optimized linear algebra library: <a href="http://arma.sourceforge.net/">aramadillo</a> to achieve better performance in my CPU implementation.</p>
+<h2 id="reference"><a name="user-content-reference" href="#reference" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Reference</h2>
+<ul>
+<li><a href="http://dl.acm.org/citation.cfm?id=2024193">Adaptive sampling and reconstruction using greedy error minimization</a></li>
+<li><a href="http://www.ci.i.u-tokyo.ac.jp/~hachisuka/vfl.pdf">Robust Image Denoising using a Virtual Flash Image for Monte Carlo Ray Tracing</a></li>
+<li><a href="http://dx.doi.org/10.1111/cgf.12219">Robust Denosing using Feature and Color Information</a></li>
+<li><a href="http://dl.acm.org/citation.cfm?id=2641762">Adaptive Rendering Based on Weighted Local Regression</a></li>
+</ul></article></body></html>

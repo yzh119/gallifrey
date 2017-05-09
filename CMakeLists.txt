@@ -35,5 +35,5 @@ add_executable(gallifrey
         ${SOURCE_CODE})
 
 target_link_libraries(gallifrey
-        pthread ${OpenCV_LIBS})
+        armadillo pthread ${OpenCV_LIBS})
 endif()

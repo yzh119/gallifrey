@@ -4,5 +4,7 @@
 
 #ifndef GALLIFREY_RECONSTRUCTION_H
 #define GALLIFREY_RECONSTRUCTION_H
+#include <armadillo>
+
 
 #endif //GALLIFREY_RECONSTRUCTION_H

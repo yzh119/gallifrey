@@ -44,6 +44,7 @@ Default resolution is 1280 x 960, if you would like to use other configurations,
 - ConcurrentQueue(https://github.com/cameron314/concurrentqueue.git)
 - Bitmap(https://github.com/ArashPartow/bitmap.git)
 - Json(https://github.com/nlohmann/json.git)
+- armadillo(http://arma.sourceforge.net/)
 
 ## Compile & Run
 This project is cross-platform (Windows, Unix/Linux). But it's not recommended to compile & run on Windows cause multi-threading is disabled, thus rendering may take a long time.
