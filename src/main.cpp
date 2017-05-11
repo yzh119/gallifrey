@@ -46,7 +46,7 @@ int num_workers = 4;
 int num_samples = 1;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
-cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat ground_mat = cv::imread("../resources/water.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat elder_mat = cv::imread("../resources/elder2.png", CV_LOAD_IMAGE_COLOR);
 cv::Mat elder1_mat = cv::imread("../resources/elder1.jpg", CV_LOAD_IMAGE_COLOR);
 
