@@ -132,6 +132,9 @@ The bug has been fixed(2017-05-02), please enable `--sah` to accelerate.
 ![](demo/nine.bmp)
 ![](demo/teapot.bmp)
 
+## License
+Gallifrey is released under the term of GPL-3.0+. See [LICENSE](./LICENSE) for details.
+
 ## Reference
 - [Adaptive Polynomial Rendering(SIGGRAPH 2016)](www.iidi.napier.ac.uk/binary/dl/file/publicationid/13385782)
 - [Brook for GPUs: Stream Computing on Graphics Hardware(SIGGRAPH 2004)](https://graphics.stanford.edu/papers/brookgpu/brookgpu.pdf)
