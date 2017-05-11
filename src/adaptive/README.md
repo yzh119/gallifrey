@@ -76,7 +76,9 @@ A weighting function: \\(K\\) is used to allocate ray samples.
 ---
 ## Details in implementation
 
-Since linear-algebra related operations are called frequently in this paper, I use highly-optimized linear algebra library: [aramadillo](http://arma.sourceforge.net/) to achieve better performance in my CPU implementation.
+Since linear-algebra related operations are called frequently in this paper, I use highly-optimized linear algebra library: [Aramadillo](http://arma.sourceforge.net/) to achieve better performance in my CPU implementation.
+
+If you have got an NVIDIA GPU and CUDA installed, `cuBLAS` instead of `armadillo` will do the job. 
 
 ## Reference
 

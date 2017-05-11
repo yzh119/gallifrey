@@ -1,7 +1,7 @@
 # Gallifrey
 Course final project of CS230.
 
-To implement a 3D-engine using Monte Carlo Path Tracing and state-of-the-art "Adaptive Polynomial Rendering" algorithm (SIGGRAPH 2016) on GPU.
+To implement a 3D-engine using Monte Carlo Path Tracing on CPU and state-of-the-art "Adaptive Polynomial Rendering" algorithm (SIGGRAPH 2016) on GPU.
 
 Default resolution is 1280 x 960, if you would like to use other configurations, Please run the script `set_resolution.py`:
 
@@ -14,23 +14,26 @@ Default resolution is 1280 x 960, if you would like to use other configurations,
     resources/      # To store `.obj` models
     vendor/         # To store third-party libraries
     src/            # Source code
-    | aabb.h        # To implement the Axis-Aligned Bounding Box
+    | aabb.h        # To implement the Axis-Aligned Bounding Box.
     | colors.h      # To implement some functions related to color of pixels.
     | geometry.h    # To implement some classes and functions related to algebra and geometry.
     | image.h       # To implement a class that contains the information of the output.
     | io.h          # To implement some functions to parse `.obj` files and dump `.bmp` files.
-    | kdtree.h      # To implement the SAH-KDTree
-    | shader.h      # To implement the Phong Shading algorithm.
+    | kdtree.h      # To implement the SAH-KDTree.
+    | interpolate.h # To implement the surface interpolation algorithm.
     | texture.h     # To implement some functions that deal with textures.
     | tracing.h     # To implement Local Illuminaion and MCPT.
+    | conversion.h 	# To replace the polygons with triangles.
     | main.cpp      # Set parameters
+    | adapt/		# Source code of "Adaptive Polynomial Rendering" algorithm.
 
 ## Features
 
+- Adaptive Polynomial Rendering
 - Phong Shading
 - Anti Aliasing
 - Global / Local illumination
-- Space Medium/SAH KD-Tree
+- SAH KD-Tree
 - Multi Threading
 - Monte Carlo Path Tracing
 - Texture
