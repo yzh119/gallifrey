@@ -116,13 +116,13 @@ extern KDTree *tree;
  */
 inline void KDTree::build_tree(bool enable_sah) {
     flag = true;
-    if (enable_sah)
-        recursively_build_sah_kd_node(root, 0);
-    else
-        recursively_build_mid_kd_node(root, 0);
+    //if (enable_sah)
+    //    recursively_build_sah_kd_node(root, 0);
+    //else
+    recursively_build_mid_kd_node(root, 0);
 
     auto now = std::chrono::high_resolution_clock::now();
-    fprintf(stderr, "Building successful in %.3fs.\n", (now - start).count() / 1e9);
+    fprintf(stderr, "Build successful in %.3fs.\n", (now - start).count() / 1e9);
 }
 
 /*
@@ -147,21 +147,22 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
         return a.second < b.second;
     };
 
-    auto gen_sorted = [&](int dim) {
+    auto gen_sorted = [&](int dim, const std::vector<int> & elems, const std::vector<Vec> &pmin, const std::vector<Vec> &pmax) {
         std::vector<tuple> ret;
-        for (int i = 0; i < v->elems.size(); ++i)
+
+        for (int i = 0; i < elems.size(); ++i)
             switch (dim) {
                 case 0:
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].x));
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].x));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 0), pmin[elems[i]].x));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 1), pmax[elems[i]].x));
                     break;
                 case 1:
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].y));
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].y));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 0), pmin[elems[i]].y));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 1), pmax[elems[i]].y));
                     break;
                 case 2:
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 0), fmin[v->elems[i]].z));
-                    ret.push_back(std::make_pair(std::make_pair(v->elems[i], 1), fmax[v->elems[i]].z));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 0), pmin[elems[i]].z));
+                    ret.push_back(std::make_pair(std::make_pair(elems[i], 1), pmax[elems[i]].z));
                 default:break;
             }
 
@@ -170,15 +171,15 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     };
 
     std::future<std::vector<tuple> > task[3];
-    if (parallel) {
+    if (depth < 4) {
         for (int i = 0; i < 3; ++i)
-            task[i] = std::async(std::launch::async, std::bind(gen_sorted, i));
+            task[i] = std::async(std::launch::async, std::bind(gen_sorted, i, v->elems, fmin, fmax));
     }
 
     std::vector<tuple> sorted[3];
 
     for (int i = 0; i < 3; ++i)
-        sorted[i] = parallel ? task[i].get() : gen_sorted(i);
+        sorted[i] = parallel ? task[i].get() : gen_sorted(i, v->elems, fmin, fmax);
 
     for (int dim = 0; dim < 3; ++dim) {
         std::vector<std::pair<Vec, Vec> > reversed(sorted[dim].size());
@@ -244,15 +245,15 @@ void KDTree::recursively_build_sah_kd_node(std::shared_ptr<KDTree::node> &v, int
     } else {
         std::future<void> build_l =
                 std::async(std::launch::async,
-                    [&](){
-                        recursively_build_sah_kd_node(v->ptl, depth + 1);
-                    }
+                           [&]() {
+                               recursively_build_sah_kd_node(v->ptl, depth + 1);
+                           }
                 );
         std::future<void> build_r =
                 std::async(std::launch::async,
-                    [&](){
-                        recursively_build_sah_kd_node(v->ptr, depth + 1);
-                    }
+                           [&]() {
+                               recursively_build_sah_kd_node(v->ptr, depth + 1);
+                           }
                 );
 
         build_l.get();
@@ -427,8 +428,28 @@ void KDTree::recursively_build_mid_kd_node(std::shared_ptr<KDTree::node> &v, int
     v->ptl = std::make_shared<node> (v_left,  box_l);
     v->ptr = std::make_shared<node> (v_right, box_r);
 
-    recursively_build_mid_kd_node(v->ptl, depth + 1);
-    recursively_build_mid_kd_node(v->ptr, depth + 1);
+    bool parallel = depth < PARALLEL_DEPTH_THRES;
+
+    if (!parallel) {
+        recursively_build_sah_kd_node(v->ptl, depth + 1);
+        recursively_build_sah_kd_node(v->ptr, depth + 1);
+    } else {
+        std::future<void> build_l =
+                std::async(std::launch::async,
+                           [&]() {
+                               recursively_build_sah_kd_node(v->ptl, depth + 1);
+                           }
+                );
+        std::future<void> build_r =
+                std::async(std::launch::async,
+                           [&]() {
+                               recursively_build_sah_kd_node(v->ptr, depth + 1);
+                           }
+                );
+
+        build_l.get();
+        build_r.get();
+    }
 }
 
 inline float KDTree::surface_area(const std::pair<Vec, Vec> pair) {

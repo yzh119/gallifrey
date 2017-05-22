@@ -29,6 +29,8 @@ scene.vt_array[scene.size_vt++].set_coordinate((x), (y), 0)
 extern const unsigned int width;
 extern const unsigned int height;
 
+float dump_samps[32 * width * height * 3];
+float parameters[width * height * 7];                   // 3: 3: 1 (texture: pos: dis)
 const int max_face  = 1000000;
 const int max_vx    = 1000000;
 const int max_illu  = 300;
@@ -36,6 +38,7 @@ const int max_name  = 40;
 
 // Arguments
 bool enable_anti_aliasing = false;
+bool enable_dump_samps = false;
 bool enable_shadow  = false;
 bool enable_global  = false;
 bool enable_display = false;
@@ -46,7 +49,7 @@ int num_workers = 4;
 int num_samples = 1;
 
 cv::Mat wall_mat = cv::imread("../resources/wall.jpg", CV_LOAD_IMAGE_COLOR);
-cv::Mat ground_mat = cv::imread("../resources/water.jpg", CV_LOAD_IMAGE_COLOR);
+cv::Mat ground_mat = cv::imread("../resources/ground.jpg", CV_LOAD_IMAGE_COLOR);
 cv::Mat elder_mat = cv::imread("../resources/elder2.png", CV_LOAD_IMAGE_COLOR);
 cv::Mat elder1_mat = cv::imread("../resources/elder1.jpg", CV_LOAD_IMAGE_COLOR);
 
@@ -311,10 +314,21 @@ void rendering()
                             Vec
                                     d = img.cx * (((sx + .5 + dx) / 2 + x) / width  - .5) +
                                         img.cy * (((sy + .5 + dy) / 2 + y) / height - .5) + img.cam.d;
+
+                            Vec current_ray(0, 0, 0);
+
                             if (enable_global)
-                                r = r + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / num_samples);
+                                current_ray = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
                             else
-                                r = r + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / num_samples);
+                                current_ray = local_ill(Ray(img.cam.o, d.norm()), scene);
+
+                            r = r + current_ray * (1. / num_samples);
+                            if (enable_dump_samps) {
+                                int pos = s * (width * height) * 3 + (width * y + x) * 3;
+                                dump_samps[pos]     += current_ray.x * 0.25;
+                                dump_samps[pos + 1] += current_ray.y * 0.25;
+                                dump_samps[pos + 2] += current_ray.z * 0.25;
+                            }
                         }
                         col = col + r * .25;
                     }
@@ -325,10 +339,21 @@ void rendering()
                     Vec
                             d = img.cx * (1. * x / width - .5) +
                                 img.cy * (1. * y / height - .5) + img.cam.d;
+                    Vec current_ray(0, 0, 0);
+
                     if (enable_global)
-                        col = col + global_ill(Ray(img.cam.o, d.norm()), 0, scene) * (1. / num_samples);
+                        current_ray = global_ill(Ray(img.cam.o, d.norm()), 0, scene);
                     else
-                        col = col + local_ill(Ray(img.cam.o, d.norm()), scene) * (1. / num_samples);
+                        current_ray = local_ill(Ray(img.cam.o, d.norm()), scene);
+
+                    col = col + current_ray * (1. / num_samples);
+
+                    if (enable_dump_samps) {
+                        int pos = s * (width * height) * 3 + (width * y + x) * 3;
+                        dump_samps[pos]     += current_ray.x;
+                        dump_samps[pos + 1] += current_ray.y;
+                        dump_samps[pos + 2] += current_ray.z;
+                    }
                 }
             }
 
@@ -428,6 +453,18 @@ void rendering()
 
     auto now = std::chrono::high_resolution_clock::now();
     fprintf(stderr, "Render successful in %.3fs.\n", (now - start).count() / 1e9);
+
+    if (enable_dump_samps) {
+        start = std::chrono::high_resolution_clock::now();
+        fprintf(stderr, "Dumping samples...\n");
+        FILE *pDumpSamp;
+        pDumpSamp = fopen("../out/samps.bin", "wb");
+        fwrite(dump_samps, sizeof(float), sizeof(dump_samps) / sizeof(float), pDumpSamp);
+        fclose(pDumpSamp);
+        now = std::chrono::high_resolution_clock::now();
+        fprintf(stderr, "Dump successful in %.3fs.\n", (now - start).count() / 1e9);
+    }
+
     return ;
 }
 
@@ -449,6 +486,84 @@ void dump_image()
     return ;
 }
 
+
+void dump_parameters(KDTree *t)
+{
+    fprintf(stderr, "Dumping parameters...\n");
+    auto start = std::chrono::high_resolution_clock::now();
+#ifdef _WIN32
+    for (unsigned int y = 0; y < height; ++y)
+        for (unsigned int x = 0; x < width; ++x)
+        {
+            Vec
+                    d = img.cx * (1. * x / width - .5) +
+                        img.cy * (1. * y / height - .5) + img.cam.d;
+            get_parameters_at_pixel(Ray(img.cam.o, d.norm()), scene, &parameters[(width * y + x) * 7]);
+        }
+#endif
+#ifdef __linux__
+
+    moodycamel::ConcurrentQueue<std::pair<int, int> > q;
+    auto func = [&]
+    {
+        for (std::pair<int, int> item;;) {
+            q.try_dequeue(item);
+            int
+                    x = item.first,
+                    y = item.second;
+            if (x == -1) return;
+            Vec col(0, 0, 0);
+            Vec
+                    d = img.cx * (1. * x / width - .5) +
+                        img.cy * (1. * y / height - .5) + img.cam.d;
+            get_parameters_at_pixel(Ray(img.cam.o, d.norm()), scene, &parameters[(width * y + x) * 7]);
+            ++cnt_pixels;
+        }
+    };
+
+    cnt_pixels = 0;
+    std::vector <std::pair<int, int> > xys;
+    for (int y = 0; y < height; ++y)
+        for (int x = 0; x < width; ++x)
+        {
+            xys.emplace_back(x, y);
+        }
+
+    std::random_shuffle(xys.begin(), xys.end());
+
+    for (const auto &xy: xys)
+        q.enqueue(xy);
+
+    std::vector<std::thread> workers;
+
+    for (int i = 0; i < num_workers; ++i)
+        workers.emplace_back(func);
+    for (int i = 0; i < num_workers; ++i)
+        q.enqueue(std::make_pair(-1, -1));
+
+    while (true)
+    {
+        int cnt = cnt_pixels.load();
+        if (cnt == width * height)
+            break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    for (auto &worker: workers)
+        worker.join();
+
+#endif
+
+    FILE *pDumpPara;
+    pDumpPara = fopen("../out/params.bin", "wb");
+    fwrite(dump_samps, sizeof(float), sizeof(parameters) / sizeof(float), pDumpPara);
+    fclose(pDumpPara);
+
+    auto now = std::chrono::high_resolution_clock::now();
+    fprintf(stderr, "Dump successful in %.3fs.\n", (now - start).count() / 1e9);
+    return ;
+}
+
 void parse_argument(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--config") == 0) {
@@ -463,6 +578,8 @@ void parse_argument(int argc, char *argv[]) {
             view_dis = (float) atof(argv[++i]);
         } else if (strcmp(argv[i], "--display") == 0) {
             enable_display = true;
+        } else if (strcmp(argv[i], "--dump_samps") == 0) {
+            enable_dump_samps = true;
         } else if (strcmp(argv[i], "--global") == 0) {
             enable_global = true;
         } else if (strcmp(argv[i], "--core") == 0) {
@@ -477,10 +594,11 @@ void parse_argument(int argc, char *argv[]) {
             fprintf(stdout, "--distance DISTANCE:\t specifies the distance between the camera and the object.\n");
             fprintf(stdout, "--samples SAMPLES:\t specifies the number of samples in MCPT.\n");
             fprintf(stdout, "--core CORE:\t\t specifies the number of cores this program uses\n");
-            fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing.\n");
-            fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow.\n");
-            fprintf(stdout, "--global:\t\t specifies whether to enable global illumination.\n");
-            fprintf(stdout, "--display:\t\t specifies whether to display the picture right now.\n");
+            fprintf(stdout, "--anti_aliasing:\t specifies whether to enable anti aliasing or not.\n");
+            fprintf(stdout, "--shadow:\t\t specifies whether to enable (soft) shadow or not.\n");
+            fprintf(stdout, "--global:\t\t specifies whether to enable global illumination or not.\n");
+            fprintf(stdout, "--display:\t\t specifies whether to display the picture right now or not.\n");
+            fprintf(stdout, "--dump_samps:\t\t specifies whether to dump samples(for reconstruction) or not.");
             fprintf(stdout, "--help:\t\t\t display this information.\n");
             fprintf(stdout, "Please refer to README.md for more details.\n");
         } else {
@@ -501,14 +619,15 @@ int main(int argc, char *argv[])
     // Initialization
     memset(config_name, '\0', sizeof(config_name));
 #ifdef DEBUG
-    enable_anti_aliasing = false;
+    enable_anti_aliasing = true;
     enable_shadow = false;
     enable_global = true;
     enable_sah = true;
     enable_display = true;
+    enable_dump_samps = true;
     num_samples = 20;
     view_dis = 1;
-    strcpy(config_name, "config.json");
+    strcpy(config_name, "config-horse.json");
 #else
     parse_argument(argc, argv);
 #endif
@@ -517,8 +636,8 @@ int main(int argc, char *argv[])
     assert(enable_global or (num_samples == 1));
 
     // unit test.
-    test_dump_image();
-    test_aabb();
+    // test_dump_image();
+    // test_aabb();
 
     // main.
     load_config();
@@ -526,6 +645,7 @@ int main(int argc, char *argv[])
     convert_poly_to_triangle(scene.vx_array, scene.vn_array, scene.vt_array, scene.fn_array , scene.f_array, scene.t_array, scene.size_f, scene.size_tr);
     tree = new KDTree(&scene);
     tree->build_tree(enable_sah);
+    dump_parameters(tree);
     rendering();
     dump_image();
     fprintf(stderr, "DONE.\n");

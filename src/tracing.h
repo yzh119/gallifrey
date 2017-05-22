@@ -108,6 +108,26 @@ inline Vec local_ill(const Ray &r, const Scene &s, int E = 1)
     }
 }
 
+void get_parameters_at_pixel(const Ray &r, const Scene &s, float *ptr)
+{
+    float t = 1e8;
+    int id;
+    if (high_level_intersect(r, t, id, s))
+    {
+        Vec des = r.o + r.d + t;
+        Triangle &f = s.t_array[id];
+        Vec c = f.m->c * get_texture_at_pos(f, des);
+        ptr[0] = c.x;
+        ptr[1] = c.y;
+        ptr[2] = c.z;
+        ptr[3] = des.x;
+        ptr[4] = des.y;
+        ptr[5] = des.z;
+        ptr[6] = t;
+    }
+    return;
+}
+
 Vec global_ill(const Ray &r, int depth, const Scene &s)
 {
     float t = 1e8;
@@ -116,7 +136,7 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
     {
         Vec des = r.o + r.d * t;
         Triangle &f = s.t_array[id];
-        Vec c = f.m->c;
+        Vec c = f.m->c * get_texture_at_pos(f, des);
         float p = c.x < c.y ? c.x : c.y;
         p = p < c.z ? p: c.z;
         if (++depth > 5)
@@ -144,11 +164,11 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
                 double r1 = 2 * M_PI * erand(), r2 = erand(), r2s = sqrt(r2);
                 Vec w = nl, u = ((fabs(w.x) > .1 ? Vec(0, 1) : Vec(1)) % w).norm(), v = w % u;
                 Vec d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).norm();
-                return get_texture_at_pos(f, des) * (f.m->e + c * global_ill(Ray(des, d), depth, s));
+                return f.m->e + c * global_ill(Ray(des, d), depth, s);
             }
             case SPEC:              // Specular
             {
-                return get_texture_at_pos(f, des) * (f.m->e + c * global_ill(Ray(des, r.d - n * 2 * n.dot(r.d)), depth, s));
+                return f.m->e + c * global_ill(Ray(des, r.d - n * 2 * n.dot(r.d)), depth, s);
             }
             case REFR:              // Reflection
             {
@@ -160,8 +180,8 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
                 Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).norm();
                 double a = nt - nc, b = nt + nc, R0 = a * a / (b * b), c1 = 1-(into?-ddn:tdir.dot(n));
                 double Re = R0 + (1 - R0) * c1 * c1 * c1 * c1 * c1, Tr = 1 - Re, P = .25 + .5 * Re, RP = Re / P, TP = Tr / (1 - P);
-                return get_texture_at_pos(f, des) * (f.m->e +
-                        c * (erand() < P ? global_ill(reflRay, depth, s) * RP: global_ill(Ray(des, tdir), depth, s) * TP)); // Russian roulette
+                return f.m->e +
+                        c * (erand() < P ? global_ill(reflRay, depth, s) * RP: global_ill(Ray(des, tdir), depth, s) * TP); // Russian roulette
             }
         }
     } else
