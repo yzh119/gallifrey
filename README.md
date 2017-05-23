@@ -25,7 +25,9 @@ Default resolution is 1280 x 960, if you would like to use other configurations,
     | tracing.h     # To implement Local Illuminaion and MCPT.
     | conversion.h 	# To replace the polygons with triangles.
     | main.cpp      # Set parameters
-    | adapt/		# Source code of "Adaptive Polynomial Rendering" algorithm.
+    adapt/          # Source code of "Adaptive Polynomial Rendering" algorithm.
+    | adapt.cpp     # Main functions.
+    | reconstr.h    # To implement adaptive reconstruction.
 
 ## Features
 

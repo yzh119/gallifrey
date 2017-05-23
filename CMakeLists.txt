@@ -4,6 +4,7 @@ project(gallifrey)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
+add_subdirectory(adaptive)
 if (WIN32)
     set(WIN_OPENCV_INCLUDE_PATH "C:\\\\opencv\\\\install\\\\include")
     set(WIN_OPENCV_LIB_PATH "C:\\\\opencv\\\\install\\\\x86\\\\mingw\\\\lib")
@@ -29,11 +30,11 @@ else()
 include_directories( vendor/bitmap vendor/concurrentqueue vendor/json/src)
 
 set(SOURCE_CODE
-        src/main.cpp src/geometry.h src/interpolate.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h src/conversion.h src/adaptive/reconstruction.h src/adaptive/sampling.h)
+        src/main.cpp src/geometry.h src/interpolate.h src/io.h src/kdtree.h src/tracing.h src/colors.h src/image.h src/aabb.h src/texture.h src/conversion.h)
 
 add_executable(gallifrey
         ${SOURCE_CODE})
 
 target_link_libraries(gallifrey
-        armadillo pthread ${OpenCV_LIBS})
+        pthread ${OpenCV_LIBS})
 endif()

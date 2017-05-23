@@ -114,7 +114,7 @@ void get_parameters_at_pixel(const Ray &r, const Scene &s, float *ptr)
     int id;
     if (high_level_intersect(r, t, id, s))
     {
-        Vec des = r.o + r.d + t;
+        Vec des = r.o + r.d * t;
         Triangle &f = s.t_array[id];
         Vec c = f.m->c * get_texture_at_pos(f, des);
         ptr[0] = c.x;
@@ -161,7 +161,7 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
         switch (f.m->refl) {
             case DIFF:              // Diffusion
             {
-                double r1 = 2 * M_PI * erand(), r2 = erand(), r2s = sqrt(r2);
+                float r1 = erand() * M_PI * 2, r2 = erand(), r2s = sqrtf(r2);
                 Vec w = nl, u = ((fabs(w.x) > .1 ? Vec(0, 1) : Vec(1)) % w).norm(), v = w % u;
                 Vec d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).norm();
                 return f.m->e + c * global_ill(Ray(des, d), depth, s);
@@ -174,12 +174,12 @@ Vec global_ill(const Ray &r, int depth, const Scene &s)
             {
                 Ray reflRay(des, r.d - n * 2 * n.dot(r.d));     // Ideal dielectric REFRACTION
                 bool into = n.dot(nl)>0;                // Ray from outside going in?
-                double nc = 1, nt = 1.5, nnt = into ? nc / nt : nt / nc, ddn = r.d.dot(nl), cos2t;
+                float nc = 1, nt = 1.5, nnt = into ? nc / nt : nt / nc, ddn = r.d.dot(nl), cos2t;
                 if ((cos2t = 1 - nnt * nnt * (1 - ddn * ddn)) < 0)    // Total internal reflection
                     return get_texture_at_pos(f, des) * (f.m->e + c * global_ill(reflRay, depth, s));
                 Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).norm();
-                double a = nt - nc, b = nt + nc, R0 = a * a / (b * b), c1 = 1-(into?-ddn:tdir.dot(n));
-                double Re = R0 + (1 - R0) * c1 * c1 * c1 * c1 * c1, Tr = 1 - Re, P = .25 + .5 * Re, RP = Re / P, TP = Tr / (1 - P);
+                float a = nt - nc, b = nt + nc, R0 = a * a / (b * b), c1 = 1-(into?-ddn:tdir.dot(n));
+                float Re = R0 + (1 - R0) * c1 * c1 * c1 * c1 * c1, Tr = 1 - Re, P = .25 + .5 * Re, RP = Re / P, TP = Tr / (1 - P);
                 return f.m->e +
                         c * (erand() < P ? global_ill(reflRay, depth, s) * RP: global_ill(Ray(des, tdir), depth, s) * TP); // Russian roulette
             }
