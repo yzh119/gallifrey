@@ -61,7 +61,11 @@ For Unix/Linux users:
     cmake -DCMAKE_BUILD_TYPE=RELEASE .
     make && cd bin
     ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
-    cd ../out
+    cd ../adaptive/bin
+    ./adapt
+    cd ../../out
+
+If you would like to run `adapt`, `SAMPLES` must be set to 32.
 
 For Windows users, please use Powershell and make sure that `git`, `mingw`, `cmake` are all in your `PATH` environment variable):
 
@@ -74,6 +78,8 @@ The default `OPENCV` include path is `C:\opencv\install\include`, and the defaul
     cd bin
     ./gallifrey --config CONFIG_NAME [--distance DISTANCE] [--sah ENABLE_SAH] [--core THREADS] [--samples SAMPLES] [--display] [--anti_aliasing] [--shadow] [--global] [--help]
     cd ../out
+
+Adaptive Polynomial Rendering is not available on Windows since [armadillo](http://arma.sourceforge.net/) does not support Windows well.
 
 # Format(config.json)
 
