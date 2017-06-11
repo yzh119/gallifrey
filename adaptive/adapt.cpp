@@ -11,7 +11,6 @@ float dump_samps[32 * width * height * 3];
 float aver_samps[width * height * 3];
 float variance[width * height * 3];
 float parameters[width * height * 7];
-unsigned int order[width * height];
 float reconstr[width * height * 3];
 uint8_t gen_image[width * height * 3];
 
@@ -106,8 +105,7 @@ int main(int argc, char *argv[])
     load_samples();
     outlier_removal();
    // for (int stage = 0; stage < 5; ++stage) {
-        select_order(order, reconstr, variance);
-        compute_coefficient(parameters, aver_samps, order, reconstr);
+        compute_coefficient(parameters, aver_samps, reconstr);
    // }
 
     dump_reconstructed_bmp();

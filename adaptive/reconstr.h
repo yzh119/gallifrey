@@ -10,6 +10,7 @@
 
 const int half_window = 7;
 const int step_size = 7;
+const int max_ord = 4;
 
 const unsigned int
         width = 1280,
@@ -27,67 +28,70 @@ void outlier_removal()
     return;
 }
 
-void select_order(unsigned int *order, float *mean, float *variance)
-{
-    for (unsigned int y = 0; y < height; ++y)
-        for (unsigned int x = 0; x < width; ++x)
-        {
-            order[y * width + x] = 1;
-        }
-}
-
-void compute_coefficient(float *params, float *samps, unsigned int *order, float *ret)
+void compute_coefficient(float *params, float *samps, float *ret)
 {
     std::fill(weight, weight + width * height, 0);
+
     for (unsigned int cy = step_size; cy < height; cy += step_size)
         for (unsigned int cx = step_size; cx < width; cx += step_size) {
-            std::vector<arma::Row<float> > Xrows;
+            arma::Mat<float> best_yr, best_yg, best_yb;
+            float loss = 1e15;
+
             std::vector<float> ws;
-            std::vector<float> ysr, ysg, ysb;
-            int cnt = 0, ord = order[cy * width + cx];
             for (int dx = -half_window; dx <= half_window; ++dx)
                 for (int dy = -half_window; dy <= half_window; ++dy) {
                     int x = cx + dx, y = cy + dy;
-                    int pos = y * width + x;
                     if (x < 0 || x >= width) continue;
                     if (y < 0 || y >= height) continue;
-                    arma::Row<float> rowvec((const arma::uword) (2 * ord + 8));
-                    rowvec(0) = 1;
-                    for (int j = 0; j < ord; ++j)
-                    {
-                        rowvec((const arma::uword) (2 * j + 1)) = powf(float(dx) / float(width), float(j + 1));
-                        rowvec((const arma::uword) (2 * j + 2)) = powf(float(dy) / float(height), float(j + 1));
-                    }
-                    for (int j = 2 * ord + 1; j < 2 * ord + 8; ++j)
-                        rowvec(j) = params[7 * pos + j - 3];
-                    Xrows.push_back(rowvec);
                     ws.push_back(gaussian_kernel((float) dx, (float) dy));
-                    weight[pos] += ws.back();
-                    ysr.push_back(samps[3 * pos + 0]);
-                    ysg.push_back(samps[3 * pos + 1]);
-                    ysb.push_back(samps[3 * pos + 2]);
-                    ++cnt;
                 }
-            arma::Mat<float> X((const arma::uword) cnt, (const arma::uword) (2 * ord + 8));
-            arma::Col<float>
-                    YR((const arma::uword) cnt),
-                    YG((const arma::uword) cnt),
-                    YB((const arma::uword) cnt);
-            arma::Mat<float> W((const arma::uword) cnt, (const arma::uword) cnt);//(arma::diagmat(ws));
-            for (int i = 0; i < cnt; ++i) {
-                X.row(i) = Xrows[i];
-                YR(i) = ysr[i];
-                YG(i) = ysg[i];
-                YB(i) = ysb[i];
-                W(i, i) = ws[i];
+
+            for (unsigned int ord = 0; ord < max_ord; ++ord) {
+                std::vector<arma::Row<float> > Xrows;
+                std::vector<float> ysr, ysg, ysb;
+                int cnt = 0;
+                for (int dx = -half_window; dx <= half_window; ++dx)
+                    for (int dy = -half_window; dy <= half_window; ++dy) {
+                        int x = cx + dx, y = cy + dy;
+                        int pos = y * width + x;
+                        if (x < 0 || x >= width) continue;
+                        if (y < 0 || y >= height) continue;
+                        arma::Row<float> rowvec((const arma::uword) (2 * ord + 8));
+                        rowvec(0) = 1;
+                        for (int j = 0; j < ord; ++j) {
+                            rowvec((const arma::uword) (2 * j + 1)) = powf(float(dx) / float(width), float(j + 1));
+                            rowvec((const arma::uword) (2 * j + 2)) = powf(float(dy) / float(height), float(j + 1));
+                        }
+                        for (int j = 2 * ord + 1; j < 2 * ord + 8; ++j)
+                            rowvec(j) = params[7 * pos + j - 3];
+                        Xrows.push_back(rowvec);
+                        weight[pos] += ws[cnt];
+                        ysr.push_back(samps[3 * pos + 0]);
+                        ysg.push_back(samps[3 * pos + 1]);
+                        ysb.push_back(samps[3 * pos + 2]);
+                        ++cnt;
+                    }
+                arma::Mat<float> X((const arma::uword) cnt, (const arma::uword) (2 * ord + 8));
+                arma::Col<float> YR(ysr), YG(ysg), YB(ysb);
+                arma::Mat<float> W(arma::diagmat(arma::Row<float>(ws)));
+                for (int i = 0; i < cnt; ++i)
+                    X.row(i) = Xrows[i];
+
+                arma::Mat<float> H = X * arma::pinv(X.t() * W * X) * X.t() * W;
+                arma::Mat<float>
+                        rec_yr = H * YR,
+                        rec_yg = H * YG,
+                        rec_yb = H * YB;
+
+                float current_loss = arma::norm(W * (rec_yr - YR)) + arma::norm(W * (rec_yg - YG)) + arma::norm(W * (rec_yb - YB));
+                if (current_loss < loss) {
+                    best_yr = rec_yr;
+                    best_yg = rec_yg;
+                    best_yb = rec_yb;
+                }
             }
 
-            arma::Mat<float> H = X * arma::pinv(X.t() * W * X) * X.t() * W;
-            arma::Mat<float>
-                    rec_yr = H * YR,
-                    rec_yg = H * YG,
-                    rec_yb = H * YB;
-            cnt = 0;
+            int cnt = 0;
 
             for (int dx = -half_window; dx <= half_window; ++dx)
                 for (int dy = -half_window; dy <= half_window; ++dy) {
@@ -95,9 +99,9 @@ void compute_coefficient(float *params, float *samps, unsigned int *order, float
                     int pos = y * width + x;
                     if (x < 0 || x >= width) continue;
                     if (y < 0 || y >= height) continue;
-                    ret[3 * pos] += ws[cnt] * rec_yr(cnt);
-                    ret[3 * pos + 1] += ws[cnt] * rec_yg(cnt);
-                    ret[3 * pos + 2] += ws[cnt] * rec_yb(cnt);
+                    ret[3 * pos] += max_ord * ws[cnt] * best_yr(cnt);
+                    ret[3 * pos + 1] += max_ord * ws[cnt] * best_yg(cnt);
+                    ret[3 * pos + 2] += max_ord * ws[cnt] * best_yb(cnt);
                     ++cnt;
                 }
         }
